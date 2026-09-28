@@ -35,7 +35,7 @@ export const translations = {
     dropzoneHint: 'Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up to 40 MB)',
     
     // Categories
-    catGov: '⭐ Government & Exam',
+    catGov: 'Government & Exam',
     catSocial: 'Social & Web',
     catCustom: 'Custom Size',
     searchPresets: 'Search presets (e.g. 300x300, passport, facebook)...',
@@ -79,7 +79,7 @@ export const translations = {
     adjustManually: 'Adjust Manually',
     download: 'Download',
     copyClipboard: 'Copy to Clipboard',
-    copied: 'Copied to clipboard!',
+    copied: 'Copied to clipboard',
     processing: 'Processing image...',
     loadingModel: 'Loading face detector model...',
     
@@ -157,7 +157,7 @@ export const translations = {
     dropzoneHint: 'JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC ফরম্যাট সমর্থিত (সর্বোচ্চ ৪০ মেগাবাইট)',
     
     // Categories
-    catGov: '⭐ সরকারি ও চাকরি পরীক্ষা',
+    catGov: 'সরকারি ও চাকরি পরীক্ষা',
     catSocial: 'সোশ্যাল ও ওয়েব',
     catCustom: 'কাস্টম সাইজ',
     searchPresets: 'প্রিসেট খুঁজুন (যেমন ৩০০x৩০০, পাসপোর্ট, ফেসবুক)...',
@@ -201,7 +201,7 @@ export const translations = {
     adjustManually: 'ম্যানুয়ালি এডিট করুন',
     download: 'ডাউনলোড করুন',
     copyClipboard: 'ক্লিপবোর্ডে কপি',
-    copied: 'ক্লিপবোর্ডে কপি সম্পন্ন!',
+    copied: 'ক্লিপবোর্ডে কপি সম্পন্ন',
     processing: 'প্রক্রিয়াকরণ হচ্ছে...',
     loadingModel: 'ফেস ডিটেকশন মডেল লোড হচ্ছে...',
     

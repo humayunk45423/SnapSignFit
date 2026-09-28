@@ -109,7 +109,7 @@ class SnapSignFitApp {
 
   updateThemeButtonIcon(theme) {
     const btn = document.getElementById('themeToggleBtn');
-    if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    if (btn) btn.textContent = theme === 'dark' ? 'Light' : 'Dark';
   }
 
   toggleTheme() {
@@ -861,7 +861,7 @@ class SnapSignFitApp {
       await copyToClipboard(this.currentExport.blob);
       const btn = document.getElementById('btnCopyClipboard');
       const originalText = btn.textContent;
-      btn.textContent = `✓ ${t('copied')}`;
+      btn.textContent = t('copied');
       setTimeout(() => {
         btn.textContent = originalText;
       }, 2000);
