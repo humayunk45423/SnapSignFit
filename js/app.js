@@ -8,6 +8,7 @@ import { processSignature } from './signature.js';
 import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smartcrop.js';
 import { ManualEditor } from './editor.js';
 import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.js';
+import { removeBackgroundToWhite } from './bg.js';
 
 class SnapSignFitApp {
   constructor() {
@@ -38,6 +39,7 @@ class SnapSignFitApp {
       format: 'jpg',
       maxKB: 99,
       fit: 'cover',
+      bgMode: 'keep',
       thickenPx: 0,
       keepInkColor: false,
       autoDetect: true,
@@ -259,6 +261,14 @@ class SnapSignFitApp {
       this.runProcessingPipeline();
     });
 
+    const bgModeSelect = document.getElementById('exportBgModeSelect');
+    if (bgModeSelect) {
+      bgModeSelect.addEventListener('change', (e) => {
+        this.customOptions.bgMode = e.target.value;
+        this.runProcessingPipeline();
+      });
+    }
+
     const thickenSlider = document.getElementById('sigThickenSlider');
     thickenSlider.addEventListener('input', (e) => {
       this.customOptions.thickenPx = parseInt(e.target.value) || 0;
@@ -460,6 +470,17 @@ class SnapSignFitApp {
     this.setProcessing(true);
     this.activeWarnings = [];
     this.activeChips = [];
+
+    // 15-second watchdog timer to guarantee controls never stay stuck (B5)
+    let watchdogDone = false;
+    const watchdogTimer = setTimeout(() => {
+      if (!watchdogDone) {
+        console.warn('Pipeline watchdog timeout fired (15s exceeded)');
+        this.setProcessing(false);
+      }
+    }, 15000);
+
+    try {
 
     const { fullCanvas, workingCanvas, workingScale } = this.sourceData;
     const { w: targetW, h: targetH, kind } = this.currentPreset;
@@ -669,8 +690,24 @@ class SnapSignFitApp {
         fit: this.customOptions.fit,
         cropRect: effectiveCrop,
         bgColor: '#ffffff',
-        blurredBg: false
+        blurredBg: false,
+        transparent: this.customOptions.bgMode === 'transparent'
       });
+
+      // Background Removal / White mode handling
+      if (this.customOptions.bgMode === 'remove' && kind !== 'signature') {
+        const faceCenter = primaryFace ? {
+          x: (primaryFace.box.x + primaryFace.box.w / 2 - (effectiveCrop?.x || 0)) / (effectiveCrop?.w || activeFull.width),
+          y: (primaryFace.box.y + primaryFace.box.h / 2 - (effectiveCrop?.y || 0)) / (effectiveCrop?.h || activeFull.height)
+        } : null;
+
+        const bgRes = await removeBackgroundToWhite(this.exactCanvas, faceCenter);
+        if (bgRes.skipped) {
+          this.activeWarnings.push('bgSkippedToast');
+        } else {
+          this.exactCanvas = bgRes.canvas;
+        }
+      }
     }
 
     // Draw Before canvas with detection overlay
@@ -684,8 +721,13 @@ class SnapSignFitApp {
 
     // Run export guarantee ladder
     await this.runExportGuarantee();
-
-    this.setProcessing(false);
+    } catch (err) {
+      console.error('Pipeline execution error:', err);
+    } finally {
+      watchdogDone = true;
+      clearTimeout(watchdogTimer);
+      this.setProcessing(false);
+    }
   }
 
   drawBeforeCanvas(sourceCanvas, faceBox, cropRect, kind) {

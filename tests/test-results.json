@@ -5,8 +5,7 @@
       "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\node_modules\\@playwright\\test\\cli.js",
       "test",
       "-g",
-      "Group 5",
-      "--project=chromium"
+      "T1|T2|T3|T4|T5|T6|T7|T8|T9|T10"
     ],
     "configFile": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\playwright.config.js",
     "rootDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/tests",
@@ -20,7 +19,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 2
     },
     "preserveOutput": "always",
     "projects": [
@@ -29,7 +28,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 2
         },
         "id": "chromium",
         "name": "chromium",
@@ -45,7 +44,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 2
         },
         "id": "mobile-chrome",
         "name": "mobile-chrome",
@@ -98,12 +97,12 @@
         {
           "title": "SnapSignFit Acceptance Test Suite",
           "file": "snapsignfit.spec.js",
-          "line": 71,
+          "line": 89,
           "column": 6,
           "specs": [
             {
-              "title": "Group 5: Signature presets & ink extraction (300x80 & 250x50)",
-              "ok": false,
+              "title": "T1: Crop rotation — frame rotates without source degradation",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -116,49 +115,669 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "timedOut",
-                      "duration": 45052,
-                      "error": {
-                        "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m",
-                        "stack": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
-                      },
-                      "errors": [
-                        {
-                          "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
-                        },
-                        {
-                          "location": {
-                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                            "column": 16,
-                            "line": 220
-                          },
-                          "message": "Error: page.click: Test timeout of 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=\"Signature 300×80\"')\u001b[22m\n\u001b[2m    - locator resolved to <div class=\"preset-card-title\">Signature 300×80</div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <canvas width=\"698\" height=\"458\" id=\"editorInteractiveCanvas\" class=\"editor-interactive-canvas\"></canvas> from <div class=\"editor-modal-overlay\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <canvas width=\"698\" height=\"458\" id=\"editorInteractiveCanvas\" class=\"editor-interactive-canvas\"></canvas> from <div class=\"editor-modal-overlay\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  12 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <canvas width=\"698\" height=\"458\" id=\"editorInteractiveCanvas\" class=\"editor-interactive-canvas\"></canvas> from <div class=\"editor-modal-overlay\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n  218 |     // Blank page signature test -> triggers manual editor / no signature warning\n  219 |     await uploadFixture(page, 'sig_blank.png', false);\n> 220 |     await page.click('text=\"Signature 300×80\"');\n      |                ^\n  221 |     const editorOverlay = page.locator('.editor-modal-overlay');\n  222 |     await expect(editorOverlay).not.toHaveClass(/hidden/);\n  223 |     await page.click('#btnApplyEditor');\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:220:16"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 2714,
+                      "errors": [],
                       "stdout": [],
-                      "stderr": [
-                        {
-                          "text": "Browser console error: Export guarantee failed: Error: SIZE_OR_DIMENSION_LIMIT_UNMET\n    at exportWithGuarantee (http://localhost:3000/js/export.js:316:11)\n    at async SnapSignFitApp.runExportGuarantee (http://localhost:3000/js/app.js:739:28)\n    at async SnapSignFitApp.runProcessingPipeline (http://localhost:3000/js/app.js:660:5)\n    at async SnapSignFitApp.handleFileUpload (http://localhost:3000/js/app.js:428:7)\n"
-                        }
-                      ],
+                      "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-28T12:59:11.027Z",
+                      "startTime": "2026-09-28T18:45:53.803Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-297b6-k-extraction-300x80-250x50--chromium\\error-context.md"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "889f38c0441b1b4167cd-f764fa7e52c3b90fc62a",
+              "id": "889f38c0441b1b4167cd-d978ab2af389708b9f39",
               "file": "snapsignfit.spec.js",
-              "line": 184,
+              "line": 381,
+              "column": 3
+            },
+            {
+              "title": "T2: Anti-ghosting — rotated images have clean background without duplicate underlay",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2060,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:56.681Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-97cd6baaf8501b255b57",
+              "file": "snapsignfit.spec.js",
+              "line": 398,
+              "column": 3
+            },
+            {
+              "title": "T3: Localized numeric inputs — Bengali digit parsing and clamp verification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 333,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:58.768Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-593b59c8ea6653cc735e",
+              "file": "snapsignfit.spec.js",
+              "line": 406,
+              "column": 3
+            },
+            {
+              "title": "T4: Performance — proxy rAF preview does not block main UI thread",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5136,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:59.122Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-2656b5e94eaa2f5a639f",
+              "file": "snapsignfit.spec.js",
+              "line": 425,
+              "column": 3
+            },
+            {
+              "title": "T5: Button responsiveness & 15s watchdog recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1890,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:04.283Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-145609251edc33bcbeef",
+              "file": "snapsignfit.spec.js",
+              "line": 443,
+              "column": 3
+            },
+            {
+              "title": "T6: Background removal sanity gate — handles skip gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7747,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:06.200Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-97752225a15704e8099a",
+              "file": "snapsignfit.spec.js",
+              "line": 452,
+              "column": 3
+            },
+            {
+              "title": "T7: Viewport responsiveness — no horizontal scrollbar overflow at 320/360/390/768/1440px",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 556,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:13.967Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-c0b7436a6d7de018e11b",
+              "file": "snapsignfit.spec.js",
+              "line": 464,
+              "column": 3
+            },
+            {
+              "title": "T8: mozjpeg baseline JFIF — output bytes do not contain SOF2 marker",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2010,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:14.544Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-c5e1da71f7b31a972003",
+              "file": "snapsignfit.spec.js",
+              "line": 476,
+              "column": 3
+            },
+            {
+              "title": "T9: Font Awesome & zero external requests / zero emojis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 265,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:16.581Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-e0b654fd3ba49ba1fec0",
+              "file": "snapsignfit.spec.js",
+              "line": 493,
+              "column": 3
+            },
+            {
+              "title": "T10: Full regression check — all functional pipelines pass",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4056,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:16.869Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-c33bfe557e3995d460f6",
+              "file": "snapsignfit.spec.js",
+              "line": 506,
+              "column": 3
+            },
+            {
+              "title": "T1: Crop rotation — frame rotates without source degradation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2682,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:53.831Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-9a1a5646c1264f98b872",
+              "file": "snapsignfit.spec.js",
+              "line": 381,
+              "column": 3
+            },
+            {
+              "title": "T2: Anti-ghosting — rotated images have clean background without duplicate underlay",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2030,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:56.681Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-108005f2b170848eb006",
+              "file": "snapsignfit.spec.js",
+              "line": 398,
+              "column": 3
+            },
+            {
+              "title": "T3: Localized numeric inputs — Bengali digit parsing and clamp verification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 364,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:58.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-e45db5604af039b948d3",
+              "file": "snapsignfit.spec.js",
+              "line": 406,
+              "column": 3
+            },
+            {
+              "title": "T4: Performance — proxy rAF preview does not block main UI thread",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5103,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:45:59.155Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-b573f908b6437cfbff5e",
+              "file": "snapsignfit.spec.js",
+              "line": 425,
+              "column": 3
+            },
+            {
+              "title": "T5: Button responsiveness & 15s watchdog recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1930,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:04.283Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-e7451bbb1a4f3e209975",
+              "file": "snapsignfit.spec.js",
+              "line": 443,
+              "column": 3
+            },
+            {
+              "title": "T6: Background removal sanity gate — handles skip gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 7762,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:06.240Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-4fe7425673210ba2a2b3",
+              "file": "snapsignfit.spec.js",
+              "line": 452,
+              "column": 3
+            },
+            {
+              "title": "T7: Viewport responsiveness — no horizontal scrollbar overflow at 320/360/390/768/1440px",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 582,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:14.021Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-b014beb0a27d9345cbec",
+              "file": "snapsignfit.spec.js",
+              "line": 464,
+              "column": 3
+            },
+            {
+              "title": "T8: mozjpeg baseline JFIF — output bytes do not contain SOF2 marker",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1986,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:14.627Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-736424a7de0f83e701a4",
+              "file": "snapsignfit.spec.js",
+              "line": 476,
+              "column": 3
+            },
+            {
+              "title": "T9: Font Awesome & zero external requests / zero emojis",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 321,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:16.636Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-5b6b691bfd521b20f0b7",
+              "file": "snapsignfit.spec.js",
+              "line": 493,
+              "column": 3
+            },
+            {
+              "title": "T10: Full regression check — all functional pipelines pass",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4012,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-28T18:46:16.978Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-0eb17dbee5a836e301a4",
+              "file": "snapsignfit.spec.js",
+              "line": 506,
               "column": 3
             }
           ]
@@ -168,11 +787,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-28T12:59:10.446Z",
-    "duration": 46026.264,
-    "expected": 0,
+    "startTime": "2026-09-28T18:45:53.015Z",
+    "duration": 28277.733999999997,
+    "expected": 20,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

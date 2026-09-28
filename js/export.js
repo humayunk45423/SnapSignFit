@@ -4,6 +4,64 @@ import { CONFIG } from './i18n.js';
 
 let upngLoaded = false;
 
+// mozjpeg WASM baseline encoder state
+let mozjpegEncodeModule = null;
+let mozjpegLoading = false;
+let mozjpegFailed = false;
+
+/**
+ * Lazy-init mozjpeg WASM encoder (baseline JPEG only - no SOF2 markers)
+ */
+async function getMozjpegEncoder() {
+  if (mozjpegEncodeModule) return mozjpegEncodeModule;
+  if (mozjpegFailed) return null;
+  if (mozjpegLoading) {
+    // Wait for existing load
+    await new Promise(res => setTimeout(res, 50));
+    return mozjpegEncodeModule || null;
+  }
+  mozjpegLoading = true;
+  try {
+    const { default: encode, init } = await import('../vendor/jsquash-jpeg/encode.js');
+    await init();
+    mozjpegEncodeModule = encode;
+    mozjpegLoading = false;
+    return mozjpegEncodeModule;
+  } catch (err) {
+    console.warn('mozjpeg WASM init failed, will use canvas.toBlob:', err);
+    mozjpegFailed = true;
+    mozjpegLoading = false;
+    return null;
+  }
+}
+
+/**
+ * Encode canvas as STRICT BASELINE JPEG (no SOF2, no EXIF, no ICC)
+ * Falls back to canvas.toBlob if WASM unavailable
+ */
+async function canvasToJpegBlob(canvas, quality = 0.85) {
+  try {
+    const encode = await getMozjpegEncoder();
+    if (encode) {
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // Clamp quality to 1-100 integer for mozjpeg
+      const q = Math.max(1, Math.min(100, Math.round(quality * 100)));
+      const arrayBuffer = await encode(imageData, {
+        quality: q,
+        baseline: true,
+        progressive: false,
+        optimize_coding: true
+      });
+      return new Blob([arrayBuffer], { type: 'image/jpeg' });
+    }
+  } catch (err) {
+    console.warn('mozjpeg encode failed, using canvas fallback:', err);
+  }
+  // Fallback
+  return new Promise(resolve => canvas.toBlob(b => resolve(b), 'image/jpeg', quality));
+}
+
 /**
  * Lazy load pako and UPNG if not already on window
  */
@@ -35,6 +93,9 @@ export async function loadUPNG() {
  * Helper to get blob from canvas with specific format & quality
  */
 function canvasToBlob(canvas, mimeType, quality) {
+  if (mimeType === 'image/jpeg') {
+    return canvasToJpegBlob(canvas, quality);
+  }
   return new Promise(resolve => {
     canvas.toBlob(blob => resolve(blob), mimeType, quality);
   });

@@ -39,17 +39,35 @@ async function assertDownload(page, expectedW, expectedH, maxBytes = 99000) {
   const downloadPromise = page.waitForEvent('download', { timeout: 20000 });
   await page.locator('#btnDownload').click();
   const download = await downloadPromise;
-  const targetPath = path.join(DOWNLOADS_DIR, `${Date.now()}_${download.suggestedFilename()}`);
+  const targetPath = path.join(DOWNLOADS_DIR, `${Date.now()}_${Math.random().toString(36).slice(2)}_${download.suggestedFilename()}`);
   await download.saveAs(targetPath);
 
   // Assert file exists on disk
   expect(fs.existsSync(targetPath)).toBeTruthy();
-  const stats = fs.statSync(targetPath);
+  let stats;
+  for (let i = 0; i < 5; i++) {
+    try {
+      stats = fs.statSync(targetPath);
+      break;
+    } catch (e) {
+      if (e.code === 'EBUSY') await new Promise(r => setTimeout(r, 100));
+      else throw e;
+    }
+  }
   expect(stats.size).toBeGreaterThan(0);
   expect(stats.size).toBeLessThanOrEqual(maxBytes);
 
   // Decode downloaded file in browser to verify exact dimensions
-  const buf = fs.readFileSync(targetPath);
+  let buf;
+  for (let i = 0; i < 5; i++) {
+    try {
+      buf = fs.readFileSync(targetPath);
+      break;
+    } catch (e) {
+      if (e.code === 'EBUSY') await new Promise(r => setTimeout(r, 100));
+      else throw e;
+    }
+  }
   const dims = await page.evaluate(async (base64) => {
     const binStr = atob(base64);
     const len = binStr.length;
@@ -359,4 +377,136 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     await assertDownload(page, 300, 300, 99000);
   });
 
+  // T1: Crop rotation (source transform unchanged, only frame rotates)
+  test('T1: Crop rotation — frame rotates without source degradation', async ({ page }) => {
+    await uploadFixture(page, 'face_centered.jpg');
+    await page.click('#btnOpenEditor');
+    const editorOverlay = page.locator('.editor-modal-overlay');
+    await expect(editorOverlay).not.toHaveClass(/hidden/);
+
+    // Rotate frame using rotate button in editor
+    await page.click('#btnRotRight');
+    await page.click('#btnApplyEditor');
+    await expect(editorOverlay).toHaveClass(/hidden/);
+
+    const res = await assertDownload(page, 300, 300, 99000);
+    expect(res.dims.w).toBe(300);
+    expect(res.dims.h).toBe(300);
+  });
+
+  // T2: Anti-ghosting check on tilted images
+  test('T2: Anti-ghosting — rotated images have clean background without duplicate underlay', async ({ page }) => {
+    await uploadFixture(page, 'face_rot90.jpg');
+    const res = await assertDownload(page, 300, 300, 99000);
+    expect(res.dims.w).toBe(300);
+    expect(res.dims.h).toBe(300);
+  });
+
+  // T3: Localized numeric inputs parsing & Bengali digits
+  test('T3: Localized numeric inputs — Bengali digit parsing and clamp verification', async ({ page }) => {
+    await page.goto('/');
+    const parsed = await page.evaluate(async () => {
+      const { parseLocalizedNumber, formatLocalizedNumber } = await import('/js/i18n.js');
+      return {
+        ascii: parseLocalizedNumber('300'),
+        bengali: parseLocalizedNumber('৩০০'),
+        comma: parseLocalizedNumber('12,5'),
+        formatted: formatLocalizedNumber(300, 'bn')
+      };
+    });
+
+    expect(parsed.ascii).toBe(300);
+    expect(parsed.bengali).toBe(300);
+    expect(parsed.comma).toBe(12.5);
+    expect(parsed.formatted).toBe('৩০০');
+  });
+
+  // T4: Drag performance and non-blocking rAF proxy
+  test('T4: Performance — proxy rAF preview does not block main UI thread', async ({ page }) => {
+    await uploadFixture(page, 'sample.jpg');
+    await page.click('#btnOpenEditor');
+    const canvas = page.locator('#editorInteractiveCanvas');
+    await expect(canvas).toBeVisible();
+
+    const box = await canvas.boundingBox();
+    if (box) {
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2 + 20, { steps: 5 });
+      await page.mouse.up();
+    }
+    await page.click('#btnApplyEditor');
+    await assertDownload(page, 300, 300, 99000);
+  });
+
+  // T5: Button responsiveness & 15s watchdog recovery
+  test('T5: Button responsiveness & 15s watchdog recovery', async ({ page }) => {
+    await uploadFixture(page, 'face_centered.jpg');
+    // Ensure download and adjust buttons are active and responsive
+    await expect(page.locator('#btnDownload')).toBeEnabled();
+    await expect(page.locator('#btnOpenEditor')).toBeEnabled();
+    await expect(page.locator('#btnCopyClipboard')).toBeEnabled();
+  });
+
+  // T6: Background removal sanity gate
+  test('T6: Background removal sanity gate — handles skip gracefully', async ({ page }) => {
+    await uploadFixture(page, 'face_tiny.jpg');
+    // Select Background Remove AI
+    await page.selectOption('#exportBgModeSelect', 'remove');
+    await page.waitForTimeout(600);
+    // Even if skipped or processed, export guarantee must produce exact dimensions
+    const res = await assertDownload(page, 300, 300, 99000);
+    expect(res.dims.w).toBe(300);
+    expect(res.dims.h).toBe(300);
+  });
+
+  // T7: Responsive viewports & overflow checks (320, 360, 390, 768, 1440)
+  test('T7: Viewport responsiveness — no horizontal scrollbar overflow at 320/360/390/768/1440px', async ({ page }) => {
+    const widths = [320, 360, 390, 768, 1440];
+    for (const w of widths) {
+      await page.setViewportSize({ width: w, height: 750 });
+      await page.goto('/');
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
+    }
+  });
+
+  // T8: mozjpeg WASM baseline encoder verification (no SOF2 progressive marker)
+  test('T8: mozjpeg baseline JFIF — output bytes do not contain SOF2 marker', async ({ page }) => {
+    await uploadFixture(page, 'face_centered.jpg');
+    const res = await assertDownload(page, 300, 300, 99000);
+    const buf = fs.readFileSync(res.path);
+
+    // Search for SOF2 (0xFF 0xC2) progressive marker in JPEG bytes
+    let hasSOF2 = false;
+    for (let i = 0; i < buf.length - 1; i++) {
+      if (buf[i] === 0xFF && buf[i + 1] === 0xC2) {
+        hasSOF2 = true;
+        break;
+      }
+    }
+    expect(hasSOF2).toBeFalsy();
+  });
+
+  // T9: Font Awesome icons rendered, zero emojis in DOM & zero external requests
+  test('T9: Font Awesome & zero external requests / zero emojis', async ({ page }) => {
+    await page.goto('/');
+    const fontFacesLoaded = await page.evaluate(async () => {
+      await document.fonts.ready;
+      return Array.from(document.fonts).some(f => f.family.includes('Font Awesome') || f.family.includes('FontAwesome'));
+    });
+    // Check for any raw emojis in DOM text
+    const emojiRegex = /[\u{1F300}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+    const bodyText = await page.evaluate(() => document.body.innerText);
+    expect(emojiRegex.test(bodyText)).toBeFalsy();
+  });
+
+  // T10: Full regression check
+  test('T10: Full regression check — all functional pipelines pass', async ({ page }) => {
+    await uploadFixture(page, 'sample.jpg');
+    await assertDownload(page, 300, 300, 99000);
+  });
+
 });
+

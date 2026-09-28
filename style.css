@@ -99,6 +99,7 @@ html {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: anywhere;
 }
 
 :lang(bn) {
@@ -109,6 +110,11 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Ensure flex children don't overflow parent containers */
+.flex, .d-flex, [class*="container"], [class*="wrapper"], [class*="group"], [class*="row"], [class*="bar"] > * {
+  min-width: 0;
 }
 
 h1, h2, h3, h4 {

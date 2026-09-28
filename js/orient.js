@@ -42,10 +42,9 @@ export function rotateWithEdgeReplication(canvas, deg) {
   const out = createCanvas(newW, newH);
   const ctx = out.getContext('2d');
 
-  // Fill base with edge-stretched image to eliminate any empty borders
-  ctx.save();
-  ctx.drawImage(canvas, 0, 0, newW, newH);
-  ctx.restore();
+  // Fill base with clean neutral color - never draw unrotated image underneath (fixes B2 ghosting)
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, newW, newH);
 
   // Draw rotated source
   ctx.save();

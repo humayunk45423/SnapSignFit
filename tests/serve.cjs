@@ -23,7 +23,10 @@ const MIME_TYPES = {
   '.tif': 'image/tiff',
   '.heic': 'image/heic',
   '.wasm': 'application/wasm',
-  '.tflite': 'application/octet-stream'
+  '.tflite': 'application/octet-stream',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.webmanifest': 'application/manifest+json'
 };
 
 const server = http.createServer((req, res) => {

@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self'; font-src 'self';">
   <title>SnapSignFit — Photo & Signature Auto-Formatter (100% Free & Client-Side)</title>
   <meta name="description" content="Resize photos and signatures to the exact pixel size and file size limit. Made for government forms, BCS, passport, visa and exams, works for social media and custom sizes. 100% client-side and free.">
   <link rel="stylesheet" href="./style.css">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./vendor/fontawesome/css/fontawesome.min.css">
+  <link rel="stylesheet" href="./vendor/fontawesome/css/solid.min.css">
   <!-- Vendored Core Libraries -->
   <script src="./vendor/pako.min.js"></script>
   <script src="./vendor/UPNG.js"></script>
@@ -152,7 +155,7 @@
         <div class="preview-pane">
           <div class="preview-pane-header">
             <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1× Real Pixels</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
           </div>
           <div class="preview-viewport" id="afterViewport">
             <canvas id="afterCanvas"></canvas>
@@ -172,7 +175,7 @@
       <!-- Actions & Size Guarantee Bar -->
       <div class="actions-bar">
         <div class="size-status-badge under-limit" id="sizeStatusBadge">
-          <span id="sizeStatusText">300×300 px · 34.2 KB ✓ under limit</span>
+          <span id="sizeStatusText">Ready</span>
         </div>
 
         <div class="action-buttons-group">
@@ -218,6 +221,17 @@
           </select>
         </div>
 
+        <!-- Background Mode (AI / White / Keep / Transparent) -->
+        <div class="settings-item" id="bgModeGroup">
+          <label class="form-label" data-i18n="bgMode">Background:</label>
+          <select id="exportBgModeSelect" class="form-select">
+            <option value="keep" data-i18n="bgKeep">Keep Original</option>
+            <option value="white" data-i18n="bgWhite">Solid White</option>
+            <option value="remove" data-i18n="bgRemove">Remove AI</option>
+            <option value="transparent" data-i18n="bgTransparent">Transparent</option>
+          </select>
+        </div>
+
         <!-- Signature: Thicken Strokes -->
         <div class="settings-item hidden" id="sigThickenGroup">
           <label class="form-label" data-i18n="thickenStrokes">Thicken ink:</label>
@@ -254,10 +268,18 @@
       <p id="footerOffline" data-i18n="offlineNotice">
         Works 100% offline. Zero server uploads.
       </p>
+      <p class="footer-license">Icons: Font Awesome Free (CC BY 4.0, OFL, MIT)</p>
     </div>
   </footer>
 
   <!-- App Main ES Module -->
   <script type="module" src="./js/app.js"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script src="./js/register-sw.js"></script>
+
 </body>
 </html>
+
+
+

@@ -124,8 +124,25 @@ export const translations = {
     flipH: 'Flip Horizontal',
     flipV: 'Flip Vertical',
     resetCrop: 'Reset to Auto',
+    rerunAuto: 'Re-run Detection',
     applyChanges: 'Apply & Close',
     cancel: 'Cancel',
+    editorAngle: 'Angle',
+    editorZoom: 'Zoom View',
+    editorX: 'Center X',
+    editorY: 'Center Y',
+    editorW: 'Crop Width',
+    editorH: 'Crop Height',
+    undo: 'Undo',
+    redo: 'Redo',
+    straightenTool: 'Straighten Line Tool',
+    straightenHint: 'Click and drag a line along a level edge',
+    bgMode: 'Background Mode',
+    bgWhite: 'Solid White',
+    bgKeep: 'Keep Original',
+    bgTransparent: 'Transparent',
+    bgRemove: 'Remove AI',
+    bgSkippedToast: 'Background removal skipped: person area outside 10%-85% safety gate',
     
     // Error messages
     errTooLarge: 'File is too large (maximum 40 MB allowed).',
@@ -246,8 +263,25 @@ export const translations = {
     flipH: 'অনুভূমিক ফ্লিপ',
     flipV: 'উল্লম্ব ফ্লিপ',
     resetCrop: 'স্বয়ংক্রিয় ক্রপে রিসেট',
+    rerunAuto: 'পুনরায় শনাক্তকরণ',
     applyChanges: 'প্রয়োগ করুন ও বন্ধ করুন',
     cancel: 'বাতিল',
+    editorAngle: 'কোণ',
+    editorZoom: 'ভিউ জুম',
+    editorX: 'কেন্দ্র X',
+    editorY: 'কেন্দ্র Y',
+    editorW: 'ক্রপ প্রস্থ',
+    editorH: 'ক্রপ উচ্চতা',
+    undo: 'পূর্বাবস্থায় ফেরান',
+    redo: 'পুনরায় করুন',
+    straightenTool: 'সোজা করার রুলার টুল',
+    straightenHint: 'সোজা প্রান্ত বরাবর একটি রেখা টানুন',
+    bgMode: 'ব্যাকগ্রাউন্ড মোড',
+    bgWhite: 'সাদা ব্যাকগ্রাউন্ড',
+    bgKeep: 'আসল রাখুন',
+    bgTransparent: 'স্বচ্ছ',
+    bgRemove: 'এআই দিয়ে ব্যাকগ্রাউন্ড পরিবর্তন',
+    bgSkippedToast: 'ব্যাকগ্রাউন্ড পরিবর্তন বাদ দেওয়া হয়েছে: ব্যক্তির পরিধি সীমার বাইরে',
     
     // Error messages
     errTooLarge: 'ফাইলটি অনেক বড় (সর্বোচ্চ ৪০ মেগাবাইট অনুমোদিত)।',
@@ -299,11 +333,50 @@ export function t(key, params = {}) {
   return text;
 }
 
+const BENGALI_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+export function parseLocalizedNumber(str, lang = currentLang) {
+  if (typeof str === 'number') return str;
+  if (!str) return NaN;
+  let s = String(str).trim();
+  // Map Bengali digits to ASCII digits
+  s = s.replace(/[০-৯]/g, d => String(d.charCodeAt(0) - 0x09E6));
+  // Replace comma with dot if it acts as decimal separator
+  s = s.replace(/,/g, '.');
+  return parseFloat(s);
+}
+
+export function formatLocalizedNumber(num, lang = currentLang) {
+  if (num === null || num === undefined || isNaN(num)) return '';
+  const s = String(num);
+  if (lang === 'bn') {
+    return s.replace(/[0-9]/g, d => BENGALI_DIGITS[parseInt(d, 10)]);
+  }
+  return s;
+}
+
 export function updateDOMTranslations() {
   document.documentElement.lang = currentLang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
+    const translated = t(key);
+    // If element contains an <i> icon, preserve the icon and update text node
+    const icon = el.querySelector('i');
+    if (icon) {
+      // Find or create a text span or text node
+      let textSpan = el.querySelector('.btn-text');
+      if (textSpan) {
+        textSpan.textContent = translated;
+      } else {
+        // Keep icon, clear other child nodes, append translated text
+        Array.from(el.childNodes).forEach(node => {
+          if (node !== icon) el.removeChild(node);
+        });
+        el.appendChild(document.createTextNode(' ' + translated));
+      }
+    } else {
+      el.textContent = translated;
+    }
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
@@ -323,3 +396,4 @@ export function updateDOMTranslations() {
     langToggleBtn.textContent = currentLang === 'en' ? 'বাংলা' : 'English';
   }
 }
+
