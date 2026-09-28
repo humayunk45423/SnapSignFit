@@ -1,0 +1,178 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "-g",
+      "Group 5",
+      "--project=chromium"
+    ],
+    "configFile": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\playwright.config.js",
+    "rootDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.js"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.js"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 8,
+    "webServer": {
+      "command": "node ./tests/serve.cjs",
+      "port": 3000,
+      "reuseExistingServer": true,
+      "timeout": 10000
+    }
+  },
+  "suites": [
+    {
+      "title": "snapsignfit.spec.js",
+      "file": "snapsignfit.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SnapSignFit Acceptance Test Suite",
+          "file": "snapsignfit.spec.js",
+          "line": 71,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Group 5: Signature presets & ink extraction (300x80 & 250x50)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 45052,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                            "column": 16,
+                            "line": 220
+                          },
+                          "message": "Error: page.click: Test timeout of 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=\"Signature 300×80\"')\u001b[22m\n\u001b[2m    - locator resolved to <div class=\"preset-card-title\">Signature 300×80</div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <canvas width=\"698\" height=\"458\" id=\"editorInteractiveCanvas\" class=\"editor-interactive-canvas\"></canvas> from <div class=\"editor-modal-overlay\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <canvas width=\"698\" height=\"458\" id=\"editorInteractiveCanvas\" class=\"editor-interactive-canvas\"></canvas> from <div class=\"editor-modal-overlay\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  12 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <canvas width=\"698\" height=\"458\" id=\"editorInteractiveCanvas\" class=\"editor-interactive-canvas\"></canvas> from <div class=\"editor-modal-overlay\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"editor-modal-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n  218 |     // Blank page signature test -> triggers manual editor / no signature warning\n  219 |     await uploadFixture(page, 'sig_blank.png', false);\n> 220 |     await page.click('text=\"Signature 300×80\"');\n      |                ^\n  221 |     const editorOverlay = page.locator('.editor-modal-overlay');\n  222 |     await expect(editorOverlay).not.toHaveClass(/hidden/);\n  223 |     await page.click('#btnApplyEditor');\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:220:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Browser console error: Export guarantee failed: Error: SIZE_OR_DIMENSION_LIMIT_UNMET\n    at exportWithGuarantee (http://localhost:3000/js/export.js:316:11)\n    at async SnapSignFitApp.runExportGuarantee (http://localhost:3000/js/app.js:739:28)\n    at async SnapSignFitApp.runProcessingPipeline (http://localhost:3000/js/app.js:660:5)\n    at async SnapSignFitApp.handleFileUpload (http://localhost:3000/js/app.js:428:7)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-09-28T12:59:11.027Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-297b6-k-extraction-300x80-250x50--chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-f764fa7e52c3b90fc62a",
+              "file": "snapsignfit.spec.js",
+              "line": 184,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-28T12:59:10.446Z",
+    "duration": 46026.264,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

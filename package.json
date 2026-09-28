@@ -1,0 +1,25 @@
+{
+  "name": "snapsignfit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node tests/serve.cjs",
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1",
+    "heic2any": "^0.0.4",
+    "pako": "^3.0.2",
+    "upng-js": "^2.1.0",
+    "utif": "^3.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "serve": "^14.2.6"
+  }
+}

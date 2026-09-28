@@ -1,0 +1,37 @@
+// playwright.config.js
+const { defineConfig, devices } = require('@playwright/test');
+
+module.exports = defineConfig({
+  testDir: './tests',
+  testMatch: '**/*.spec.js',
+  timeout: 45000,
+  expect: {
+    timeout: 10000
+  },
+  fullyParallel: false, // Run sequentially for clear test reporting
+  reporter: [
+    ['list'],
+    ['json', { outputFile: 'tests/test-results.json' }]
+  ],
+  webServer: {
+    command: 'node ./tests/serve.cjs',
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 10000
+  },
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    viewport: { width: 1280, height: 800 }
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] }
+    }
+  ]
+});
