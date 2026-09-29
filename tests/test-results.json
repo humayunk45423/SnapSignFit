@@ -114,12 +114,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 15809,
+                      "duration": 15802,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:29:31.753Z",
+                      "startTime": "2026-09-29T13:38:27.713Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -148,12 +148,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6614,
+                      "duration": 6450,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:29:48.381Z",
+                      "startTime": "2026-09-29T13:38:43.650Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -182,12 +182,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 28395,
+                      "duration": 28490,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:29:55.020Z",
+                      "startTime": "2026-09-29T13:38:50.122Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -216,12 +216,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3507,
+                      "duration": 4518,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:23.429Z",
+                      "startTime": "2026-09-29T13:39:18.625Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -250,12 +250,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 21105,
+                      "duration": 21423,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:26.949Z",
+                      "startTime": "2026-09-29T13:39:23.157Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -284,12 +284,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6761,
+                      "duration": 7015,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:48.070Z",
+                      "startTime": "2026-09-29T13:39:44.594Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -320,12 +320,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 14973,
+                      "duration": 15590,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:54.846Z",
+                      "startTime": "2026-09-29T13:39:51.618Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -354,12 +354,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 14174,
+                      "duration": 14262,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:09.836Z",
+                      "startTime": "2026-09-29T13:40:07.221Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -388,12 +388,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3970,
+                      "duration": 4406,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:24.028Z",
+                      "startTime": "2026-09-29T13:40:21.496Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -422,12 +422,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3793,
+                      "duration": 4201,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:28.011Z",
+                      "startTime": "2026-09-29T13:40:25.924Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -456,12 +456,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2210,
+                      "duration": 2198,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:31.818Z",
+                      "startTime": "2026-09-29T13:40:30.146Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -490,12 +490,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1722,
+                      "duration": 1758,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:34.044Z",
+                      "startTime": "2026-09-29T13:40:32.357Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -524,12 +524,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 297,
+                      "duration": 279,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:35.779Z",
+                      "startTime": "2026-09-29T13:40:34.128Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -558,12 +558,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5136,
+                      "duration": 4629,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:36.096Z",
+                      "startTime": "2026-09-29T13:40:34.427Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -592,12 +592,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1749,
+                      "duration": 1588,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:41.255Z",
+                      "startTime": "2026-09-29T13:40:39.072Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -626,12 +626,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7394,
+                      "duration": 6681,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:43.021Z",
+                      "startTime": "2026-09-29T13:40:40.673Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -646,7 +646,7 @@
             },
             {
               "title": "T7: Viewport responsiveness — no horizontal scrollbar overflow at 320/360/390/768/1440px",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -659,48 +659,18 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 3937,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:482:27",
-                        "location": {
-                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                          "column": 27,
-                          "line": 482
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 480 |\u001b[39m         \u001b[36mconst\u001b[39m edScrollW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mscrollWidth)\u001b[33m;\u001b[39m\n \u001b[90m 481 |\u001b[39m         \u001b[36mconst\u001b[39m edClientW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mclientWidth)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 482 |\u001b[39m         expect(edScrollW)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(edClientW \u001b[33m+\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 483 |\u001b[39m       }\n \u001b[90m 484 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'#btnApplyEditor'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 485 |\u001b[39m     }\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                            "column": 27,
-                            "line": 482
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n\n  480 |         const edScrollW = await page.evaluate(() => document.documentElement.scrollWidth);\n  481 |         const edClientW = await page.evaluate(() => document.documentElement.clientWidth);\n> 482 |         expect(edScrollW).toBeLessThanOrEqual(edClientW + 2);\n      |                           ^\n  483 |       }\n  484 |       await page.click('#btnApplyEditor');\n  485 |     }\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:482:27"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 20192,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:50.430Z",
+                      "startTime": "2026-09-29T13:40:47.365Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-22e53-w-at-320-360-390-768-1440px-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                        "column": 27,
-                        "line": 482
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "889f38c0441b1b4167cd-c0b7436a6d7de018e11b",
@@ -721,15 +691,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1947,
+                      "duration": 1655,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:54.977Z",
+                      "startTime": "2026-09-29T13:41:07.571Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -755,15 +725,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 245,
+                      "duration": 229,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:57.084Z",
+                      "startTime": "2026-09-29T13:41:09.238Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -789,15 +759,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3746,
+                      "duration": 3663,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:57.342Z",
+                      "startTime": "2026-09-29T13:41:09.482Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -812,7 +782,7 @@
             },
             {
               "title": "M-Test: Mobile layout (M0-M3) — letter-wrap detector, both panels visible, zero overflow",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -823,50 +793,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 3,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 2270,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:567:25",
-                        "location": {
-                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                          "column": 25,
-                          "line": 567
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 565 |\u001b[39m         \u001b[36mconst\u001b[39m scrollW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mscrollWidth)\u001b[33m;\u001b[39m\n \u001b[90m 566 |\u001b[39m         \u001b[36mconst\u001b[39m clientW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mclientWidth)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 567 |\u001b[39m         expect(scrollW)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(clientW \u001b[33m+\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 568 |\u001b[39m\n \u001b[90m 569 |\u001b[39m         \u001b[90m// Check close button and tab bar do not overlap\u001b[39m\n \u001b[90m 570 |\u001b[39m         \u001b[36mconst\u001b[39m closeBtn \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#editorCancelBtn'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                            "column": 25,
-                            "line": 567
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n\n  565 |         const scrollW = await page.evaluate(() => document.documentElement.scrollWidth);\n  566 |         const clientW = await page.evaluate(() => document.documentElement.clientWidth);\n> 567 |         expect(scrollW).toBeLessThanOrEqual(clientW + 2);\n      |                         ^\n  568 |\n  569 |         // Check close button and tab bar do not overlap\n  570 |         const closeBtn = page.locator('#editorCancelBtn');\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:567:25"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 7077,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:32:01.105Z",
+                      "startTime": "2026-09-29T13:41:13.162Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-8056c-anels-visible-zero-overflow-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                        "column": 25,
-                        "line": 567
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "889f38c0441b1b4167cd-9722f052e1fb1fb6c174",
@@ -890,12 +830,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 15784,
+                      "duration": 15884,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:29:31.755Z",
+                      "startTime": "2026-09-29T13:38:27.710Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -924,12 +864,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 6531,
+                      "duration": 6441,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:29:48.356Z",
+                      "startTime": "2026-09-29T13:38:43.731Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -958,12 +898,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 28373,
+                      "duration": 28698,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:29:54.917Z",
+                      "startTime": "2026-09-29T13:38:50.190Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -992,12 +932,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3557,
+                      "duration": 4390,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:23.302Z",
+                      "startTime": "2026-09-29T13:39:18.912Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1026,12 +966,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 21145,
+                      "duration": 21457,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:26.870Z",
+                      "startTime": "2026-09-29T13:39:23.329Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1060,12 +1000,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 6746,
+                      "duration": 6890,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:48.027Z",
+                      "startTime": "2026-09-29T13:39:44.802Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1096,12 +1036,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 15034,
+                      "duration": 15591,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:30:54.786Z",
+                      "startTime": "2026-09-29T13:39:51.707Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1130,12 +1070,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 14058,
+                      "duration": 14191,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:09.834Z",
+                      "startTime": "2026-09-29T13:40:07.312Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1164,12 +1104,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3994,
+                      "duration": 4437,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:23.907Z",
+                      "startTime": "2026-09-29T13:40:21.523Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1198,12 +1138,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3826,
+                      "duration": 4176,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:27.915Z",
+                      "startTime": "2026-09-29T13:40:25.978Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1232,12 +1172,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 2155,
+                      "duration": 2193,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:31.753Z",
+                      "startTime": "2026-09-29T13:40:30.176Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1266,12 +1206,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1702,
+                      "duration": 1759,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:33.921Z",
+                      "startTime": "2026-09-29T13:40:32.384Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1300,12 +1240,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 240,
+                      "duration": 279,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:35.636Z",
+                      "startTime": "2026-09-29T13:40:34.160Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1334,12 +1274,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 5241,
+                      "duration": 4606,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:35.891Z",
+                      "startTime": "2026-09-29T13:40:34.453Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1368,12 +1308,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1795,
+                      "duration": 1617,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:41.150Z",
+                      "startTime": "2026-09-29T13:40:39.071Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1402,12 +1342,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 7383,
+                      "duration": 6715,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:42.958Z",
+                      "startTime": "2026-09-29T13:40:40.703Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1422,7 +1362,7 @@
             },
             {
               "title": "T7: Viewport responsiveness — no horizontal scrollbar overflow at 320/360/390/768/1440px",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1435,48 +1375,18 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 3934,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:482:27",
-                        "location": {
-                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                          "column": 27,
-                          "line": 482
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 480 |\u001b[39m         \u001b[36mconst\u001b[39m edScrollW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mscrollWidth)\u001b[33m;\u001b[39m\n \u001b[90m 481 |\u001b[39m         \u001b[36mconst\u001b[39m edClientW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mclientWidth)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 482 |\u001b[39m         expect(edScrollW)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(edClientW \u001b[33m+\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 483 |\u001b[39m       }\n \u001b[90m 484 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'#btnApplyEditor'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 485 |\u001b[39m     }\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                            "column": 27,
-                            "line": 482
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n\n  480 |         const edScrollW = await page.evaluate(() => document.documentElement.scrollWidth);\n  481 |         const edClientW = await page.evaluate(() => document.documentElement.clientWidth);\n> 482 |         expect(edScrollW).toBeLessThanOrEqual(edClientW + 2);\n      |                           ^\n  483 |       }\n  484 |       await page.click('#btnApplyEditor');\n  485 |     }\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:482:27"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 20178,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:50.350Z",
+                      "startTime": "2026-09-29T13:40:47.430Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-22e53-w-at-320-360-390-768-1440px-mobile-chrome\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                        "column": 27,
-                        "line": 482
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "889f38c0441b1b4167cd-b014beb0a27d9345cbec",
@@ -1497,15 +1407,15 @@
                   "projectName": "mobile-chrome",
                   "results": [
                     {
-                      "workerIndex": 2,
+                      "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1959,
+                      "duration": 1627,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:54.884Z",
+                      "startTime": "2026-09-29T13:41:07.623Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1531,15 +1441,15 @@
                   "projectName": "mobile-chrome",
                   "results": [
                     {
-                      "workerIndex": 2,
+                      "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 246,
+                      "duration": 236,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:57.009Z",
+                      "startTime": "2026-09-29T13:41:09.267Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1565,15 +1475,15 @@
                   "projectName": "mobile-chrome",
                   "results": [
                     {
-                      "workerIndex": 2,
+                      "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3771,
+                      "duration": 3631,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:31:57.288Z",
+                      "startTime": "2026-09-29T13:41:09.518Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1588,7 +1498,7 @@
             },
             {
               "title": "M-Test: Mobile layout (M0-M3) — letter-wrap detector, both panels visible, zero overflow",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1599,50 +1509,20 @@
                   "projectName": "mobile-chrome",
                   "results": [
                     {
-                      "workerIndex": 2,
+                      "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 2356,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:567:25",
-                        "location": {
-                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                          "column": 25,
-                          "line": 567
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 565 |\u001b[39m         \u001b[36mconst\u001b[39m scrollW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mscrollWidth)\u001b[33m;\u001b[39m\n \u001b[90m 566 |\u001b[39m         \u001b[36mconst\u001b[39m clientW \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(() \u001b[33m=>\u001b[39m document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mclientWidth)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 567 |\u001b[39m         expect(scrollW)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(clientW \u001b[33m+\u001b[39m \u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 568 |\u001b[39m\n \u001b[90m 569 |\u001b[39m         \u001b[90m// Check close button and tab bar do not overlap\u001b[39m\n \u001b[90m 570 |\u001b[39m         \u001b[36mconst\u001b[39m closeBtn \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#editorCancelBtn'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                            "column": 25,
-                            "line": 567
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m322\u001b[39m\nReceived:    \u001b[31m323\u001b[39m\n\n  565 |         const scrollW = await page.evaluate(() => document.documentElement.scrollWidth);\n  566 |         const clientW = await page.evaluate(() => document.documentElement.clientWidth);\n> 567 |         expect(scrollW).toBeLessThanOrEqual(clientW + 2);\n      |                         ^\n  568 |\n  569 |         // Check close button and tab bar do not overlap\n  570 |         const closeBtn = page.locator('#editorCancelBtn');\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:567:25"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 7747,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-29T12:32:01.075Z",
+                      "startTime": "2026-09-29T13:41:13.161Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-8056c-anels-visible-zero-overflow-mobile-chrome\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
-                        "column": 25,
-                        "line": 567
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "889f38c0441b1b4167cd-e6286ddb8d4e2afa2895",
@@ -1657,11 +1537,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-29T12:29:31.010Z",
-    "duration": 152730.311,
-    "expected": 38,
+    "startTime": "2026-09-29T13:38:27.197Z",
+    "duration": 173821.673,
+    "expected": 42,
     "skipped": 0,
-    "unexpected": 4,
+    "unexpected": 0,
     "flaky": 0
   }
 }

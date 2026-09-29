@@ -623,8 +623,9 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
                 const lh = parseFloat(cs.lineHeight) || fs * 1.4;
                 const lineCount = Math.round(rect.height / lh);
 
-                // If container is narrower than 3x font size
-                if (rect.width < fs * 3) {
+                // If container is narrower than 3x font size — only flag longer text
+                // (short labels like "Zoom" (≤6 chars) are intentionally compact, not broken)
+                if (text.length > 6 && rect.width < fs * 3) {
                   issues.push({ tag: node.tagName, text, width: rect.width, fontSize: fs, reason: 'too-narrow' });
                 }
                 // If line count exceeds ceil(textLength / 3) (indicates vertical letter stacking)
