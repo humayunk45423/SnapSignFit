@@ -5,7 +5,9 @@ const path = require('path');
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const DOWNLOADS_DIR = path.join(__dirname, 'downloads');
+const SCREENSHOTS_DIR = path.join(__dirname, 'screenshots');
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
+if (!fs.existsSync(SCREENSHOTS_DIR)) fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
 
 // Helper to upload a file to the dropzone
 async function uploadFixture(page, fixtureName, autoCloseEditor = true) {
@@ -469,6 +471,17 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
       const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
       const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
+
+      // Verify with editor open on both tabs
+      await uploadFixture(page, 'sample.jpg');
+      await page.click('#btnOpenEditor');
+      for (const stepTab of ['#tabStep1', '#tabStep2']) {
+        await page.click(stepTab);
+        const edScrollW = await page.evaluate(() => document.documentElement.scrollWidth);
+        const edClientW = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(edScrollW).toBeLessThanOrEqual(edClientW + 2);
+      }
+      await page.click('#btnApplyEditor');
     }
   });
 
@@ -506,6 +519,133 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
   test('T10: Full regression check — all functional pipelines pass', async ({ page }) => {
     await uploadFixture(page, 'sample.jpg');
     await assertDownload(page, 300, 300, 99000);
+  });
+
+  // M-Test: Mobile layout (M0-M3) — letter-wrap detector, panel visibility, no overlap
+  test('M-Test: Mobile layout (M0-M3) — letter-wrap detector, both panels visible, zero overflow', async ({ page }) => {
+    const widths = [320, 360, 390];
+
+    for (const w of widths) {
+      await page.setViewportSize({ width: w, height: 750 });
+      await page.goto('/');
+      await uploadFixture(page, 'face_centered.jpg');
+
+      // M0: Check BOTH "Original & Detection" and "Exact Output Preview" panels are visible
+      const beforePane = page.locator('.preview-pane').nth(0);
+      const afterPane = page.locator('.preview-pane').nth(1);
+      await expect(beforePane).toBeVisible();
+      await expect(afterPane).toBeVisible();
+
+      // Ensure both are stacked in normal document flow (beforePane top < afterPane top)
+      const beforeBox = await beforePane.boundingBox();
+      const afterBox = await afterPane.boundingBox();
+      expect(beforeBox).toBeTruthy();
+      expect(afterBox).toBeTruthy();
+      expect(beforeBox.y + beforeBox.height).toBeLessThanOrEqual(afterBox.y + 10);
+
+      // Save main view screenshot
+      const mainShotPath = path.join(SCREENSHOTS_DIR, `main_view_${w}px.png`);
+      await page.screenshot({ path: mainShotPath });
+
+      // Open Manual Editor
+      await page.click('#btnOpenEditor');
+      const modal = page.locator('.editor-modal-overlay:not(.hidden)');
+      await expect(modal).toBeVisible();
+
+      // Test both Step 1 and Step 2 tabs
+      for (const step of [1, 2]) {
+        if (step === 2) {
+          await page.click('#tabStep2');
+        } else {
+          await page.click('#tabStep1');
+        }
+        await page.waitForTimeout(300);
+
+        // Check horizontal overflow
+        const scrollW = await page.evaluate(() => document.documentElement.scrollWidth);
+        const clientW = await page.evaluate(() => document.documentElement.clientWidth);
+        expect(scrollW).toBeLessThanOrEqual(clientW + 2);
+
+        // Check close button and tab bar do not overlap
+        const closeBtn = page.locator('#editorCancelBtn');
+        const stepTabs = page.locator('.editor-step-tabs');
+        const closeBox = await closeBtn.boundingBox();
+        const tabsBox = await stepTabs.boundingBox();
+        expect(closeBox).toBeTruthy();
+        expect(tabsBox).toBeTruthy();
+        const overlaps = !(closeBox.x + closeBox.width <= tabsBox.x ||
+                           closeBox.x >= tabsBox.x + tabsBox.width ||
+                           closeBox.y + closeBox.height <= tabsBox.y ||
+                           closeBox.y >= tabsBox.y + tabsBox.height);
+        expect(overlaps).toBeFalsy();
+
+        // Check helper text is not wrapped letter-by-letter
+        const helpText = page.locator('#editorHelpText');
+        if (await helpText.isVisible()) {
+          const helpMetrics = await helpText.evaluate((el) => {
+            const rect = el.getBoundingClientRect();
+            const cs = window.getComputedStyle(el);
+            const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4;
+            const fs = parseFloat(cs.fontSize) || 13;
+            const lineCount = Math.round(rect.height / lh) || 1;
+            return {
+              width: rect.width,
+              height: rect.height,
+              fontSize: fs,
+              lineHeight: lh,
+              lineCount,
+              textLength: el.textContent.trim().length
+            };
+          });
+
+          // Must render as <= 2 lines, not 10+
+          expect(helpMetrics.lineCount).toBeLessThanOrEqual(2);
+          // Width must be at least 3x font size
+          expect(helpMetrics.width).toBeGreaterThan(helpMetrics.fontSize * 3);
+        }
+
+        // Letter-wrap detector: check every visible text element in modal
+        const wrapIssues = await page.evaluate(() => {
+          const dialog = document.querySelector('.editor-modal-dialog');
+          if (!dialog) return [];
+          const walker = document.createTreeWalker(dialog, NodeFilter.SHOW_ELEMENT);
+          const issues = [];
+
+          let node;
+          while ((node = walker.nextNode())) {
+            const text = node.innerText ? node.innerText.trim() : '';
+            // Only inspect leaf or direct text elements
+            if (node.children.length === 0 && text.length > 2) {
+              const rect = node.getBoundingClientRect();
+              if (rect.width > 0 && rect.height > 0) {
+                const cs = window.getComputedStyle(node);
+                const fs = parseFloat(cs.fontSize) || 14;
+                const lh = parseFloat(cs.lineHeight) || fs * 1.4;
+                const lineCount = Math.round(rect.height / lh);
+
+                // If container is narrower than 3x font size
+                if (rect.width < fs * 3) {
+                  issues.push({ tag: node.tagName, text, width: rect.width, fontSize: fs, reason: 'too-narrow' });
+                }
+                // If line count exceeds ceil(textLength / 3) (indicates vertical letter stacking)
+                if (lineCount > Math.ceil(text.length / 3)) {
+                  issues.push({ tag: node.tagName, text, lineCount, textLength: text.length, reason: 'letter-stacked' });
+                }
+              }
+            }
+          }
+          return issues;
+        });
+
+        expect(wrapIssues).toEqual([]);
+
+        // Save screenshot
+        const editorShotPath = path.join(SCREENSHOTS_DIR, `editor_${w}px_step${step}.png`);
+        await page.screenshot({ path: editorShotPath });
+      }
+
+      await page.click('#btnApplyEditor');
+    }
   });
 
 });

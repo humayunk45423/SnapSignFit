@@ -68,23 +68,25 @@ export class ManualEditor {
     this.overlayEl.innerHTML = `
       <div class="editor-modal-dialog">
         <div class="editor-header">
-          <div class="editor-header-left">
+          <div class="editor-header-top">
             <h3 class="editor-title" data-i18n="editorTitle">Manual Crop & Straighten</h3>
-            <div class="editor-step-tabs">
-              <button type="button" class="editor-step-tab active" id="tabStep1" data-step="1">
-                <i class="fa-solid fa-crop-simple"></i> <span data-i18n="step1Crop">1. Crop Frame</span>
-              </button>
-              <button type="button" class="editor-step-tab" id="tabStep2" data-step="2">
-                <i class="fa-solid fa-ruler"></i> <span data-i18n="step2Straighten">2. Straighten & Rotate</span>
-              </button>
-            </div>
+            <button type="button" class="editor-close-btn" id="editorCancelBtn" aria-label="Close" title="Close">&times;</button>
           </div>
-          <button type="button" class="editor-close-btn" id="editorCancelBtn" aria-label="Close" title="Close">&times;</button>
+          <div class="editor-step-tabs" role="tablist">
+            <button type="button" class="editor-step-tab active" id="tabStep1" data-step="1">
+              <i class="fa-solid fa-crop-simple"></i> <span data-i18n="step1Crop">1. Crop Frame</span>
+            </button>
+            <button type="button" class="editor-step-tab" id="tabStep2" data-step="2">
+              <i class="fa-solid fa-ruler"></i> <span data-i18n="step2Straighten">2. Straighten & Rotate</span>
+            </button>
+          </div>
         </div>
 
         <div class="editor-body">
-          <div class="editor-viewport-container">
-            <canvas id="editorInteractiveCanvas" class="editor-interactive-canvas"></canvas>
+          <div class="editor-viewport-wrapper">
+            <div class="editor-viewport-container">
+              <canvas id="editorInteractiveCanvas" class="editor-interactive-canvas"></canvas>
+            </div>
             <div class="editor-help-text" id="editorHelpText" data-i18n="cropHint">
               Drag frame to move · Drag corners to resize
             </div>
@@ -92,11 +94,13 @@ export class ManualEditor {
 
           <div class="editor-sidebar">
             <div class="editor-preview-box">
-              <label class="editor-label" data-i18n="after">Exact Output Preview</label>
+              <div class="editor-preview-header">
+                <label class="editor-label" data-i18n="after">Exact Output Preview</label>
+                <div class="editor-dim-text" id="editorDimText">300×300 px</div>
+              </div>
               <div class="editor-preview-wrapper">
                 <canvas id="editorLivePreviewCanvas" class="editor-live-preview"></canvas>
               </div>
-              <div class="editor-dim-text" id="editorDimText">300×300 px</div>
             </div>
 
             <!-- STEP 1 CONTROLS -->
@@ -185,6 +189,17 @@ export class ManualEditor {
 
     this.editorCanvas = this.overlayEl.querySelector('#editorInteractiveCanvas');
     this.previewCanvas = this.overlayEl.querySelector('#editorLivePreviewCanvas');
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        if (!this.overlayEl.classList.contains('hidden')) {
+          this.resizeEditorCanvas();
+          this.redraw();
+        }
+      });
+      ro.observe(this.editorCanvas.parentElement);
+    }
+
     this.attachEventListeners();
   }
 

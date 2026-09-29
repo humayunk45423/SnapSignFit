@@ -64,6 +64,23 @@ class SnapSignFitApp {
     this.renderPresetsGrid();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const beforeVp = document.getElementById('beforeViewport');
+      if (beforeVp) {
+        const ro = new ResizeObserver(() => {
+          if (this.lastBeforeState && this.lastBeforeState.sourceCanvas) {
+            this.drawBeforeCanvas(
+              this.lastBeforeState.sourceCanvas,
+              this.lastBeforeState.faceBox,
+              this.lastBeforeState.cropRect,
+              this.lastBeforeState.kind
+            );
+          }
+        });
+        ro.observe(beforeVp);
+      }
+    }
   }
 
   setupGlobalErrors() {
@@ -736,8 +753,10 @@ class SnapSignFitApp {
   }
 
   drawBeforeCanvas(sourceCanvas, faceBox, cropRect, kind) {
+    this.lastBeforeState = { sourceCanvas, faceBox, cropRect, kind };
     const cvs = document.getElementById('beforeCanvas');
     const vp = document.getElementById('beforeViewport');
+    if (!cvs || !vp || !sourceCanvas) return;
     const maxW = vp.clientWidth || 360;
     const maxH = vp.clientHeight || 280;
 
