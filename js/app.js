@@ -416,7 +416,8 @@ class SnapSignFitApp {
       straightenDeg: 0,
       flipH: false,
       flipV: false,
-      allowPadding: false
+      allowPadding: false,
+      transformedCanvas: null
     };
     this.autoFixes = {
       rotationDeg: 0,
@@ -685,14 +686,18 @@ class SnapSignFitApp {
       // Check user override crop from manual editor
       const effectiveCrop = this.userTransforms.crop || computedCrop;
 
-      // Fit mode rendering
-      this.exactCanvas = renderFitMode(activeFull, targetW, targetH, {
-        fit: this.customOptions.fit,
-        cropRect: effectiveCrop,
-        bgColor: '#ffffff',
-        blurredBg: false,
-        transparent: this.customOptions.bgMode === 'transparent'
-      });
+      if (this.userTransforms.transformedCanvas) {
+        this.exactCanvas = this.userTransforms.transformedCanvas;
+      } else {
+        // Fit mode rendering
+        this.exactCanvas = renderFitMode(activeFull, targetW, targetH, {
+          fit: this.customOptions.fit,
+          cropRect: effectiveCrop,
+          bgColor: '#ffffff',
+          blurredBg: false,
+          transparent: this.customOptions.bgMode === 'transparent'
+        });
+      }
 
       // Background Removal / White mode handling
       if (this.customOptions.bgMode === 'remove' && kind !== 'signature') {
@@ -887,7 +892,8 @@ class SnapSignFitApp {
       straightenDeg: state.straightenDeg,
       flipH: state.flipH,
       flipV: state.flipV,
-      allowPadding: state.allowPadding
+      allowPadding: state.allowPadding,
+      transformedCanvas: state.transformedCanvas
     };
     this.runProcessingPipeline();
   }

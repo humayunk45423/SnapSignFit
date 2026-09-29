@@ -742,17 +742,75 @@ button {
   overflow: hidden;
 }
 
-.editor-header {
-  padding: var(--s-3) var(--s-4);
-  border-bottom: 1px solid var(--border);
+.editor-header-left {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
 }
 
-.editor-title {
-  font-size: 14px;
-  font-weight: 600;
+.editor-step-tabs {
+  display: flex;
+  gap: var(--s-1);
+  background-color: var(--surface-2);
+  padding: 2px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+}
+
+.editor-step-tab {
+  padding: 4px var(--s-3);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  border-radius: var(--r-sm);
+  transition: all var(--t) var(--ease);
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+.editor-step-tab.active {
+  background-color: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.editor-num-input {
+  width: 68px;
+  padding: 2px 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: right;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.editor-num-input:focus {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.editor-step1-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.editor-straighten-tool-row, .editor-step-back-row {
+  margin-top: var(--s-1);
+}
+
+.editor-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
 }
 
 .editor-close-btn {
