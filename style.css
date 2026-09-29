@@ -187,6 +187,15 @@ button {
   color: var(--muted);
 }
 
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 8px;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.15));
+}
+
 .header-actions {
   display: flex;
   align-items: center;
