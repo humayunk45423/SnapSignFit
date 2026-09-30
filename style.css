@@ -393,6 +393,15 @@ button {
   margin-top: var(--s-4);
   min-width: 0;
   max-width: 100%;
+  align-items: start;
+}
+
+.workspace-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .presets-section {
@@ -564,7 +573,6 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--s-4);
-  margin-bottom: var(--s-4);
   min-width: 0;
   max-width: 100%;
 }
@@ -736,7 +744,6 @@ button {
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: var(--s-3) var(--s-4);
-  margin-bottom: var(--s-4);
   gap: var(--s-4);
   min-width: 0;
   max-width: 100%;

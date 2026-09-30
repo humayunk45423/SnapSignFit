@@ -153,126 +153,131 @@
 
       </div>
 
-      <!-- Before / After Live Split View -->
-      <div class="preview-split">
-        <!-- Before View -->
-        <div class="preview-pane">
-          <div class="preview-pane-header">
-            <span class="preview-pane-title" data-i18n="before">Original & Detection</span>
-            <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
-          </div>
-          <div class="preview-viewport" id="beforeViewport">
-            <canvas id="beforeCanvas"></canvas>
-          </div>
-        </div>
+      <!-- Workspace Right / Main Column -->
+      <div class="workspace-main">
 
-        <!-- After View -->
-        <div class="preview-pane">
-          <div class="preview-pane-header">
-            <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real
-              Pixels</button>
+        <!-- Before / After Live Split View -->
+        <div class="preview-split">
+          <!-- Before View -->
+          <div class="preview-pane">
+            <div class="preview-pane-header">
+              <span class="preview-pane-title" data-i18n="before">Original & Detection</span>
+              <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
+            </div>
+            <div class="preview-viewport" id="beforeViewport">
+              <canvas id="beforeCanvas"></canvas>
+            </div>
           </div>
-          <div class="preview-viewport" id="afterViewport">
-            <canvas id="afterCanvas"></canvas>
-            <div class="spinner-overlay hidden" id="processingOverlay">
-              <div class="spinner"></div>
-              <span id="processingText" data-i18n="processing">Processing image...</span>
+
+          <!-- After View -->
+          <div class="preview-pane">
+            <div class="preview-pane-header">
+              <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real
+                Pixels</button>
+            </div>
+            <div class="preview-viewport" id="afterViewport">
+              <canvas id="afterCanvas"></canvas>
+              <div class="spinner-overlay hidden" id="processingOverlay">
+                <div class="spinner"></div>
+                <span id="processingText" data-i18n="processing">Processing image...</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Actions & Size Guarantee Bar -->
-      <div class="actions-bar">
-        <!-- Left: Size Status Badge & Quality Warning Chips -->
-        <div class="status-chips-section">
-          <div class="size-status-badge under-limit" id="sizeStatusBadge">
-            <span id="sizeStatusText">Ready</span>
+        <!-- Actions & Size Guarantee Bar -->
+        <div class="actions-bar">
+          <!-- Left: Size Status Badge & Quality Warning Chips -->
+          <div class="status-chips-section">
+            <div class="size-status-badge under-limit" id="sizeStatusBadge">
+              <span id="sizeStatusText">Ready</span>
+            </div>
+            <div class="chips-container" id="chipsContainer" aria-live="polite">
+              <!-- Dynamically populated -->
+            </div>
           </div>
-          <div class="chips-container" id="chipsContainer" aria-live="polite">
-            <!-- Dynamically populated -->
+
+          <!-- Right: Action Buttons Group -->
+          <div class="action-buttons-group">
+            <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust
+              Manually</button>
+            <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to
+              Clipboard</button>
+            <button type="button" class="btn btn-primary btn-lg" id="btnDownload" data-i18n="download">Download</button>
           </div>
         </div>
 
-        <!-- Right: Action Buttons Group -->
-        <div class="action-buttons-group">
-          <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust
-            Manually</button>
-          <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to
-            Clipboard</button>
-          <button type="button" class="btn btn-primary btn-lg" id="btnDownload" data-i18n="download">Download</button>
-        </div>
-      </div>
+        <!-- Export Settings & Controls Bar -->
+        <div class="settings-bar">
+          <!-- Format -->
+          <div class="settings-item">
+            <label class="form-label" data-i18n="format">Format:</label>
+            <select id="exportFormatSelect" class="form-select">
+              <option value="jpg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
 
-      <!-- Export Settings & Controls Bar -->
-      <div class="settings-bar">
-        <!-- Format -->
-        <div class="settings-item">
-          <label class="form-label" data-i18n="format">Format:</label>
-          <select id="exportFormatSelect" class="form-select">
-            <option value="jpg">JPG</option>
-            <option value="png">PNG</option>
-            <option value="webp">WebP</option>
-          </select>
+          <!-- Max Size Limit -->
+          <div class="settings-item">
+            <label class="form-label" data-i18n="maxSize">Max size:</label>
+            <select id="exportMaxSizeSelect" class="form-select">
+              <option value="50">50 KB</option>
+              <option value="99" selected>100 KB (Gov limit)</option>
+              <option value="200">200 KB</option>
+              <option value="500">500 KB</option>
+              <option value="1000">1 MB</option>
+              <option value="2000">2 MB</option>
+              <option value="0">No limit</option>
+            </select>
+          </div>
+
+          <!-- Fit Mode -->
+          <div class="settings-item" id="fitModeGroup">
+            <label class="form-label" data-i18n="fitMode">Fit:</label>
+            <select id="exportFitSelect" class="form-select">
+              <option value="cover" data-i18n="cover">Cover (Smart Crop)</option>
+              <option value="contain" data-i18n="contain">Contain</option>
+              <option value="stretch" data-i18n="stretch">Stretch</option>
+            </select>
+          </div>
+
+          <!-- Background Mode (AI / White / Keep / Transparent) -->
+          <div class="settings-item" id="bgModeGroup">
+            <label class="form-label" data-i18n="bgMode">Background:</label>
+            <select id="exportBgModeSelect" class="form-select">
+              <option value="keep" data-i18n="bgKeep">Keep Original</option>
+              <option value="white" data-i18n="bgWhite">Solid White</option>
+              <option value="remove" data-i18n="bgRemove">Remove AI</option>
+              <option value="transparent" data-i18n="bgTransparent">Transparent</option>
+            </select>
+          </div>
+
+          <!-- Signature: Thicken Strokes -->
+          <div class="settings-item hidden" id="sigThickenGroup">
+            <label class="form-label" data-i18n="thickenStrokes">Thicken ink:</label>
+            <input type="range" id="sigThickenSlider" min="0" max="2" step="1" value="0" style="width: 80px;">
+          </div>
+
+          <!-- Signature: Keep Ink Color -->
+          <div class="settings-item hidden" id="sigKeepColorGroup">
+            <label class="editor-checkbox-label">
+              <input type="checkbox" id="sigKeepColorCheck">
+              <span data-i18n="keepInkColor">Keep ink color</span>
+            </label>
+          </div>
+
+          <!-- Auto-Detect Toggle -->
+          <div class="settings-item">
+            <label class="editor-checkbox-label">
+              <input type="checkbox" id="autoDetectCheck" checked>
+              <span data-i18n="autoDetectToggle">Auto-detect</span>
+            </label>
+          </div>
         </div>
 
-        <!-- Max Size Limit -->
-        <div class="settings-item">
-          <label class="form-label" data-i18n="maxSize">Max size:</label>
-          <select id="exportMaxSizeSelect" class="form-select">
-            <option value="50">50 KB</option>
-            <option value="99" selected>100 KB (Gov limit)</option>
-            <option value="200">200 KB</option>
-            <option value="500">500 KB</option>
-            <option value="1000">1 MB</option>
-            <option value="2000">2 MB</option>
-            <option value="0">No limit</option>
-          </select>
-        </div>
-
-        <!-- Fit Mode -->
-        <div class="settings-item" id="fitModeGroup">
-          <label class="form-label" data-i18n="fitMode">Fit:</label>
-          <select id="exportFitSelect" class="form-select">
-            <option value="cover" data-i18n="cover">Cover (Smart Crop)</option>
-            <option value="contain" data-i18n="contain">Contain</option>
-            <option value="stretch" data-i18n="stretch">Stretch</option>
-          </select>
-        </div>
-
-        <!-- Background Mode (AI / White / Keep / Transparent) -->
-        <div class="settings-item" id="bgModeGroup">
-          <label class="form-label" data-i18n="bgMode">Background:</label>
-          <select id="exportBgModeSelect" class="form-select">
-            <option value="keep" data-i18n="bgKeep">Keep Original</option>
-            <option value="white" data-i18n="bgWhite">Solid White</option>
-            <option value="remove" data-i18n="bgRemove">Remove AI</option>
-            <option value="transparent" data-i18n="bgTransparent">Transparent</option>
-          </select>
-        </div>
-
-        <!-- Signature: Thicken Strokes -->
-        <div class="settings-item hidden" id="sigThickenGroup">
-          <label class="form-label" data-i18n="thickenStrokes">Thicken ink:</label>
-          <input type="range" id="sigThickenSlider" min="0" max="2" step="1" value="0" style="width: 80px;">
-        </div>
-
-        <!-- Signature: Keep Ink Color -->
-        <div class="settings-item hidden" id="sigKeepColorGroup">
-          <label class="editor-checkbox-label">
-            <input type="checkbox" id="sigKeepColorCheck">
-            <span data-i18n="keepInkColor">Keep ink color</span>
-          </label>
-        </div>
-
-        <!-- Auto-Detect Toggle -->
-        <div class="settings-item">
-          <label class="editor-checkbox-label">
-            <input type="checkbox" id="autoDetectCheck" checked>
-            <span data-i18n="autoDetectToggle">Auto-detect</span>
-          </label>
-        </div>
       </div>
 
     </section>
