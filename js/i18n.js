@@ -26,35 +26,6 @@ export const translations = {
     themeToggle: 'Toggle theme',
     dark: 'Dark',
     light: 'Light',
-    navResizer: 'Resizer',
-    navGovPresets: 'Govt Presets',
-    navHowItWorks: 'How It Works',
-    navOffline: '100% Offline',
-
-    // Hero Section (REDESIGN.md)
-    heroBadge: 'MADE FOR BCS, TELETALK, NID & EXAM FORMS',
-    heroTitle: 'Resize your photo & signature to Bangladesh Government form presets.',
-    heroSubtext: 'Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 60KB)',
-    heroUploadPhoto: 'Upload Photo',
-    heroUploadSig: 'Upload Signature',
-    heroViewPresets: 'View Presets',
-    heroTabPhoto: 'Photo (300×300)',
-    heroTabSig: 'Signature (300×80)',
-    heroDropzonePhoto: 'Drop your photo here',
-    heroDropzoneSig: 'Drop your signature here',
-    heroDropzoneHint: 'Supports JPG, PNG, WEBP · Max 20 MB',
-    heroCardStatus: '100% private · runs in your browser · works offline',
-    bcsPhotoSpec: 'BCS Photo Spec',
-    teletalkSigSpec: 'Teletalk Sign Spec',
-
-    // How It Works Section
-    howItWorksTitle: 'How It Works',
-    step1Title: '1. Upload',
-    step1Desc: 'Drop or select your photo or signature file.',
-    step2Title: '2. Auto-detect & fit',
-    step2Desc: 'Smart face detection, auto-straighten & crop to preset ratio.',
-    step3Title: '3. Download',
-    step3Desc: 'Get your exact-sized, size-limit compliant image instantly.',
     
     // Upload zone
     dropzoneTitle: 'Drop your photo or signature here',
@@ -217,35 +188,6 @@ export const translations = {
     themeToggle: 'থিম পরিবর্তন',
     dark: 'ডার্ক',
     light: 'লাইট',
-    navResizer: 'রিসাইজার',
-    navGovPresets: 'সরকারি প্রিসেট',
-    navHowItWorks: 'যেভাবে কাজ করে',
-    navOffline: '১০০% অফলাইন',
-
-    // Hero Section (REDESIGN.md)
-    heroBadge: 'বিসিএস, টেলিটক, এনআইডি ও সরকারি চাকুরির ফরমের জন্য',
-    heroTitle: 'আপনার ছবি ও স্বাক্ষর বাংলাদেশ সরকারি ফরমের মাপে তৈরি করুন',
-    heroSubtext: 'ছবি ৩০০×৩০০ (১০০KB-এর নিচে) · ছবি ২৫০×২৫০ (১০০KB-এর নিচে) · স্বাক্ষর ৩০০×৮০ (৬০KB-এর নিচে) · স্বাক্ষর ২৫০×৫০ (৬০KB-এর নিচে)',
-    heroUploadPhoto: 'ছবি আপলোড',
-    heroUploadSig: 'স্বাক্ষর আপলোড',
-    heroViewPresets: 'সকল প্রিসেট দেখুন',
-    heroTabPhoto: 'ছবি (৩০০×৩০০)',
-    heroTabSig: 'স্বাক্ষর (৩০০×৮০)',
-    heroDropzonePhoto: 'এখানে আপনার ছবি ড্রপ করুন',
-    heroDropzoneSig: 'এখানে আপনার স্বাক্ষর ড্রপ করুন',
-    heroDropzoneHint: 'JPG, PNG, WEBP ফরম্যাট সমর্থিত · সর্বোচ্চ ২০ MB',
-    heroCardStatus: '১০০% নিরাপদ · ব্রাউজারে প্রক্রিয়া হয় · অফলাইনেও কার্যকর',
-    bcsPhotoSpec: 'বিসিএস ছবি স্পেক',
-    teletalkSigSpec: 'টেলিটক স্বাক্ষর স্পেক',
-
-    // How It Works Section
-    howItWorksTitle: 'যেভাবে কাজ করে',
-    step1Title: '১. আপলোড করুন',
-    step1Desc: 'আপনার ছবি বা স্বাক্ষর ড্রপ বা সিলেক্ট করুন।',
-    step2Title: '২. অটো ডিটেক্ট ও ফিট',
-    step2Desc: 'মুখ সনাক্তকরণ, সোজা করা ও সঠিক অনুপাতে স্বয়ংক্রিয় ক্রপ।',
-    step3Title: '৩. ডাউনলোড করুন',
-    step3Desc: 'সাইজ লিমিটের মধ্যে নিখুঁত আউটপুট ফাইল তাৎক্ষণিক ডাউনলোড করুন।',
     
     // Upload zone
     dropzoneTitle: 'এখানে আপনার ছবি বা স্বাক্ষর ড্রপ করুন',

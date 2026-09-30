@@ -499,29 +499,17 @@ export class ManualEditor {
       } else if (e.key === 'Enter') {
         this.apply();
       } else if (e.code === 'Space') {
-        e.preventDefault(); // prevent page scroll AND prevent triggering focused buttons
-        if (document.activeElement instanceof HTMLButtonElement) {
-          document.activeElement.blur();
-        }
         if (!e.repeat) {
           this.isSpaceHeld = true;
           this.editorCanvas?.classList.add('is-space-held');
-          if (!this.isSpacePanning) {
-            this.editorCanvas.style.cursor = 'grab';
-          }
         }
       }
-    }, { capture: true });
+    });
 
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space') {
         this.isSpaceHeld = false;
-        this.isSpacePanning = false;
         this.editorCanvas?.classList.remove('is-space-held');
-        this.editorCanvas?.classList.remove('is-panning');
-        if (this.editorCanvas) {
-          this.editorCanvas.style.cursor = this.currentStep === 3 ? 'crosshair' : 'default';
-        }
       }
     });
 
@@ -1400,39 +1388,6 @@ export class ManualEditor {
     return out;
   }
 
-  getHandleAt(px, py) {
-    if (this.currentStep !== 1) return null;
-    const scale = this.displayScale;
-    const cropScreenX = this.displayOffsetX + this.crop.x * scale;
-    const cropScreenY = this.displayOffsetY + this.crop.y * scale;
-    const cropScreenW = this.crop.w * scale;
-    const cropScreenH = this.crop.h * scale;
-
-    const handleThreshold = 16;
-    const handles = [
-      { name: 'tl', cursor: 'nwse-resize', x: cropScreenX, y: cropScreenY },
-      { name: 'tr', cursor: 'nesw-resize', x: cropScreenX + cropScreenW, y: cropScreenY },
-      { name: 'bl', cursor: 'nesw-resize', x: cropScreenX, y: cropScreenY + cropScreenH },
-      { name: 'br', cursor: 'nwse-resize', x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH },
-      { name: 't', cursor: 'ns-resize', x: cropScreenX + cropScreenW / 2, y: cropScreenY },
-      { name: 'b', cursor: 'ns-resize', x: cropScreenX + cropScreenW / 2, y: cropScreenY + cropScreenH },
-      { name: 'l', cursor: 'ew-resize', x: cropScreenX, y: cropScreenY + cropScreenH / 2 },
-      { name: 'r', cursor: 'ew-resize', x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH / 2 }
-    ];
-
-    for (const h of handles) {
-      if (Math.abs(px - h.x) <= handleThreshold && Math.abs(py - h.y) <= handleThreshold) {
-        return h;
-      }
-    }
-
-    if (px >= cropScreenX && px <= cropScreenX + cropScreenW &&
-        py >= cropScreenY && py <= cropScreenY + cropScreenH) {
-      return { name: 'move', cursor: 'move' };
-    }
-    return null;
-  }
-
   // Pointer interactions
   onPointerDown(e) {
     const rect = this.editorCanvas.getBoundingClientRect();
@@ -1446,38 +1401,50 @@ export class ManualEditor {
         offsetX: this.displayOffsetX,
         offsetY: this.displayOffsetY,
         step2PanX: this.step2PanX,
-        step2PanY: this.step2PanY,
-        step3PanX: this.step3PanX || 0,
-        step3PanY: this.step3PanY || 0,
-        px,
-        py
+        step2PanY: this.step2PanY
       };
       this.editorCanvas.classList.add('is-panning');
-      this.editorCanvas.style.cursor = 'grabbing';
       try {
         this.editorCanvas.setPointerCapture(e.pointerId);
       } catch (err) {}
-      e.preventDefault();
       return;
     }
 
     if (this.currentStep === 1) {
-      const handle = this.getHandleAt(px, py);
-      if (handle && handle.name !== 'move') {
-        this.isResizing = true;
-        this.resizeHandle = handle.name;
-        this.dragStart = { x: px, y: py };
-        this.cropStart = { ...this.crop };
-        this.editorCanvas.style.cursor = handle.cursor;
-        this.editorCanvas.setPointerCapture(e.pointerId);
-        return;
+      const scale = this.displayScale;
+      const cropScreenX = this.displayOffsetX + this.crop.x * scale;
+      const cropScreenY = this.displayOffsetY + this.crop.y * scale;
+      const cropScreenW = this.crop.w * scale;
+      const cropScreenH = this.crop.h * scale;
+
+      const handleThreshold = 22;
+      const handles = [
+        { name: 'tl', x: cropScreenX, y: cropScreenY },
+        { name: 'tr', x: cropScreenX + cropScreenW, y: cropScreenY },
+        { name: 'bl', x: cropScreenX, y: cropScreenY + cropScreenH },
+        { name: 'br', x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH },
+        { name: 't', x: cropScreenX + cropScreenW / 2, y: cropScreenY },
+        { name: 'b', x: cropScreenX + cropScreenW / 2, y: cropScreenY + cropScreenH },
+        { name: 'l', x: cropScreenX, y: cropScreenY + cropScreenH / 2 },
+        { name: 'r', x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH / 2 }
+      ];
+
+      for (const h of handles) {
+        if (Math.hypot(px - h.x, py - h.y) <= handleThreshold) {
+          this.isResizing = true;
+          this.resizeHandle = h.name;
+          this.dragStart = { x: px, y: py };
+          this.cropStart = { ...this.crop };
+          this.editorCanvas.setPointerCapture(e.pointerId);
+          return;
+        }
       }
 
-      if (handle && handle.name === 'move') {
+      if (px >= cropScreenX && px <= cropScreenX + cropScreenW &&
+          py >= cropScreenY && py <= cropScreenY + cropScreenH) {
         this.isDragging = true;
         this.dragStart = { x: px, y: py };
         this.cropStart = { ...this.crop };
-        this.editorCanvas.style.cursor = 'move';
         this.editorCanvas.setPointerCapture(e.pointerId);
       }
     } else if (this.currentStep === 2) {
@@ -1521,27 +1488,19 @@ export class ManualEditor {
     if (this.isSpacePanning) {
       const dx = px - this.dragStart.x;
       const dy = py - this.dragStart.y;
-      if (this.currentStep === 1) {
+      if (this.currentStep === 1 || this.currentStep === 3) {
         this.displayOffsetX = this.spacePanStart.offsetX + dx;
         this.displayOffsetY = this.spacePanStart.offsetY + dy;
       } else if (this.currentStep === 2) {
         this.step2PanX = this.spacePanStart.step2PanX + Math.round(dx / this.displayScale);
         this.step2PanY = this.spacePanStart.step2PanY + Math.round(dy / this.displayScale);
-      } else if (this.currentStep === 3) {
-        this.step3PanX = this.spacePanStart.step3PanX + dx;
-        this.step3PanY = this.spacePanStart.step3PanY + dy;
       }
       this.requestRender();
       return;
     }
 
     if (this.currentStep === 1) {
-      if (!this.isDragging && !this.isResizing) {
-        const hit = this.getHandleAt(px, py);
-        this.editorCanvas.style.cursor = hit ? hit.cursor : (this.isSpaceHeld ? 'grab' : 'default');
-        return;
-      }
-
+      if (!this.isDragging && !this.isResizing) return;
       const dx = (px - this.dragStart.x) / this.displayScale;
       const dy = (py - this.dragStart.y) / this.displayScale;
 
@@ -1610,20 +1569,13 @@ export class ManualEditor {
     if (this.isSpacePanning) {
       this.isSpacePanning = false;
       this.editorCanvas.classList.remove('is-panning');
-      this.editorCanvas.style.cursor = this.isSpaceHeld ? 'grab' : (this.currentStep === 3 ? 'crosshair' : 'default');
+      if (this.isSpaceHeld) {
+        this.editorCanvas.classList.add('is-space-held');
+      }
       try {
         this.editorCanvas.releasePointerCapture(e.pointerId);
       } catch (err) {}
       return;
-    }
-
-    if (this.isResizing || this.isDragging) {
-      this.isResizing = false;
-      this.isDragging = false;
-      this.resizeHandle = null;
-      try {
-        this.editorCanvas.releasePointerCapture(e.pointerId);
-      } catch (err) {}
     }
 
     if (this.currentStep === 2 && this.straightenToolActive && this.straightenLineStart && this.straightenLineEnd) {
@@ -1646,16 +1598,10 @@ export class ManualEditor {
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-secondary');
       }
-      this.commitStep2ToBitmap();
       this.requestRender();
-    } else if (this.currentStep === 2 && this.isDragging) {
-      this.isDragging = false;
-      this.commitStep2ToBitmap();
-      this.pushHistory();
-    } else if (this.currentStep === 3 && this.isBrushing) {
+    } else if (this.currentStep === 3) {
       this.isBrushing = false;
       this.lastBrushPoint = null;
-      this.updateBrushUndoRedoState();
       this.requestRender();
     }
 

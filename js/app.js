@@ -1,5 +1,5 @@
 // js/app.js - Main Application Orchestrator, UI Events, and Auto-Processing Pipeline
-import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations, formatLocalizedNumber } from './i18n.js';
+import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations } from './i18n.js';
 import { PRESETS, getSavedCustomPresets, saveCustomPreset, unitToPixels } from './presets.js';
 import { loadImageFile, createCanvas, flattenAlpha } from './loader.js';
 import { detectFacesWithLadder, selectPrimaryFace, computePassportCrop, checkFaceQuality, rotateCanvas } from './face.js';
@@ -11,6 +11,155 @@ import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.
 import { removeBackgroundToWhite } from './bg.js';
 import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, clearSession, saveSessionState, loadSessionState } from './session.js';
 import { icon } from './icons.js';
+
+class PanZoomViewport {
+  constructor(viewportEl, canvasEl) {
+    this.viewport = viewportEl;
+    this.canvas = canvasEl;
+    this.scale = 1.0;
+    this.panX = 0;
+    this.panY = 0;
+    this.isPanning = false;
+    this.startX = 0;
+    this.startY = 0;
+    this.startPanX = 0;
+    this.startPanY = 0;
+    this.pointers = new Map();
+    this.initialPinchDist = 0;
+    this.initialPinchScale = 1.0;
+    this.rafId = null;
+
+    this.init();
+  }
+
+  init() {
+    if (!this.viewport || !this.canvas) return;
+    this.viewport.style.touchAction = 'none';
+
+    this.viewport.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    window.addEventListener('pointermove', (e) => this.onPointerMove(e));
+    window.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
+    this.viewport.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
+  }
+
+  setSpaceHeld(isHeld) {
+    if (this.viewport) {
+      this.viewport.classList.toggle('is-space-held', isHeld);
+    }
+  }
+
+  reset() {
+    this.scale = 1.0;
+    this.panX = 0;
+    this.panY = 0;
+    this.isPanning = false;
+    this.pointers.clear();
+    this.applyTransform();
+  }
+
+  setScale(scale) {
+    this.scale = scale;
+    this.applyTransform();
+  }
+
+  onPointerDown(e) {
+    if (e.target.closest('button')) return;
+    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    const isSpace = window.isSpacePressed || false;
+    const isMiddle = e.button === 1;
+    const isZoomed = this.scale > 1.01;
+
+    if (isSpace || isMiddle || isZoomed || this.pointers.size > 1) {
+      this.isPanning = true;
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+      this.startPanX = this.panX;
+      this.startPanY = this.panY;
+      this.viewport.classList.add('is-panning');
+      try {
+        this.viewport.setPointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+
+    if (this.pointers.size === 2) {
+      const pts = Array.from(this.pointers.values());
+      this.initialPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      this.initialPinchScale = this.scale;
+    }
+  }
+
+  onPointerMove(e) {
+    if (!this.pointers.has(e.pointerId)) return;
+    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (this.pointers.size === 2) {
+      const pts = Array.from(this.pointers.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (this.initialPinchDist > 0) {
+        const factor = dist / this.initialPinchDist;
+        this.scale = Math.max(0.25, Math.min(8.0, this.initialPinchScale * factor));
+      }
+      const midX = (pts[0].x + pts[1].x) / 2;
+      const midY = (pts[0].y + pts[1].y) / 2;
+      this.panX = this.startPanX + (midX - this.startX);
+      this.panY = this.startPanY + (midY - this.startY);
+      this.requestApplyTransform();
+      return;
+    }
+
+    if (this.isPanning) {
+      const dx = e.clientX - this.startX;
+      const dy = e.clientY - this.startY;
+      this.panX = this.startPanX + dx;
+      this.panY = this.startPanY + dy;
+      this.requestApplyTransform();
+    }
+  }
+
+  onPointerUp(e) {
+    this.pointers.delete(e.pointerId);
+    if (this.pointers.size === 0) {
+      this.isPanning = false;
+      this.viewport.classList.remove('is-panning');
+      try {
+        this.viewport.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+  }
+
+  onWheel(e) {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) {
+      const zoomDelta = e.deltaY < 0 ? 1.15 : 0.85;
+      this.scale = Math.max(0.25, Math.min(8.0, Math.round(this.scale * zoomDelta * 100) / 100));
+    } else {
+      this.panX -= e.deltaX;
+      this.panY -= e.deltaY;
+    }
+    this.requestApplyTransform();
+  }
+
+  requestApplyTransform() {
+    if (this.rafId) return;
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      this.applyTransform();
+    });
+  }
+
+  applyTransform() {
+    if (!this.canvas) return;
+    if (this.scale === 1.0 && this.panX === 0 && this.panY === 0) {
+      this.canvas.style.transform = '';
+      this.canvas.style.imageRendering = 'auto';
+    } else {
+      this.canvas.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
+      this.canvas.style.imageRendering = this.scale > 1.0 ? 'pixelated' : 'auto';
+    }
+  }
+}
 
 class SnapSignFitApp {
   constructor() {
@@ -65,11 +214,17 @@ class SnapSignFitApp {
     this.initTheme();
     this.setupGlobalErrors();
     this.renderPresetsGrid();
-    this.renderHeroChips();
-    this.renderHeroSubtext();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
-    this.updateHeroCardTab('photo');
+
+    this.beforePanZoom = new PanZoomViewport(
+      document.getElementById('beforeViewport'),
+      document.getElementById('beforeCanvas')
+    );
+    this.afterPanZoom = new PanZoomViewport(
+      document.getElementById('afterViewport'),
+      document.getElementById('afterCanvas')
+    );
 
     this.restoreSession(); // Restore previous session after DOM is ready
 
@@ -155,64 +310,15 @@ class SnapSignFitApp {
       const newLang = getLanguage() === 'en' ? 'bn' : 'en';
       setLanguage(newLang);
       this.renderPresetsGrid();
-      this.renderHeroChips();
-      this.renderHeroSubtext();
-      this.updateHeroCardTab(this.currentPreset?.kind || 'photo');
       this.updateStatusReadout();
     });
 
     document.getElementById('themeToggleBtn').addEventListener('click', () => this.toggleTheme());
 
-    // Hero Actions (REDESIGN.md)
+    // File Upload & Camera
     const fileInput = document.getElementById('fileInput');
     const cameraInput = document.getElementById('cameraInput');
     const dropzone = document.getElementById('dropzone');
-
-    const btnHeroPhoto = document.getElementById('btnHeroUploadPhoto');
-    if (btnHeroPhoto) {
-      btnHeroPhoto.addEventListener('click', () => {
-        const photoPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'photo') || PRESETS[0];
-        this.applyPreset(photoPreset);
-        this.updateHeroCardTab('photo');
-        fileInput.click();
-      });
-    }
-
-    const btnHeroSig = document.getElementById('btnHeroUploadSig');
-    if (btnHeroSig) {
-      btnHeroSig.addEventListener('click', () => {
-        const sigPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'signature');
-        if (sigPreset) this.applyPreset(sigPreset);
-        this.updateHeroCardTab('signature');
-        fileInput.click();
-      });
-    }
-
-    const heroTabPhoto = document.getElementById('heroTabPhoto');
-    if (heroTabPhoto) {
-      heroTabPhoto.addEventListener('click', () => {
-        const photoPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'photo') || PRESETS[0];
-        this.applyPreset(photoPreset);
-        this.updateHeroCardTab('photo');
-      });
-    }
-
-    const heroTabSig = document.getElementById('heroTabSig');
-    if (heroTabSig) {
-      heroTabSig.addEventListener('click', () => {
-        const sigPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'signature');
-        if (sigPreset) this.applyPreset(sigPreset);
-        this.updateHeroCardTab('signature');
-      });
-    }
-
-    // Nav anchor links
-    document.querySelectorAll('.site-nav .nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        document.querySelectorAll('.site-nav .nav-link').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-      });
-    });
 
     document.getElementById('btnChooseFile').addEventListener('click', () => fileInput.click());
     document.getElementById('btnTakePhoto').addEventListener('click', () => cameraInput.click());
@@ -226,12 +332,6 @@ class SnapSignFitApp {
     cameraInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         this.handleFileUpload(e.target.files[0]);
-      }
-    });
-
-    dropzone.addEventListener('click', (e) => {
-      if (!e.target.closest('button')) {
-        fileInput.click();
       }
     });
 
@@ -383,9 +483,30 @@ class SnapSignFitApp {
       if (this.customOptions.zoom2x) {
         vp.classList.add('zoom-2x');
         zoomToggleBtn.textContent = '2× Zoomed';
+        this.afterPanZoom?.setScale(2.0);
       } else {
         vp.classList.remove('zoom-2x');
         zoomToggleBtn.textContent = '1× Real Pixels';
+        this.afterPanZoom?.setScale(1.0);
+      }
+    });
+
+    // Space Key Panning (D3)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        if (!e.repeat) {
+          window.isSpacePressed = true;
+          this.beforePanZoom?.setSpaceHeld(true);
+          this.afterPanZoom?.setSpaceHeld(true);
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        window.isSpacePressed = false;
+        this.beforePanZoom?.setSpaceHeld(false);
+        this.afterPanZoom?.setSpaceHeld(false);
       }
     });
 
@@ -436,16 +557,6 @@ class SnapSignFitApp {
     document.getElementById('btnOpenEditor').addEventListener('click', () => this.openManualEditor());
     document.getElementById('btnDownload').addEventListener('click', () => this.triggerDownload());
     document.getElementById('btnCopyClipboard').addEventListener('click', () => this.copyToClipboard());
-
-    // Fix 0: Kill all drag/pan/wheel events on workspace preview panes
-    document.querySelectorAll('.preview-pane').forEach(p => {
-      ['wheel', 'dragstart', 'contextmenu', 'touchmove'].forEach(evt =>
-        p.addEventListener(evt, e => e.preventDefault(), { passive: false })
-      );
-      p.querySelectorAll('img, canvas').forEach(i => {
-        if (i.draggable !== undefined) i.draggable = false;
-      });
-    });
   }
 
   selectCategory(cat) {
@@ -503,98 +614,12 @@ class SnapSignFitApp {
     });
   }
 
-  renderHeroChips() {
-    const container = document.getElementById('heroChipsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    // Pull the first 4 Government & Exam presets
-    const govPresets = PRESETS.filter(p => p.category === 'gov').slice(0, 4);
-    govPresets.forEach(preset => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'hero-chip';
-      const limitStr = preset.maxKB ? ` (≤${preset.maxKB}KB)` : '';
-      chip.textContent = `${preset.label}${limitStr}`;
-      chip.addEventListener('click', () => {
-        this.applyPreset(preset);
-        this.updateHeroCardTab(preset.kind);
-        document.getElementById('fileInput').click();
-      });
-      container.appendChild(chip);
-    });
-  }
-
-  renderHeroSubtext() {
-    const el = document.getElementById('heroSubtext');
-    if (!el) return;
-    const gov = PRESETS.filter(p => p.category === 'gov');
-    const p1 = gov.find(p => p.w === 300 && p.h === 300);
-    const p2 = gov.find(p => p.w === 250 && p.h === 250);
-    const s1 = gov.find(p => p.w === 300 && p.h === 80);
-    const s2 = gov.find(p => p.w === 250 && p.h === 50);
-
-    const lang = getLanguage();
-    const isBn = lang === 'bn';
-    const under = isBn ? 'এর নিচে' : 'under';
-    const photo = isBn ? 'ছবি' : 'Photo';
-    const sig = isBn ? 'স্বাক্ষর' : 'Signature';
-
-    const formatItem = (kind, p, max) => {
-      if (!p) return '';
-      const w = isBn ? formatLocalizedNumber(p.w) : p.w;
-      const h = isBn ? formatLocalizedNumber(p.h) : p.h;
-      const kb = isBn ? formatLocalizedNumber(max) : max;
-      return `${kind} ${w}×${h} (${isBn ? `${kb}KB-${under}` : `${under} ${kb}KB`})`;
-    };
-
-    const items = [
-      formatItem(photo, p1, 100),
-      formatItem(photo, p2, 100),
-      formatItem(sig, s1, 60),
-      formatItem(sig, s2, 60)
-    ].filter(Boolean);
-
-    el.textContent = items.join(' · ');
-  }
-
-  updateHeroCardTab(kind) {
-    const tabPhoto = document.getElementById('heroTabPhoto');
-    const tabSig = document.getElementById('heroTabSig');
-    const dropzoneTitle = document.getElementById('dropzoneTitle');
-    const heroSpecLabel = document.getElementById('heroSpecLabel');
-    const heroSpecDims = document.getElementById('heroSpecDims');
-
-    const isSig = kind === 'signature';
-    if (tabPhoto && tabSig) {
-      tabPhoto.classList.toggle('active', !isSig);
-      tabPhoto.setAttribute('aria-selected', String(!isSig));
-      tabSig.classList.toggle('active', isSig);
-      tabSig.setAttribute('aria-selected', String(isSig));
-    }
-
-    if (dropzoneTitle) {
-      dropzoneTitle.textContent = isSig ? t('heroDropzoneSig') : t('dropzoneTitle');
-    }
-
-    if (heroSpecLabel && heroSpecDims) {
-      if (isSig) {
-        heroSpecLabel.textContent = t('teletalkSigSpec');
-        heroSpecDims.textContent = '300×80 px (≤60 KB)';
-      } else {
-        heroSpecLabel.textContent = t('bcsPhotoSpec');
-        heroSpecDims.textContent = '300×300 px (≤100 KB)';
-      }
-    }
-  }
-
   applyPreset(preset) {
     this.currentPreset = preset;
     this.hasDownloadedCurrentWork = false;
     this.customOptions.format = preset.format || 'jpg';
     this.customOptions.fit = preset.fit || 'cover';
     this.customOptions.maxKB = preset.maxKB || (preset.locked ? 99 : 100);
-    this.updateHeroCardTab(preset.kind);
 
     // Sync settings bar UI
     document.getElementById('exportFormatSelect').value = this.customOptions.format;
@@ -667,13 +692,11 @@ class SnapSignFitApp {
       this.hasDownloadedCurrentWork = false;
       document.body.classList.add('has-image');
       document.querySelector('.main-content')?.classList.add('has-image');
-      const ws = document.getElementById('workspaceSection');
-      ws.classList.remove('hidden');
+      document.getElementById('workspaceSection').classList.remove('hidden');
       this.resetUserTransforms();
+      this.beforePanZoom?.reset();
+      this.afterPanZoom?.reset();
       await this.runProcessingPipeline({ fromFileUpload: true });
-      if (window.innerWidth <= 860) {
-        ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
     } catch (err) {
       console.error('Image load failed:', err);
       let msg = t('errCorrupt');
