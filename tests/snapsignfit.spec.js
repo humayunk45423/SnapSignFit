@@ -734,35 +734,20 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     }
   });
 
-  // D3-test: Space+drag pan works in the preview viewport
-  test('D3-test: Space+drag pan changes transform on preview viewport', async ({ page }) => {
+  // D3-test: Workspace preview viewport remains static per Fix 0
+  test('D3-test: Workspace preview viewport remains static without pan transform', async ({ page }) => {
     await uploadFixture(page, 'face_centered.jpg');
 
-    // Wait for canvas to have drawn content (immune to mobile CSS box-size issues)
+    // Wait for canvas to have drawn content
     await page.waitForFunction(
       () => { const c = document.getElementById('afterCanvas'); return c && c.width > 0 && c.height > 0; },
       { timeout: 15000 }
     );
     const canvas = page.locator('#afterCanvas');
 
-    // Simulate Space keydown + pointer drag
-    await page.evaluate(() => {
-      window.isSpacePressed = true;
-      const vp = document.getElementById('afterViewport');
-      if (vp) {
-        vp.dispatchEvent(new PointerEvent('pointerdown', { clientX: 100, clientY: 100, pointerId: 1, isPrimary: true, bubbles: true }));
-        window.dispatchEvent(new PointerEvent('pointermove', { clientX: 160, clientY: 140, pointerId: 1, isPrimary: true, bubbles: true }));
-        window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, isPrimary: true, bubbles: true }));
-      }
-      window.isSpacePressed = false;
-    });
-
-    await page.waitForTimeout(100);
-
-    // Check transform changed (pan offset applied)
-    const newTransform = await canvas.evaluate(el => el.style.transform || 'none');
-    expect(newTransform).not.toBe('none');
-    expect(newTransform).toContain('translate');
+    // Preview canvas must remain static with no transform
+    const transform = await canvas.evaluate(el => el.style.transform || '');
+    expect(transform).toBe('');
   });
 
   // D4/D5-test: Footer is centered and developer credit link is present
@@ -804,7 +789,7 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     await expect(page.locator('#navHowItWorks')).toBeAttached();
     await expect(page.locator('#navOffline')).toBeAttached();
 
-    const isDesktop = (page.viewportSize()?.width || 0) >= 768;
+    const isDesktop = (page.viewportSize()?.width || 0) >= 860;
     if (isDesktop) {
       await expect(page.locator('#navResizer')).toBeVisible();
     }
@@ -813,9 +798,13 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     await expect(page.locator('.hero-badge')).toBeVisible();
     await expect(page.locator('.hero-title')).toBeVisible();
     await expect(page.locator('#heroSubtext')).toBeVisible();
-    await expect(page.locator('#btnHeroUploadPhoto')).toBeVisible();
-    await expect(page.locator('#btnHeroUploadSig')).toBeVisible();
-    await expect(page.locator('#btnHeroViewPresets')).toBeVisible();
+    if (isDesktop) {
+      await expect(page.locator('#btnHeroUploadPhoto')).toBeVisible();
+      await expect(page.locator('#btnHeroUploadSig')).toBeVisible();
+      await expect(page.locator('#btnHeroViewPresets')).toBeVisible();
+    } else {
+      await expect(page.locator('.hero-actions')).toBeHidden();
+    }
     await expect(page.locator('#heroChipsContainer')).toBeVisible();
 
     // Hero right card elements exist
