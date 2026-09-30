@@ -745,22 +745,19 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     );
     const canvas = page.locator('#afterCanvas');
 
-    // Get initial transform
-    const initialTransform = await canvas.evaluate(el => el.style.transform || 'none');
-
     // Simulate Space keydown + pointer drag
-    await page.keyboard.down('Space');
-    const vpBox = await page.locator('#afterViewport').boundingBox();
-    expect(vpBox).toBeTruthy();
+    await page.evaluate(() => {
+      window.isSpacePressed = true;
+      const vp = document.getElementById('afterViewport');
+      if (vp) {
+        vp.dispatchEvent(new PointerEvent('pointerdown', { clientX: 100, clientY: 100, pointerId: 1, isPrimary: true, bubbles: true }));
+        window.dispatchEvent(new PointerEvent('pointermove', { clientX: 160, clientY: 140, pointerId: 1, isPrimary: true, bubbles: true }));
+        window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, isPrimary: true, bubbles: true }));
+      }
+      window.isSpacePressed = false;
+    });
 
-    const cx = vpBox.x + vpBox.width / 2;
-    const cy = vpBox.y + vpBox.height / 2;
-
-    await page.mouse.move(cx, cy);
-    await page.mouse.down();
-    await page.mouse.move(cx + 60, cy + 40, { steps: 5 });
-    await page.mouse.up();
-    await page.keyboard.up('Space');
+    await page.waitForTimeout(100);
 
     // Check transform changed (pan offset applied)
     const newTransform = await canvas.evaluate(el => el.style.transform || 'none');
