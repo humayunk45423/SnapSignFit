@@ -173,8 +173,10 @@ export const translations = {
     errGovLocked: 'Government presets are strictly locked to maximum 99 KB to ensure acceptance.',
     
     // Footer
-    privacyNotice: 'Your images never leave your device. Independent free tool, not affiliated with or endorsed by any government or agency. Always check your form\'s official requirements.',
-    offlineNotice: 'Works 100% offline. Zero server uploads.'
+    privacyNotice: 'Your images never leave your device.',
+    offlineNotice: 'Works 100% offline · Zero server uploads',
+    disclaimerNotice: 'Independent free tool',
+    developerCredit: 'Developed by Humayoun'
   },
   bn: {
     siteName: CONFIG.SITE_NAME,
@@ -333,8 +335,10 @@ export const translations = {
     errGovLocked: 'সরকারি ফরম্যাটে আবেদন গ্রহণযোগ্য রাখতে সাইজ সর্বোচ্চ ৯৯ KB তে লক করা থাকে।',
     
     // Footer
-    privacyNotice: 'আপনার ছবি কখনো আপনার ডিভাইস ত্যাগ করে না। সম্পূর্ণ স্বাধীন ফ্রি টুল, কোনো সরকার বা সংস্থার সাথে সম্পর্কিত বা অনুমোদিত নয়। সর্বদা আপনার ফর্মের অফিসিয়াল প্রয়োজনীয়তা যাচাই করুন।',
-    offlineNotice: 'সম্পূর্ণ অফলাইনে কাজ করে। কোনো সার্ভার আপলোড নেই।'
+    privacyNotice: 'আপনার ছবি কখনই ডিভাইস থেকে বাইরে যায় না।',
+    offlineNotice: '১০০% অফলাইনে কাজ করে · জিরো সার্ভার আপলোড',
+    disclaimerNotice: 'সম্পূর্ণ স্বাধীন ও উন্মুক্ত টুল',
+    developerCredit: 'Developed by Humayoun'
   }
 };
 
