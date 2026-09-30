@@ -1060,6 +1060,12 @@ button {
   border-color: var(--accent);
 }
 
+.editor-step3-action-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
 .editor-interactive-canvas.brush-mode {
   cursor: crosshair;
 }

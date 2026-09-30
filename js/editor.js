@@ -233,13 +233,13 @@ export class ManualEditor {
                 </button>
               </div>
 
-              <!-- AI Quick Remove & Reset -->
-              <div class="editor-btn-row">
-                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushAutoAi" title="Auto AI Remove Background">
-                  ${icon('sparkles')} <span data-i18n="btnAutoAiBg">Auto AI</span>
+              <!-- AI Quick Remove & Reset (stacked to prevent sidebar overflow) -->
+              <div class="editor-step3-action-col">
+                <button type="button" class="btn btn-secondary btn-sm btn-block" id="btnBrushAutoAi" title="Auto AI Remove Background">
+                  ${icon('sparkles')} <span data-i18n="btnAutoAiBg">Auto AI Remove</span>
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushResetMask" title="Reset Background to Original">
-                  ${icon('refresh-ccw')} <span data-i18n="btnResetBg">Reset</span>
+                <button type="button" class="btn btn-secondary btn-sm btn-block" id="btnBrushResetMask" title="Reset Background to Original">
+                  ${icon('refresh-ccw')} <span data-i18n="btnResetBg">Reset Background</span>
                 </button>
               </div>
 
