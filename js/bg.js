@@ -217,3 +217,63 @@ export async function removeBackgroundToWhite(inputCanvas, faceCenter = null) {
     } catch (e) {}
   }
 }
+
+/**
+ * Returns an alpha mask canvas (w x h) from MediaPipe segmentation
+ * @param {HTMLCanvasElement} inputCanvas 
+ * @returns {Promise<HTMLCanvasElement|null>}
+ */
+export async function getSegmentationMask(inputCanvas) {
+  const segmenter = await getSegmenter();
+  if (!segmenter) return null;
+  const w = inputCanvas.width;
+  const h = inputCanvas.height;
+  let segCanvas = inputCanvas;
+  const maxDim = Math.max(w, h);
+  if (maxDim > 768) {
+    const scale = 768 / maxDim;
+    const sw = Math.round(w * scale);
+    const sh = Math.round(h * scale);
+    segCanvas = createCanvas(sw, sh);
+    const sCtx = segCanvas.getContext('2d');
+    sCtx.drawImage(inputCanvas, 0, 0, sw, sh);
+  }
+  let result;
+  try {
+    result = segmenter.segment(segCanvas);
+  } catch (err) {
+    return null;
+  }
+  if (!result || !result.confidenceMasks || result.confidenceMasks.length === 0) return null;
+  const mask = result.confidenceMasks[0];
+  try {
+    const maskW = mask.width;
+    const maskH = mask.height;
+    const maskData = mask.getAsFloat32Array();
+    const maskCanvas = createCanvas(maskW, maskH);
+    const mCtx = maskCanvas.getContext('2d');
+    const mImgData = mCtx.createImageData(maskW, maskH);
+    const md = mImgData.data;
+    for (let i = 0; i < maskW * maskH; i++) {
+      const val = maskData[i];
+      const alpha = Math.max(0, Math.min(1, (val - 0.15) / 0.75));
+      const smoothed = alpha * alpha * (3 - 2 * alpha);
+      const byteVal = Math.round(smoothed * 255);
+      const idx = i * 4;
+      md[idx] = byteVal;
+      md[idx + 1] = byteVal;
+      md[idx + 2] = byteVal;
+      md[idx + 3] = byteVal;
+    }
+    mCtx.putImageData(mImgData, 0, 0);
+    const fullMask = createCanvas(w, h);
+    const fmCtx = fullMask.getContext('2d');
+    fmCtx.imageSmoothingEnabled = true;
+    fmCtx.imageSmoothingQuality = 'high';
+    fmCtx.drawImage(maskCanvas, 0, 0, w, h);
+    return fullMask;
+  } finally {
+    try { mask.close(); } catch (e) {}
+  }
+}
+

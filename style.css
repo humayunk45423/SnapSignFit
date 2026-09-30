@@ -1042,6 +1042,28 @@ button {
   gap: var(--s-2);
 }
 
+.editor-step3-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.brush-mode-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+}
+
+.brush-mode-group .btn.active {
+  background-color: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+
+.editor-interactive-canvas.brush-mode {
+  cursor: crosshair;
+}
+
 .editor-options-row {
   font-size: 12px;
 }

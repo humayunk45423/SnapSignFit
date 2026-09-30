@@ -1,7 +1,8 @@
-// js/editor.js - Two-Step Photoshop-Style Manual Crop & Straighten Editor
+// js/editor.js - Three-Step Photoshop-Style Manual Crop, Straighten & Background Brush Editor
 import { createCanvas, stepDownDownscale } from './loader.js';
 import { parseLocalizedNumber, formatLocalizedNumber, getLanguage, t } from './i18n.js';
 import { icon } from './icons.js';
+import { getSegmentationMask } from './bg.js';
 
 export class ManualEditor {
   constructor(options = {}) {
@@ -13,7 +14,7 @@ export class ManualEditor {
     this.onApply = options.onApply || (() => {});
     this.onLiveUpdate = options.onLiveUpdate || (() => {});
 
-    // Step state: 1 = Crop Frame, 2 = Straighten & Rotate (on committed crop)
+    // Step state: 1 = Crop Frame, 2 = Straighten & Rotate, 3 = Background & Eraser Brush
     this.currentStep = 1;
 
     // Step 1 State (Crop rectangle on sourceCanvas coordinates)
@@ -35,6 +36,19 @@ export class ManualEditor {
     this.bgColor = '#ffffff';
     this.transparent = false;
 
+    // Step 3 State (Background & Brush Touchup)
+    this.step3BaseCanvas = null;
+    this.maskCanvas = null;
+    this.compositeBuffer = null;
+    this.brushSize = 30; // 5 to 150 px
+    this.brushHardness = 80; // 0% to 100%
+    this.brushMode = 'erase'; // 'erase' or 'restore'
+    this.brushCursor = { x: -100, y: -100, visible: false };
+    this.isBrushing = false;
+    this.lastBrushPoint = null;
+    this.maskUndoStack = [];
+    this.maskRedoStack = [];
+
     // History for Undo / Redo in Step 2
     this.undoStack = [];
     this.redoStack = [];
@@ -55,7 +69,6 @@ export class ManualEditor {
     // Working & Preview Canvases
     this.editorCanvas = null;
     this.previewCanvas = null;
-    this.workingTransformedCanvas = null;
 
     // rAF Coalescing
     this.rafPending = false;
@@ -79,6 +92,9 @@ export class ManualEditor {
             </button>
             <button type="button" class="editor-step-tab" id="tabStep2" data-step="2">
               ${icon('ruler')} <span data-i18n="step2Straighten">2. Straighten & Rotate</span>
+            </button>
+            <button type="button" class="editor-step-tab" id="tabStep3" data-step="3">
+              ${icon('brush')} <span data-i18n="step3Bg">3. Background & Brush</span>
             </button>
           </div>
         </div>
@@ -112,7 +128,7 @@ export class ManualEditor {
             </div>
 
             <!-- STEP 2 CONTROLS -->
-            <div class="editor-tools" id="step2Controls">
+            <div class="editor-tools hidden" id="step2Controls">
               <!-- Straighten Slider + Keyboard Input (B1b) -->
               <div class="editor-control-group">
                 <div class="editor-control-header">
@@ -160,10 +176,67 @@ export class ManualEditor {
                 </button>
               </div>
 
-              <!-- Step Navigation: Back to Crop -->
+              <!-- Step Navigation: Forward to Step 3 & Back to Crop -->
+              <div class="editor-step-forward-row">
+                <button type="button" class="btn btn-primary btn-block" id="btnCommitStraighten">
+                  <span data-i18n="commitStraighten">Next: Background & Brush →</span>
+                </button>
+              </div>
               <div class="editor-step-back-row">
                 <button type="button" class="btn btn-outline btn-sm btn-block" id="btnBackToStep1">
                   <span data-i18n="backToCrop">← Back to Crop Frame</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3 CONTROLS (Background & Eraser Brush) -->
+            <div class="editor-step3-panel hidden" id="step3Controls">
+              <!-- Mode Toggle -->
+              <div class="brush-mode-group">
+                <button type="button" class="btn btn-secondary btn-sm active" id="btnBrushErase">
+                  ${icon('eraser')} <span data-i18n="brushErase">Eraser</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushRestore">
+                  ${icon('brush')} <span data-i18n="brushRestore">Restore</span>
+                </button>
+              </div>
+
+              <!-- Brush Size -->
+              <div class="editor-control-group">
+                <div class="editor-control-header">
+                  <label for="brushSizeSlider" data-i18n="brushSize">Brush Size</label>
+                  <div class="editor-input-wrap">
+                    <input type="text" id="brushSizeInput" class="editor-num-input" value="30px" inputmode="numeric" aria-label="Brush Size">
+                  </div>
+                </div>
+                <input type="range" id="brushSizeSlider" min="5" max="150" step="1" value="30" class="editor-slider" aria-label="Brush Size Slider">
+              </div>
+
+              <!-- Hardness -->
+              <div class="editor-control-group">
+                <div class="editor-control-header">
+                  <label for="brushHardnessSlider" data-i18n="brushHardness">Hardness</label>
+                  <div class="editor-input-wrap">
+                    <input type="text" id="brushHardnessInput" class="editor-num-input" value="80%" inputmode="numeric" aria-label="Brush Hardness">
+                  </div>
+                </div>
+                <input type="range" id="brushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-slider" aria-label="Brush Hardness Slider">
+              </div>
+
+              <!-- AI Quick Remove & Reset -->
+              <div class="editor-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushAutoAi" title="Auto AI Remove Background">
+                  ${icon('sparkles')} <span data-i18n="btnAutoAiBg">Auto AI</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushResetMask" title="Reset Background to Original">
+                  ${icon('refresh-ccw')} <span data-i18n="btnResetBg">Reset</span>
+                </button>
+              </div>
+
+              <!-- Step Navigation: Back to Straighten -->
+              <div class="editor-step-back-row">
+                <button type="button" class="btn btn-outline btn-sm btn-block" id="btnBackToStep2">
+                  <span data-i18n="backToStraighten">← Back to Straighten</span>
                 </button>
               </div>
             </div>
@@ -210,8 +283,12 @@ export class ManualEditor {
     // Step Tabs & Navigation
     el.querySelector('#tabStep1').addEventListener('click', () => this.setStep(1));
     el.querySelector('#tabStep2').addEventListener('click', () => this.setStep(2));
+    el.querySelector('#tabStep3').addEventListener('click', () => this.setStep(3));
+
     el.querySelector('#btnCommitCrop').addEventListener('click', () => this.setStep(2));
     el.querySelector('#btnBackToStep1').addEventListener('click', () => this.setStep(1));
+    el.querySelector('#btnCommitStraighten').addEventListener('click', () => this.setStep(3));
+    el.querySelector('#btnBackToStep2').addEventListener('click', () => this.setStep(2));
 
     // Modal buttons
     el.querySelector('#editorCancelBtn').addEventListener('click', () => this.close());
@@ -250,7 +327,6 @@ export class ManualEditor {
     // Straighten Slider + Number Input Two-way sync (B1b & B3)
     const strSlider = el.querySelector('#straightenSlider');
     const strInput = el.querySelector('#straightenInput');
-    const strText = el.querySelector('#straightenValText');
 
     strSlider.addEventListener('input', (e) => {
       if (this.currentStep === 1) this.setStep(2);
@@ -277,7 +353,6 @@ export class ManualEditor {
     // Zoom Slider + Number Input Two-way sync (B1b & B3)
     const zoomSlider = el.querySelector('#editorZoomSlider');
     const zoomInput = el.querySelector('#zoomInput');
-    const zoomText = el.querySelector('#zoomValText');
 
     zoomSlider.addEventListener('input', (e) => {
       const z = parseFloat(e.target.value) || 1.0;
@@ -301,6 +376,74 @@ export class ManualEditor {
       max: 1600,
       format: (v) => `${Math.round(v)}%`
     });
+
+    // Step 3 Brush Mode Toggle (Eraser vs Restore)
+    const btnErase = el.querySelector('#btnBrushErase');
+    const btnRestore = el.querySelector('#btnBrushRestore');
+
+    btnErase.addEventListener('click', () => {
+      this.brushMode = 'erase';
+      btnErase.classList.add('active');
+      btnRestore.classList.remove('active');
+      this.requestRender();
+    });
+
+    btnRestore.addEventListener('click', () => {
+      this.brushMode = 'restore';
+      btnRestore.classList.add('active');
+      btnErase.classList.remove('active');
+      this.requestRender();
+    });
+
+    // Step 3 Brush Size Slider & Input
+    const brushSizeSlider = el.querySelector('#brushSizeSlider');
+    const brushSizeInput = el.querySelector('#brushSizeInput');
+
+    brushSizeSlider.addEventListener('input', (e) => {
+      this.brushSize = parseInt(e.target.value, 10) || 30;
+      this.updateBrushSizeInputDisplay();
+      this.requestRender();
+    });
+
+    this.bindNumericInput(brushSizeInput, {
+      getVal: () => this.brushSize,
+      setVal: (v) => {
+        this.brushSize = Math.max(5, Math.min(150, Math.round(v)));
+        brushSizeSlider.value = this.brushSize;
+        this.updateBrushSizeInputDisplay();
+        this.requestRender();
+      },
+      step: 1,
+      min: 5,
+      max: 150,
+      format: (v) => `${Math.round(v)}px`
+    });
+
+    // Step 3 Brush Hardness Slider & Input
+    const brushHardnessSlider = el.querySelector('#brushHardnessSlider');
+    const brushHardnessInput = el.querySelector('#brushHardnessInput');
+
+    brushHardnessSlider.addEventListener('input', (e) => {
+      this.brushHardness = parseInt(e.target.value, 10) || 80;
+      this.updateBrushHardnessInputDisplay();
+    });
+
+    this.bindNumericInput(brushHardnessInput, {
+      getVal: () => this.brushHardness,
+      setVal: (v) => {
+        this.brushHardness = Math.max(0, Math.min(100, Math.round(v)));
+        brushHardnessSlider.value = this.brushHardness;
+        this.updateBrushHardnessInputDisplay();
+      },
+      step: 1,
+      min: 0,
+      max: 100,
+      format: (v) => `${Math.round(v)}%`
+    });
+
+    // Step 3 Quick Action Buttons
+    el.querySelector('#btnBrushAutoAi')?.addEventListener('click', () => this.autoAiRemoveBg());
+    el.querySelector('#btnBrushResetMask')?.addEventListener('click', () => this.resetMask());
 
     // Straighten Line Tool Toggle
     const strToolBtn = el.querySelector('#btnStraightenTool');
@@ -340,6 +483,12 @@ export class ManualEditor {
     this.editorCanvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
     window.addEventListener('pointermove', (e) => this.onPointerMove(e));
     window.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    this.editorCanvas.addEventListener('pointerleave', () => {
+      if (this.currentStep === 3) {
+        this.brushCursor.visible = false;
+        this.requestRender();
+      }
+    });
     this.editorCanvas.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
   }
 
@@ -404,30 +553,53 @@ export class ManualEditor {
     if (txt) txt.textContent = formatted;
   }
 
+  updateBrushSizeInputDisplay() {
+    const formatted = `${Math.round(this.brushSize)}px`;
+    const inp = this.overlayEl.querySelector('#brushSizeInput');
+    if (inp && document.activeElement !== inp) inp.value = formatted;
+  }
+
+  updateBrushHardnessInputDisplay() {
+    const formatted = `${Math.round(this.brushHardness)}%`;
+    const inp = this.overlayEl.querySelector('#brushHardnessInput');
+    if (inp && document.activeElement !== inp) inp.value = formatted;
+  }
+
   setStep(stepNumber) {
     if (stepNumber === 2 && this.currentStep === 1) {
       this.commitCropToBitmap();
+    } else if (stepNumber === 3) {
+      if (this.currentStep === 1) {
+        this.commitCropToBitmap();
+      }
+      this.commitStep2ToBitmap();
     }
     this.currentStep = stepNumber;
 
     const tab1 = this.overlayEl.querySelector('#tabStep1');
     const tab2 = this.overlayEl.querySelector('#tabStep2');
+    const tab3 = this.overlayEl.querySelector('#tabStep3');
     const p1 = this.overlayEl.querySelector('#step1Controls');
-    const backBtnRow = this.overlayEl.querySelector('.editor-step-back-row');
+    const p2 = this.overlayEl.querySelector('#step2Controls');
+    const p3 = this.overlayEl.querySelector('#step3Controls');
     const help = this.overlayEl.querySelector('#editorHelpText');
 
-    if (stepNumber === 1) {
-      tab1?.classList.add('active');
-      tab2?.classList.remove('active');
-      if (p1) p1.classList.remove('hidden');
-      if (backBtnRow) backBtnRow.classList.add('hidden');
-      if (help) help.textContent = t('cropHint');
-    } else {
-      tab1?.classList.remove('active');
-      tab2?.classList.add('active');
-      if (p1) p1.classList.add('hidden');
-      if (backBtnRow) backBtnRow.classList.remove('hidden');
-      if (help) help.textContent = t('straightenHintStep2');
+    tab1?.classList.toggle('active', stepNumber === 1);
+    tab2?.classList.toggle('active', stepNumber === 2);
+    tab3?.classList.toggle('active', stepNumber === 3);
+
+    if (p1) p1.classList.toggle('hidden', stepNumber !== 1);
+    if (p2) p2.classList.toggle('hidden', stepNumber !== 2);
+    if (p3) p3.classList.toggle('hidden', stepNumber !== 3);
+
+    if (this.editorCanvas) {
+      this.editorCanvas.classList.toggle('brush-mode', stepNumber === 3);
+    }
+
+    if (help) {
+      if (stepNumber === 1) help.textContent = t('cropHint');
+      else if (stepNumber === 2) help.textContent = t('straightenHintStep2');
+      else if (stepNumber === 3) help.textContent = t('brushHint');
     }
 
     this.redraw();
@@ -447,6 +619,43 @@ export class ManualEditor {
     }
     pCtx.drawImage(this.sourceCanvas, x, y, clampedW, clampedH, 0, 0, clampedW, clampedH);
     this.croppedCanvas = patch;
+  }
+
+  commitStep2ToBitmap() {
+    if (!this.croppedCanvas) this.commitCropToBitmap();
+    const bmp = this.croppedCanvas;
+    const totalDeg = this.rotation + this.straightenDeg;
+
+    this.step3BaseCanvas = createCanvas(this.targetW, this.targetH);
+    const ctx = this.step3BaseCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    if (!this.transparent) {
+      ctx.fillStyle = this.bgColor;
+      ctx.fillRect(0, 0, this.targetW, this.targetH);
+    }
+
+    const cx = bmp.width / 2;
+    const cy = bmp.height / 2;
+    const scale = Math.min(this.targetW / bmp.width, this.targetH / bmp.height) * this.step2Zoom;
+
+    ctx.save();
+    ctx.translate(this.targetW / 2, this.targetH / 2);
+    ctx.rotate((totalDeg * Math.PI) / 180);
+    ctx.scale(scale * (this.flipH ? -1 : 1), scale * (this.flipV ? -1 : 1));
+    ctx.translate(-cx - this.step2PanX, -cy - this.step2PanY);
+    ctx.drawImage(bmp, 0, 0);
+    ctx.restore();
+
+    if (!this.maskCanvas || this.maskCanvas.width !== this.targetW || this.maskCanvas.height !== this.targetH) {
+      this.maskCanvas = createCanvas(this.targetW, this.targetH);
+      const mCtx = this.maskCanvas.getContext('2d');
+      mCtx.fillStyle = '#ffffff';
+      mCtx.fillRect(0, 0, this.targetW, this.targetH);
+      this.maskUndoStack = [];
+      this.maskRedoStack = [];
+    }
   }
 
   open(sourceCanvas, targetW, targetH, initialCrop = null, preset = null, options = {}) {
@@ -469,11 +678,30 @@ export class ManualEditor {
     this.undoStack = [];
     this.redoStack = [];
 
+    // Reset Step 3 state
+    this.step3BaseCanvas = null;
+    this.maskCanvas = null;
+    this.maskUndoStack = [];
+    this.maskRedoStack = [];
+    this.brushMode = 'erase';
+    this.brushCursor = { x: -100, y: -100, visible: false };
+
+    const btnErase = this.overlayEl.querySelector('#btnBrushErase');
+    const btnRestore = this.overlayEl.querySelector('#btnBrushRestore');
+    if (btnErase && btnRestore) {
+      btnErase.classList.add('active');
+      btnRestore.classList.remove('active');
+    }
+
     this.overlayEl.querySelector('#allowPaddingCheck').checked = this.allowPadding;
     this.overlayEl.querySelector('#straightenSlider').value = this.straightenDeg;
     this.overlayEl.querySelector('#editorZoomSlider').value = 1.0;
+    this.overlayEl.querySelector('#brushSizeSlider').value = this.brushSize;
+    this.overlayEl.querySelector('#brushHardnessSlider').value = this.brushHardness;
     this.updateStraightenInputDisplay();
     this.updateZoomInputDisplay();
+    this.updateBrushSizeInputDisplay();
+    this.updateBrushHardnessInputDisplay();
     this.overlayEl.querySelector('#editorDimText').textContent = `${targetW}×${targetH} px`;
 
     if (initialCrop) {
@@ -502,7 +730,6 @@ export class ManualEditor {
     }
     this.close();
 
-    // Render final high-quality transformed canvas from croppedCanvas
     const finalRender = this.renderFinalTransformedCrop();
 
     this.onApply({
@@ -514,6 +741,7 @@ export class ManualEditor {
       allowPadding: this.allowPadding,
       transformedCanvas: finalRender,
       croppedCanvas: this.croppedCanvas,
+      maskCanvas: this.maskCanvas,
       step2Transform: {
         rotation: this.rotation,
         straightenDeg: this.straightenDeg,
@@ -534,6 +762,8 @@ export class ManualEditor {
     this.step2PanY = 0;
     this.flipH = false;
     this.flipV = false;
+    this.step3BaseCanvas = null;
+    this.maskCanvas = null;
     this.overlayEl.querySelector('#straightenSlider').value = 0;
     this.overlayEl.querySelector('#editorZoomSlider').value = 1.0;
     this.updateStraightenInputDisplay();
@@ -609,7 +839,20 @@ export class ManualEditor {
     this.redoStack = [];
   }
 
+  pushMaskHistory() {
+    if (!this.maskCanvas) return;
+    const copy = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
+    copy.getContext('2d').drawImage(this.maskCanvas, 0, 0);
+    this.maskUndoStack.push(copy);
+    if (this.maskUndoStack.length > 25) this.maskUndoStack.shift();
+    this.maskRedoStack = [];
+  }
+
   undo() {
+    if (this.currentStep === 3) {
+      this.undoMask();
+      return;
+    }
     if (this.undoStack.length === 0) return;
     const state = this.undoStack.pop();
     this.redoStack.push({
@@ -624,7 +867,24 @@ export class ManualEditor {
     this.applyHistoryState(state);
   }
 
+  undoMask() {
+    if (this.maskUndoStack.length === 0 || !this.maskCanvas) return;
+    const current = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
+    current.getContext('2d').drawImage(this.maskCanvas, 0, 0);
+    this.maskRedoStack.push(current);
+
+    const prev = this.maskUndoStack.pop();
+    const mCtx = this.maskCanvas.getContext('2d');
+    mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+    mCtx.drawImage(prev, 0, 0);
+    this.requestRender();
+  }
+
   redo() {
+    if (this.currentStep === 3) {
+      this.redoMask();
+      return;
+    }
     if (this.redoStack.length === 0) return;
     const state = this.redoStack.pop();
     this.undoStack.push({
@@ -637,6 +897,19 @@ export class ManualEditor {
       flipV: this.flipV
     });
     this.applyHistoryState(state);
+  }
+
+  redoMask() {
+    if (this.maskRedoStack.length === 0 || !this.maskCanvas) return;
+    const current = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
+    current.getContext('2d').drawImage(this.maskCanvas, 0, 0);
+    this.maskUndoStack.push(current);
+
+    const next = this.maskRedoStack.pop();
+    const mCtx = this.maskCanvas.getContext('2d');
+    mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+    mCtx.drawImage(next, 0, 0);
+    this.requestRender();
   }
 
   applyHistoryState(state) {
@@ -652,6 +925,71 @@ export class ManualEditor {
     this.overlayEl.querySelector('#editorZoomSlider').value = this.step2Zoom;
     this.updateStraightenInputDisplay();
     this.updateZoomInputDisplay();
+    this.requestRender();
+  }
+
+  applyBrushStamp(imgX, imgY) {
+    if (!this.maskCanvas) return;
+    const mCtx = this.maskCanvas.getContext('2d');
+    const radius = this.brushSize / 2;
+    const hardness = Math.max(0, Math.min(100, this.brushHardness)) / 100;
+    const innerRadius = radius * hardness;
+
+    mCtx.save();
+    const grad = mCtx.createRadialGradient(imgX, imgY, innerRadius, imgX, imgY, radius);
+
+    if (this.brushMode === 'erase') {
+      mCtx.globalCompositeOperation = 'destination-out';
+      grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    } else {
+      mCtx.globalCompositeOperation = 'source-over';
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    }
+
+    mCtx.fillStyle = grad;
+    mCtx.beginPath();
+    mCtx.arc(imgX, imgY, radius, 0, Math.PI * 2);
+    mCtx.fill();
+    mCtx.restore();
+  }
+
+  applyBrushStroke(x0, y0, x1, y1) {
+    const dist = Math.hypot(x1 - x0, y1 - y0);
+    const step = Math.max(1, (this.brushSize / 2) * 0.2);
+    const steps = Math.max(1, Math.ceil(dist / step));
+
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      const x = x0 + (x1 - x0) * t;
+      const y = y0 + (y1 - y0) * t;
+      this.applyBrushStamp(x, y);
+    }
+  }
+
+  async autoAiRemoveBg() {
+    if (!this.step3BaseCanvas) this.commitStep2ToBitmap();
+    this.pushMaskHistory();
+    try {
+      const mask = await getSegmentationMask(this.step3BaseCanvas);
+      if (mask && this.maskCanvas) {
+        const mCtx = this.maskCanvas.getContext('2d');
+        mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+        mCtx.drawImage(mask, 0, 0, this.maskCanvas.width, this.maskCanvas.height);
+        this.requestRender();
+      }
+    } catch (err) {
+      console.warn('Auto AI segmentation failed in editor brush:', err);
+    }
+  }
+
+  resetMask() {
+    if (!this.maskCanvas) return;
+    this.pushMaskHistory();
+    const mCtx = this.maskCanvas.getContext('2d');
+    mCtx.fillStyle = '#ffffff';
+    mCtx.fillRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
     this.requestRender();
   }
 
@@ -686,8 +1024,10 @@ export class ManualEditor {
 
     if (this.currentStep === 1) {
       this.drawStep1Crop(ctx, cw, ch);
-    } else {
+    } else if (this.currentStep === 2) {
       this.drawStep2Straighten(ctx, cw, ch);
+    } else {
+      this.drawStep3Brush(ctx, cw, ch);
     }
 
     ctx.restore();
@@ -743,14 +1083,14 @@ export class ManualEditor {
     const handleSize = 12;
     const half = handleSize / 2;
     const handles = [
-      { x: cropScreenX, y: cropScreenY }, // TL
-      { x: cropScreenX + cropScreenW / 2, y: cropScreenY }, // T
-      { x: cropScreenX + cropScreenW, y: cropScreenY }, // TR
-      { x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH / 2 }, // R
-      { x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH }, // BR
-      { x: cropScreenX + cropScreenW / 2, y: cropScreenY + cropScreenH }, // B
-      { x: cropScreenX, y: cropScreenY + cropScreenH }, // BL
-      { x: cropScreenX, y: cropScreenY + cropScreenH / 2 } // L
+      { x: cropScreenX, y: cropScreenY },
+      { x: cropScreenX + cropScreenW / 2, y: cropScreenY },
+      { x: cropScreenX + cropScreenW, y: cropScreenY },
+      { x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH / 2 },
+      { x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH },
+      { x: cropScreenX + cropScreenW / 2, y: cropScreenY + cropScreenH },
+      { x: cropScreenX, y: cropScreenY + cropScreenH },
+      { x: cropScreenX, y: cropScreenY + cropScreenH / 2 }
     ];
 
     handles.forEach(p => {
@@ -818,6 +1158,59 @@ export class ManualEditor {
     }
   }
 
+  drawStep3Brush(ctx, cw, ch) {
+    if (!this.step3BaseCanvas) this.commitStep2ToBitmap();
+    const baseScale = Math.min((cw - 40) / this.targetW, (ch - 40) / this.targetH);
+    const cx = cw / 2;
+    const cy = ch / 2;
+
+    this.displayScale = baseScale;
+    this.displayOffsetX = cx;
+    this.displayOffsetY = cy;
+
+    // Viewport background
+    ctx.fillStyle = '#18181b';
+    ctx.fillRect(0, 0, cw, ch);
+
+    const screenW = this.targetW * baseScale;
+    const screenH = this.targetH * baseScale;
+    const screenX = cx - screenW / 2;
+    const screenY = cy - screenH / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(screenX, screenY, screenW, screenH);
+    ctx.clip();
+    this.drawCheckerPattern(ctx, cw, ch);
+
+    const comp = this.getCompositedStep3Canvas();
+    ctx.drawImage(comp, screenX, screenY, screenW, screenH);
+    ctx.restore();
+
+    // Output boundary guide box
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(screenX, screenY, screenW, screenH);
+
+    // Brush cursor circle outline
+    if (this.brushCursor.visible) {
+      const radius = (this.brushSize / 2) * baseScale;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(this.brushCursor.x, this.brushCursor.y, radius, 0, Math.PI * 2);
+      ctx.strokeStyle = this.brushMode === 'erase' ? '#ef4444' : '#22c55e';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(this.brushCursor.x, this.brushCursor.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
   drawCheckerPattern(ctx, w, h) {
     const size = 12;
     ctx.fillStyle = '#27272a';
@@ -829,6 +1222,23 @@ export class ManualEditor {
     }
   }
 
+  getCompositedStep3Canvas() {
+    if (!this.step3BaseCanvas) this.commitStep2ToBitmap();
+    if (!this.compositeBuffer || this.compositeBuffer.width !== this.targetW || this.compositeBuffer.height !== this.targetH) {
+      this.compositeBuffer = createCanvas(this.targetW, this.targetH);
+    }
+    const cCtx = this.compositeBuffer.getContext('2d');
+    cCtx.clearRect(0, 0, this.targetW, this.targetH);
+    cCtx.drawImage(this.step3BaseCanvas, 0, 0);
+
+    if (this.maskCanvas) {
+      cCtx.globalCompositeOperation = 'destination-in';
+      cCtx.drawImage(this.maskCanvas, 0, 0);
+      cCtx.globalCompositeOperation = 'source-over';
+    }
+    return this.compositeBuffer;
+  }
+
   renderLivePreview() {
     if (!this.previewCanvas) return;
     this.previewCanvas.width = this.targetW;
@@ -837,7 +1247,6 @@ export class ManualEditor {
     pCtx.imageSmoothingEnabled = true;
     pCtx.imageSmoothingQuality = 'medium';
 
-    // Section 2 Rule: Clear + Fill first, one draw, no underlay
     if (!this.transparent) {
       pCtx.fillStyle = this.bgColor;
       pCtx.fillRect(0, 0, this.targetW, this.targetH);
@@ -848,7 +1257,7 @@ export class ManualEditor {
     if (this.currentStep === 1) {
       const { x, y, w, h } = this.crop;
       pCtx.drawImage(this.sourceCanvas, x, y, w, h, 0, 0, this.targetW, this.targetH);
-    } else {
+    } else if (this.currentStep === 2) {
       if (!this.croppedCanvas) this.commitCropToBitmap();
       const bmp = this.croppedCanvas;
       const totalDeg = this.rotation + this.straightenDeg;
@@ -863,10 +1272,27 @@ export class ManualEditor {
       pCtx.translate(-cx - this.step2PanX, -cy - this.step2PanY);
       pCtx.drawImage(bmp, 0, 0);
       pCtx.restore();
+    } else {
+      const comp = this.getCompositedStep3Canvas();
+      pCtx.drawImage(comp, 0, 0, this.targetW, this.targetH);
     }
   }
 
   renderFinalTransformedCrop() {
+    if (this.maskCanvas && (this.currentStep === 3 || this.step3BaseCanvas)) {
+      const comp = this.getCompositedStep3Canvas();
+      const out = createCanvas(this.targetW, this.targetH);
+      const ctx = out.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      if (!this.transparent) {
+        ctx.fillStyle = this.bgColor;
+        ctx.fillRect(0, 0, this.targetW, this.targetH);
+      }
+      ctx.drawImage(comp, 0, 0);
+      return out;
+    }
+
     if (!this.croppedCanvas) this.commitCropToBitmap();
     const bmp = this.croppedCanvas;
     const totalDeg = this.rotation + this.straightenDeg;
@@ -876,7 +1302,6 @@ export class ManualEditor {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    // Section 2 Architecture Rule: Clear + Fill first, one transform, one draw
     if (!this.transparent) {
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(0, 0, this.targetW, this.targetH);
@@ -891,7 +1316,7 @@ export class ManualEditor {
     ctx.rotate((totalDeg * Math.PI) / 180);
     ctx.scale(scale * (this.flipH ? -1 : 1), scale * (this.flipV ? -1 : 1));
     ctx.translate(-cx - this.step2PanX, -cy - this.step2PanY);
-    ctx.drawImage(bmp, 0, 0); // Exactly one draw
+    ctx.drawImage(bmp, 0, 0);
     ctx.restore();
 
     return out;
@@ -910,7 +1335,6 @@ export class ManualEditor {
       const cropScreenW = this.crop.w * scale;
       const cropScreenH = this.crop.h * scale;
 
-      // Check 8 Handles with 22px touch-friendly threshold (B8)
       const handleThreshold = 22;
       const handles = [
         { name: 'tl', x: cropScreenX, y: cropScreenY },
@@ -934,7 +1358,6 @@ export class ManualEditor {
         }
       }
 
-      // Check inside crop frame to move
       if (px >= cropScreenX && px <= cropScreenX + cropScreenW &&
           py >= cropScreenY && py <= cropScreenY + cropScreenH) {
         this.isDragging = true;
@@ -942,8 +1365,7 @@ export class ManualEditor {
         this.cropStart = { ...this.crop };
         this.editorCanvas.setPointerCapture(e.pointerId);
       }
-    } else {
-      // Step 2: Straighten Tool line drag or Pan
+    } else if (this.currentStep === 2) {
       if (this.straightenToolActive) {
         this.straightenLineStart = { x: px, y: py };
         this.straightenLineEnd = { x: px, y: py };
@@ -954,6 +1376,25 @@ export class ManualEditor {
         this.panStart = { x: this.step2PanX, y: this.step2PanY };
         this.editorCanvas.setPointerCapture(e.pointerId);
       }
+    } else if (this.currentStep === 3) {
+      this.pushMaskHistory();
+      this.isBrushing = true;
+      this.brushCursor.x = px;
+      this.brushCursor.y = py;
+      this.brushCursor.visible = true;
+
+      const screenW = this.targetW * this.displayScale;
+      const screenH = this.targetH * this.displayScale;
+      const screenX = this.displayOffsetX - screenW / 2;
+      const screenY = this.displayOffsetY - screenH / 2;
+
+      const imgX = (px - screenX) / this.displayScale;
+      const imgY = (py - screenY) / this.displayScale;
+
+      this.lastBrushPoint = { x: imgX, y: imgY };
+      this.applyBrushStamp(imgX, imgY);
+      this.editorCanvas.setPointerCapture(e.pointerId);
+      this.requestRender();
     }
   }
 
@@ -996,8 +1437,7 @@ export class ManualEditor {
         this.clampCropToBounds();
         this.requestRender();
       }
-    } else {
-      // Step 2
+    } else if (this.currentStep === 2) {
       if (this.straightenToolActive && this.straightenLineStart) {
         this.straightenLineEnd = { x: px, y: py };
         this.requestRender();
@@ -1008,6 +1448,24 @@ export class ManualEditor {
         this.step2PanY = Math.round(this.panStart.y + dy);
         this.requestRender();
       }
+    } else if (this.currentStep === 3) {
+      this.brushCursor.x = px;
+      this.brushCursor.y = py;
+      this.brushCursor.visible = (px >= 0 && px <= rect.width && py >= 0 && py <= rect.height);
+
+      if (this.isBrushing && this.lastBrushPoint) {
+        const screenW = this.targetW * this.displayScale;
+        const screenH = this.targetH * this.displayScale;
+        const screenX = this.displayOffsetX - screenW / 2;
+        const screenY = this.displayOffsetY - screenH / 2;
+
+        const imgX = (px - screenX) / this.displayScale;
+        const imgY = (py - screenY) / this.displayScale;
+
+        this.applyBrushStroke(this.lastBrushPoint.x, this.lastBrushPoint.y, imgX, imgY);
+        this.lastBrushPoint = { x: imgX, y: imgY };
+      }
+      this.requestRender();
     }
   }
 
@@ -1017,7 +1475,6 @@ export class ManualEditor {
       const dy = this.straightenLineEnd.y - this.straightenLineStart.y;
       if (Math.hypot(dx, dy) > 10) {
         let angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        // Normalize angle to nearest horizontal/vertical (0 or 90)
         while (angle > 45) angle -= 90;
         while (angle < -45) angle += 90;
         this.pushHistory();
@@ -1034,6 +1491,10 @@ export class ManualEditor {
         btn.classList.add('btn-secondary');
       }
       this.requestRender();
+    } else if (this.currentStep === 3) {
+      this.isBrushing = false;
+      this.lastBrushPoint = null;
+      this.requestRender();
     }
 
     this.isDragging = false;
@@ -1047,7 +1508,6 @@ export class ManualEditor {
   onWheel(e) {
     e.preventDefault();
     if (this.currentStep === 1) {
-      // Step 1: Adjust crop frame size around center
       const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
       const currentZoom = Math.min(this.sourceCanvas.width / this.crop.w, this.sourceCanvas.height / this.crop.h);
       const newZoom = Math.max(0.2, Math.min(5.0, currentZoom * (1 + zoomDelta)));
@@ -1063,13 +1523,19 @@ export class ManualEditor {
       this.crop.y = Math.round(cy - newH / 2);
       this.clampCropToBounds();
       this.requestRender();
-    } else {
-      // Step 2: Adjust Step 2 zoom (10% to 1600%)
+    } else if (this.currentStep === 2) {
       const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
       const newZoom = Math.max(0.1, Math.min(16.0, Math.round((this.step2Zoom + zoomDelta) * 100) / 100));
       this.step2Zoom = newZoom;
       this.overlayEl.querySelector('#editorZoomSlider').value = newZoom;
       this.updateZoomInputDisplay();
+      this.requestRender();
+    } else if (this.currentStep === 3) {
+      // Step 3: Mouse wheel changes brush size
+      const delta = e.deltaY < 0 ? 5 : -5;
+      this.brushSize = Math.max(5, Math.min(150, this.brushSize + delta));
+      this.overlayEl.querySelector('#brushSizeSlider').value = this.brushSize;
+      this.updateBrushSizeInputDisplay();
       this.requestRender();
     }
   }
