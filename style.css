@@ -604,7 +604,6 @@ body.has-image .main-content,
   gap: var(--s-3);
   min-width: 0;
   max-width: 100%;
-  flex: 1 1 0;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1362,8 +1361,14 @@ body.has-image .main-content,
     gap: var(--s-4);
   }
 
+  .preview-pane {
+    flex: none;
+    width: 100%;
+  }
+
   .preview-viewport {
-    height: min(40dvh, 280px);
+    height: 280px;
+    min-height: 220px;
     max-height: 42dvh;
   }
 
@@ -1453,12 +1458,15 @@ body.has-image .main-content,
   }
 
   .preview-viewport {
-    height: min(38dvh, 250px);
+    height: 250px;
+    min-height: 200px;
     max-height: 40dvh;
   }
 
   .preview-pane {
     padding: var(--s-3);
+    flex: none;
+    width: 100%;
   }
 
   .presets-grid {
