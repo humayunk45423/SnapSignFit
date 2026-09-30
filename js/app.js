@@ -1,5 +1,5 @@
 // js/app.js - Main Application Orchestrator, UI Events, and Auto-Processing Pipeline
-import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations } from './i18n.js';
+import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations, formatLocalizedNumber } from './i18n.js';
 import { PRESETS, getSavedCustomPresets, saveCustomPreset, unitToPixels } from './presets.js';
 import { loadImageFile, createCanvas, flattenAlpha } from './loader.js';
 import { detectFacesWithLadder, selectPrimaryFace, computePassportCrop, checkFaceQuality, rotateCanvas } from './face.js';
@@ -214,8 +214,11 @@ class SnapSignFitApp {
     this.initTheme();
     this.setupGlobalErrors();
     this.renderPresetsGrid();
+    this.renderHeroChips();
+    this.renderHeroSubtext();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
+    this.updateHeroCardTab('photo');
 
     this.beforePanZoom = new PanZoomViewport(
       document.getElementById('beforeViewport'),
@@ -310,15 +313,64 @@ class SnapSignFitApp {
       const newLang = getLanguage() === 'en' ? 'bn' : 'en';
       setLanguage(newLang);
       this.renderPresetsGrid();
+      this.renderHeroChips();
+      this.renderHeroSubtext();
+      this.updateHeroCardTab(this.currentPreset?.kind || 'photo');
       this.updateStatusReadout();
     });
 
     document.getElementById('themeToggleBtn').addEventListener('click', () => this.toggleTheme());
 
-    // File Upload & Camera
+    // Hero Actions (REDESIGN.md)
     const fileInput = document.getElementById('fileInput');
     const cameraInput = document.getElementById('cameraInput');
     const dropzone = document.getElementById('dropzone');
+
+    const btnHeroPhoto = document.getElementById('btnHeroUploadPhoto');
+    if (btnHeroPhoto) {
+      btnHeroPhoto.addEventListener('click', () => {
+        const photoPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'photo') || PRESETS[0];
+        this.applyPreset(photoPreset);
+        this.updateHeroCardTab('photo');
+        fileInput.click();
+      });
+    }
+
+    const btnHeroSig = document.getElementById('btnHeroUploadSig');
+    if (btnHeroSig) {
+      btnHeroSig.addEventListener('click', () => {
+        const sigPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'signature');
+        if (sigPreset) this.applyPreset(sigPreset);
+        this.updateHeroCardTab('signature');
+        fileInput.click();
+      });
+    }
+
+    const heroTabPhoto = document.getElementById('heroTabPhoto');
+    if (heroTabPhoto) {
+      heroTabPhoto.addEventListener('click', () => {
+        const photoPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'photo') || PRESETS[0];
+        this.applyPreset(photoPreset);
+        this.updateHeroCardTab('photo');
+      });
+    }
+
+    const heroTabSig = document.getElementById('heroTabSig');
+    if (heroTabSig) {
+      heroTabSig.addEventListener('click', () => {
+        const sigPreset = PRESETS.find(p => p.category === 'gov' && p.kind === 'signature');
+        if (sigPreset) this.applyPreset(sigPreset);
+        this.updateHeroCardTab('signature');
+      });
+    }
+
+    // Nav anchor links
+    document.querySelectorAll('.site-nav .nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('.site-nav .nav-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      });
+    });
 
     document.getElementById('btnChooseFile').addEventListener('click', () => fileInput.click());
     document.getElementById('btnTakePhoto').addEventListener('click', () => cameraInput.click());
@@ -614,12 +666,98 @@ class SnapSignFitApp {
     });
   }
 
+  renderHeroChips() {
+    const container = document.getElementById('heroChipsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Pull the first 4 Government & Exam presets
+    const govPresets = PRESETS.filter(p => p.category === 'gov').slice(0, 4);
+    govPresets.forEach(preset => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'hero-chip';
+      const limitStr = preset.maxKB ? ` (≤${preset.maxKB}KB)` : '';
+      chip.textContent = `${preset.label}${limitStr}`;
+      chip.addEventListener('click', () => {
+        this.applyPreset(preset);
+        this.updateHeroCardTab(preset.kind);
+        document.getElementById('fileInput').click();
+      });
+      container.appendChild(chip);
+    });
+  }
+
+  renderHeroSubtext() {
+    const el = document.getElementById('heroSubtext');
+    if (!el) return;
+    const gov = PRESETS.filter(p => p.category === 'gov');
+    const p1 = gov.find(p => p.w === 300 && p.h === 300);
+    const p2 = gov.find(p => p.w === 250 && p.h === 250);
+    const s1 = gov.find(p => p.w === 300 && p.h === 80);
+    const s2 = gov.find(p => p.w === 250 && p.h === 50);
+
+    const lang = getLanguage();
+    const isBn = lang === 'bn';
+    const under = isBn ? 'এর নিচে' : 'under';
+    const photo = isBn ? 'ছবি' : 'Photo';
+    const sig = isBn ? 'স্বাক্ষর' : 'Signature';
+
+    const formatItem = (kind, p, max) => {
+      if (!p) return '';
+      const w = isBn ? formatLocalizedNumber(p.w) : p.w;
+      const h = isBn ? formatLocalizedNumber(p.h) : p.h;
+      const kb = isBn ? formatLocalizedNumber(max) : max;
+      return `${kind} ${w}×${h} (${isBn ? `${kb}KB-${under}` : `${under} ${kb}KB`})`;
+    };
+
+    const items = [
+      formatItem(photo, p1, 100),
+      formatItem(photo, p2, 100),
+      formatItem(sig, s1, 60),
+      formatItem(sig, s2, 60)
+    ].filter(Boolean);
+
+    el.textContent = items.join(' · ');
+  }
+
+  updateHeroCardTab(kind) {
+    const tabPhoto = document.getElementById('heroTabPhoto');
+    const tabSig = document.getElementById('heroTabSig');
+    const dropzoneTitle = document.getElementById('dropzoneTitle');
+    const heroSpecLabel = document.getElementById('heroSpecLabel');
+    const heroSpecDims = document.getElementById('heroSpecDims');
+
+    const isSig = kind === 'signature';
+    if (tabPhoto && tabSig) {
+      tabPhoto.classList.toggle('active', !isSig);
+      tabPhoto.setAttribute('aria-selected', String(!isSig));
+      tabSig.classList.toggle('active', isSig);
+      tabSig.setAttribute('aria-selected', String(isSig));
+    }
+
+    if (dropzoneTitle) {
+      dropzoneTitle.textContent = isSig ? t('heroDropzoneSig') : t('dropzoneTitle');
+    }
+
+    if (heroSpecLabel && heroSpecDims) {
+      if (isSig) {
+        heroSpecLabel.textContent = t('teletalkSigSpec');
+        heroSpecDims.textContent = '300×80 px (≤60 KB)';
+      } else {
+        heroSpecLabel.textContent = t('bcsPhotoSpec');
+        heroSpecDims.textContent = '300×300 px (≤100 KB)';
+      }
+    }
+  }
+
   applyPreset(preset) {
     this.currentPreset = preset;
     this.hasDownloadedCurrentWork = false;
     this.customOptions.format = preset.format || 'jpg';
     this.customOptions.fit = preset.fit || 'cover';
     this.customOptions.maxKB = preset.maxKB || (preset.locked ? 99 : 100);
+    this.updateHeroCardTab(preset.kind);
 
     // Sync settings bar UI
     document.getElementById('exportFormatSelect').value = this.customOptions.format;

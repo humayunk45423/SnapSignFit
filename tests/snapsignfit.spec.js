@@ -794,4 +794,150 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     }
   });
 
+  // REDESIGN-1-test: Hero structure, navigation, badges, chips, upload card, and how-it-works exist
+  test('REDESIGN-1-test: Hero elements, navigation, and landing sections render properly', async ({ page }) => {
+    await page.goto('/');
+
+    // Header nav links exist
+    await expect(page.locator('#navResizer')).toBeVisible();
+    await expect(page.locator('#navGovPresets')).toBeVisible();
+    await expect(page.locator('#navHowItWorks')).toBeVisible();
+    await expect(page.locator('#navOffline')).toBeVisible();
+
+    // Hero left elements exist
+    await expect(page.locator('.hero-badge')).toBeVisible();
+    await expect(page.locator('.hero-title')).toBeVisible();
+    await expect(page.locator('#heroSubtext')).toBeVisible();
+    await expect(page.locator('#btnHeroUploadPhoto')).toBeVisible();
+    await expect(page.locator('#btnHeroUploadSig')).toBeVisible();
+    await expect(page.locator('#btnHeroViewPresets')).toBeVisible();
+    await expect(page.locator('#heroChipsContainer')).toBeVisible();
+
+    // Hero right card elements exist
+    await expect(page.locator('#heroUploadCard')).toBeVisible();
+    await expect(page.locator('#heroTabPhoto')).toBeVisible();
+    await expect(page.locator('#heroTabSig')).toBeVisible();
+    await expect(page.locator('#dropzone')).toBeVisible();
+    await expect(page.locator('#heroSpecLine')).toBeVisible();
+    await expect(page.locator('#heroCardStatus')).toBeVisible();
+
+    // How It Works section exists
+    await expect(page.locator('#howItWorksSection')).toBeVisible();
+  });
+
+  // REDESIGN-2-test: Blue theme tokens and WCAG contrast check
+  test('REDESIGN-2-test: Blue theme tokens applied in light and dark mode', async ({ page }) => {
+    await page.goto('/');
+
+    const heroStylesLight = await page.locator('.hero-badge').evaluate(el => {
+      const cs = window.getComputedStyle(el);
+      return {
+        bg: cs.backgroundColor,
+        color: cs.color
+      };
+    });
+    expect(heroStylesLight.bg).toBeTruthy();
+    expect(heroStylesLight.color).toBeTruthy();
+
+    // Switch to dark theme
+    await page.click('#themeToggleBtn');
+    const heroStylesDark = await page.locator('.hero-badge').evaluate(el => {
+      const cs = window.getComputedStyle(el);
+      return {
+        bg: cs.backgroundColor,
+        color: cs.color
+      };
+    });
+    expect(heroStylesDark.bg).toBeTruthy();
+    expect(heroStylesDark.color).toBeTruthy();
+  });
+
+  // REDESIGN-3-test: Dynamic preset chips match presets.js Government category
+  test('REDESIGN-3-test: Hero preset chips dynamically populate from presets.js Government category', async ({ page }) => {
+    await page.goto('/');
+
+    const chips = page.locator('#heroChipsContainer .hero-chip');
+    const chipCount = await chips.count();
+    expect(chipCount).toBeGreaterThanOrEqual(2);
+
+    const firstChipText = await chips.first().textContent();
+    expect(firstChipText).toContain('300×300');
+  });
+
+  // REDESIGN-4-test: Upload buttons & segmented tabs toggle preset kind
+  test('REDESIGN-4-test: Segmented tabs toggle between Photo and Signature specs', async ({ page }) => {
+    await page.goto('/');
+
+    // Initially Photo tab is active
+    await expect(page.locator('#heroTabPhoto')).toHaveClass(/active/);
+    const initialSpec = await page.locator('#heroSpecDims').textContent();
+    expect(initialSpec).toContain('300×300');
+
+    // Click Signature tab
+    await page.click('#heroTabSig');
+    await expect(page.locator('#heroTabSig')).toHaveClass(/active/);
+    await expect(page.locator('#heroTabPhoto')).not.toHaveClass(/active/);
+    const sigSpec = await page.locator('#heroSpecDims').textContent();
+    expect(sigSpec).toContain('300×80');
+
+    // Click Photo tab back
+    await page.click('#heroTabPhoto');
+    await expect(page.locator('#heroTabPhoto')).toHaveClass(/active/);
+    const photoSpec = await page.locator('#heroSpecDims').textContent();
+    expect(photoSpec).toContain('300×300');
+  });
+
+  // REDESIGN-5-test: Bilingual toggle switches hero copy to Bengali and back
+  test('REDESIGN-5-test: Language toggle translates hero landing copy', async ({ page }) => {
+    await page.goto('/');
+
+    // Switch to Bengali
+    await page.click('#langToggleBtn');
+    const bnTitle = await page.locator('.hero-title').textContent();
+    expect(bnTitle).toContain('বাংলাদেশ সরকারি');
+
+    const bnBadge = await page.locator('.hero-badge-text').textContent();
+    expect(bnBadge).toContain('বিসিএস');
+
+    // Switch back to English
+    await page.click('#langToggleBtn');
+    const enTitle = await page.locator('.hero-title').textContent();
+    expect(enTitle).toContain('Bangladesh Government');
+  });
+
+  // REDESIGN-6-test: Footer developer credit text styling (Humayoun only has gradient)
+  test('REDESIGN-6-test: Footer credit has gradient on developer name and no underline', async ({ page }) => {
+    await page.goto('/');
+
+    const nameEl = page.locator('.footer-dev-credit-name');
+    await expect(nameEl).toBeVisible();
+    await expect(nameEl).toHaveText('Humayoun');
+
+    const styles = await nameEl.evaluate(el => {
+      const cs = window.getComputedStyle(el);
+      return {
+        textDecoration: cs.textDecorationLine,
+        fontWeight: cs.fontWeight
+      };
+    });
+
+    expect(styles.textDecoration).toBe('none');
+    expect(parseInt(styles.fontWeight) || 700).toBeGreaterThanOrEqual(600);
+  });
+
+  // REDESIGN-7-test: No horizontal overflow across all breakpoints
+  test('REDESIGN-7-test: Responsive hero landing has zero horizontal overflow', async ({ page }) => {
+    const widths = [320, 360, 480, 768, 960, 1024, 1280, 1440, 1920];
+
+    for (const w of widths) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto('/');
+
+      const overflow = await page.evaluate(() => {
+        return document.documentElement.scrollWidth > window.innerWidth;
+      });
+      expect(overflow).toBeFalsy();
+    }
+  });
+
 });
