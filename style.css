@@ -1360,6 +1360,334 @@ body.has-image .main-content,
   flex: 1;
 }
 
+/* ── Header Nav ─────────────────────────────────── */
+.header-nav {
+  display: none;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+@media (min-width: 768px) {
+  .header-nav {
+    display: flex;
+  }
+}
+
+.nav-link {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--t) var(--ease);
+}
+
+.nav-link:hover {
+  color: var(--text);
+}
+
+.nav-pill {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.nav-badge-offline {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ok);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  background-color: rgba(34, 197, 94, 0.08);
+}
+
+/* ── Hero ───────────────────────────────────────── */
+.hero {
+  padding-block: var(--s-7) var(--s-6);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-6);
+  align-items: start;
+}
+
+@media (min-width: 860px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+}
+
+/* Hero copy */
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(109, 140, 255, 0.3);
+  background-color: rgba(109, 140, 255, 0.07);
+  width: fit-content;
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+.hero-title {
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  max-width: 100%;
+}
+
+.hero-sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 52ch;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #2563EB, #4F46E5);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.35);
+  transition: box-shadow var(--t) var(--ease), transform var(--t) var(--ease);
+}
+
+.btn-accent:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--t) var(--ease);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+}
+
+/* Hero chip row (preset quick-picks) */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.chip-row .chip {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 999px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color var(--t) var(--ease), background-color var(--t) var(--ease);
+  white-space: nowrap;
+}
+
+.chip-row .chip:hover {
+  border-color: var(--accent);
+  background-color: var(--surface-2);
+}
+
+.chip-row .chip small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* Hero card (right column) */
+.hero-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+}
+
+/* Segmented control */
+.seg {
+  display: flex;
+  background-color: var(--surface-2);
+  border-radius: var(--r-md);
+  padding: 3px;
+  border: 1px solid var(--border);
+  gap: 2px;
+}
+
+.seg-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color var(--t) var(--ease), color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+  white-space: nowrap;
+}
+
+.seg-btn.active {
+  background-color: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.seg-btn .dot {
+  background-color: var(--accent);
+}
+
+/* Spec-row below dropzone */
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: var(--s-2) var(--s-3);
+  background-color: var(--surface-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+
+.spec-row code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Privacy line */
+.privacy-line {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.privacy-line .dot {
+  background-color: var(--ok);
+}
+
+/* ── Feature Strip ──────────────────────────────── */
+.feature-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-4);
+  padding-block: var(--s-6);
+  border-top: 1px solid var(--border);
+  margin-block: var(--s-4);
+}
+
+@media (min-width: 600px) {
+  .feature-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.feature-strip article {
+  display: flex;
+  gap: var(--s-4);
+  align-items: flex-start;
+}
+
+.feature-strip b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563EB22, #4F46E511);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.feature-strip h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.feature-strip p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+/* Lang segmented btn */
+.seg-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-inline: var(--s-3);
+}
+
+.lang-en, .lang-bn {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color var(--t) var(--ease);
+}
+
+.lang-en.active, .lang-bn.active {
+  color: var(--text);
+}
+
+.lang-sep {
+  color: var(--border-strong);
+  font-size: 12px;
+}
+
 /* 6. Utilities */
 .hidden {
   display: none !important;

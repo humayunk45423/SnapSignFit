@@ -27,7 +27,11 @@ export const translations = {
     dark: 'Dark',
     light: 'Light',
     
-    // Upload zone
+    // Upload zone & Hero
+    heroBadge: 'MADE FOR BCS, TELETALK, NID & EXAM FORMS',
+    heroTitle: 'Resize your photo & signature to Bangladesh Government form presets.',
+    heroSub: 'Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 60KB)',
+    heroPrivacy: '100% private · runs in your browser · works offline',
     dropzoneTitle: 'Drop your photo or signature here',
     dropzoneSubtitle: 'or click to browse from device, paste (Ctrl+V), or take a photo',
     chooseFile: 'Choose File',
@@ -189,7 +193,11 @@ export const translations = {
     dark: 'ডার্ক',
     light: 'লাইট',
     
-    // Upload zone
+    // Upload zone & Hero
+    heroBadge: 'বিসিএস, টেলিটক, এনআইডি ও পরীক্ষার ফর্মের জন্য তৈরি',
+    heroTitle: 'আপনার ছবি ও স্বাক্ষর বাংলাদেশ সরকারি ফর্মের সাইজে রূপান্তর করুন।',
+    heroSub: 'ছবি ৩০০×৩০০ (১০০KB-এর মধ্যে) · ছবি ২৫০×২৫০ (১০০KB-এর মধ্যে) · স্বাক্ষর ৩০০×৮০ (৬০KB-এর মধ্যে) · স্বাক্ষর ২৫০×৫০ (৬০KB-এর মধ্যে)',
+    heroPrivacy: '১০০% নিরাপদ · আপনার ব্রাউজারে চলে · অফলাইনেও সক্ষম',
     dropzoneTitle: 'এখানে আপনার ছবি বা স্বাক্ষর ড্রপ করুন',
     dropzoneSubtitle: 'অথবা ফাইল সিলেক্ট করুন, পেস্ট করুন (Ctrl+V), বা ক্যামেরা দিয়ে তুলুন',
     chooseFile: 'ফাইল বাছাই করুন',

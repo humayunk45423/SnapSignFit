@@ -202,6 +202,9 @@ export class ManualEditor {
                 <button type="button" class="btn btn-secondary btn-sm" id="btnBrushRestore">
                   ${icon('brush')} <span data-i18n="brushRestore">Restore</span>
                 </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnHandTool" aria-pressed="false" title="Move Canvas">
+                  ${icon('hand')} <span data-i18n="moveTool">Move</span>
+                </button>
               </div>
 
               <!-- Brush Size -->
@@ -407,6 +410,17 @@ export class ManualEditor {
       btnErase.classList.remove('active');
       this.requestRender();
     });
+
+    const btnHandTool = el.querySelector('#btnHandTool');
+    if (btnHandTool) {
+      btnHandTool.addEventListener('click', (e) => {
+        const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+        e.currentTarget.setAttribute('aria-pressed', String(on));
+        if (window.__editorPan?.setHandTool) {
+          window.__editorPan.setHandTool(on);
+        }
+      });
+    }
 
     // Step 3 Brush Size Slider & Input
     const brushSizeSlider = el.querySelector('#brushSizeSlider');
@@ -1500,7 +1514,38 @@ export class ManualEditor {
     }
 
     if (this.currentStep === 1) {
-      if (!this.isDragging && !this.isResizing) return;
+      if (!this.isDragging && !this.isResizing) {
+        const scale = this.displayScale;
+        const cropScreenX = this.displayOffsetX + this.crop.x * scale;
+        const cropScreenY = this.displayOffsetY + this.crop.y * scale;
+        const cropScreenW = this.crop.w * scale;
+        const cropScreenH = this.crop.h * scale;
+
+        const HIT = 14;
+        const handles = [
+          { name: 'nwse-resize', x: cropScreenX, y: cropScreenY },
+          { name: 'nesw-resize', x: cropScreenX + cropScreenW, y: cropScreenY },
+          { name: 'nesw-resize', x: cropScreenX, y: cropScreenY + cropScreenH },
+          { name: 'nwse-resize', x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH },
+          { name: 'ns-resize', x: cropScreenX + cropScreenW / 2, y: cropScreenY },
+          { name: 'ns-resize', x: cropScreenX + cropScreenW / 2, y: cropScreenY + cropScreenH },
+          { name: 'ew-resize', x: cropScreenX, y: cropScreenY + cropScreenH / 2 },
+          { name: 'ew-resize', x: cropScreenX + cropScreenW, y: cropScreenY + cropScreenH / 2 }
+        ];
+
+        let cursor = 'crosshair';
+        for (const h of handles) {
+          if (Math.abs(px - h.x) <= HIT && Math.abs(py - h.y) <= HIT) {
+            cursor = h.name;
+            break;
+          }
+        }
+        if (cursor === 'crosshair' && px > cropScreenX && px < cropScreenX + cropScreenW && py > cropScreenY && py < cropScreenY + cropScreenH) {
+          cursor = 'move';
+        }
+        this.editorCanvas.style.cursor = cursor;
+        return;
+      }
       const dx = (px - this.dragStart.x) / this.displayScale;
       const dy = (py - this.dragStart.y) / this.displayScale;
 

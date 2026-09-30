@@ -12,154 +12,6 @@ import { removeBackgroundToWhite } from './bg.js';
 import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, clearSession, saveSessionState, loadSessionState } from './session.js';
 import { icon } from './icons.js';
 
-class PanZoomViewport {
-  constructor(viewportEl, canvasEl) {
-    this.viewport = viewportEl;
-    this.canvas = canvasEl;
-    this.scale = 1.0;
-    this.panX = 0;
-    this.panY = 0;
-    this.isPanning = false;
-    this.startX = 0;
-    this.startY = 0;
-    this.startPanX = 0;
-    this.startPanY = 0;
-    this.pointers = new Map();
-    this.initialPinchDist = 0;
-    this.initialPinchScale = 1.0;
-    this.rafId = null;
-
-    this.init();
-  }
-
-  init() {
-    if (!this.viewport || !this.canvas) return;
-    this.viewport.style.touchAction = 'none';
-
-    this.viewport.addEventListener('pointerdown', (e) => this.onPointerDown(e));
-    window.addEventListener('pointermove', (e) => this.onPointerMove(e));
-    window.addEventListener('pointerup', (e) => this.onPointerUp(e));
-    window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
-    this.viewport.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
-  }
-
-  setSpaceHeld(isHeld) {
-    if (this.viewport) {
-      this.viewport.classList.toggle('is-space-held', isHeld);
-    }
-  }
-
-  reset() {
-    this.scale = 1.0;
-    this.panX = 0;
-    this.panY = 0;
-    this.isPanning = false;
-    this.pointers.clear();
-    this.applyTransform();
-  }
-
-  setScale(scale) {
-    this.scale = scale;
-    this.applyTransform();
-  }
-
-  onPointerDown(e) {
-    if (e.target.closest('button')) return;
-    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-    const isSpace = window.isSpacePressed || false;
-    const isMiddle = e.button === 1;
-    const isZoomed = this.scale > 1.01;
-
-    if (isSpace || isMiddle || isZoomed || this.pointers.size > 1) {
-      this.isPanning = true;
-      this.startX = e.clientX;
-      this.startY = e.clientY;
-      this.startPanX = this.panX;
-      this.startPanY = this.panY;
-      this.viewport.classList.add('is-panning');
-      try {
-        this.viewport.setPointerCapture(e.pointerId);
-      } catch (err) {}
-    }
-
-    if (this.pointers.size === 2) {
-      const pts = Array.from(this.pointers.values());
-      this.initialPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      this.initialPinchScale = this.scale;
-    }
-  }
-
-  onPointerMove(e) {
-    if (!this.pointers.has(e.pointerId)) return;
-    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-    if (this.pointers.size === 2) {
-      const pts = Array.from(this.pointers.values());
-      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      if (this.initialPinchDist > 0) {
-        const factor = dist / this.initialPinchDist;
-        this.scale = Math.max(0.25, Math.min(8.0, this.initialPinchScale * factor));
-      }
-      const midX = (pts[0].x + pts[1].x) / 2;
-      const midY = (pts[0].y + pts[1].y) / 2;
-      this.panX = this.startPanX + (midX - this.startX);
-      this.panY = this.startPanY + (midY - this.startY);
-      this.requestApplyTransform();
-      return;
-    }
-
-    if (this.isPanning) {
-      const dx = e.clientX - this.startX;
-      const dy = e.clientY - this.startY;
-      this.panX = this.startPanX + dx;
-      this.panY = this.startPanY + dy;
-      this.requestApplyTransform();
-    }
-  }
-
-  onPointerUp(e) {
-    this.pointers.delete(e.pointerId);
-    if (this.pointers.size === 0) {
-      this.isPanning = false;
-      this.viewport.classList.remove('is-panning');
-      try {
-        this.viewport.releasePointerCapture(e.pointerId);
-      } catch (err) {}
-    }
-  }
-
-  onWheel(e) {
-    e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      const zoomDelta = e.deltaY < 0 ? 1.15 : 0.85;
-      this.scale = Math.max(0.25, Math.min(8.0, Math.round(this.scale * zoomDelta * 100) / 100));
-    } else {
-      this.panX -= e.deltaX;
-      this.panY -= e.deltaY;
-    }
-    this.requestApplyTransform();
-  }
-
-  requestApplyTransform() {
-    if (this.rafId) return;
-    this.rafId = requestAnimationFrame(() => {
-      this.rafId = null;
-      this.applyTransform();
-    });
-  }
-
-  applyTransform() {
-    if (!this.canvas) return;
-    if (this.scale === 1.0 && this.panX === 0 && this.panY === 0) {
-      this.canvas.style.transform = '';
-      this.canvas.style.imageRendering = 'auto';
-    } else {
-      this.canvas.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
-      this.canvas.style.imageRendering = this.scale > 1.0 ? 'pixelated' : 'auto';
-    }
-  }
-}
 
 class SnapSignFitApp {
   constructor() {
@@ -217,14 +69,30 @@ class SnapSignFitApp {
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
 
-    this.beforePanZoom = new PanZoomViewport(
-      document.getElementById('beforeViewport'),
-      document.getElementById('beforeCanvas')
-    );
-    this.afterPanZoom = new PanZoomViewport(
-      document.getElementById('afterViewport'),
-      document.getElementById('afterCanvas')
-    );
+    // Safety net: Never let preview viewports swallow scroll gestures
+    for (const id of ['beforeViewport', 'afterViewport']) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      el.addEventListener('dragstart', e => e.preventDefault());
+      el.addEventListener('contextmenu', e => e.preventDefault());
+    }
+
+    // Toggle body class and scroll when workspace section opens
+    const ws = document.getElementById('workspaceSection');
+    if (ws) {
+      new MutationObserver(() => {
+        const has = !ws.classList.contains('hidden');
+        document.body.classList.toggle('has-image', has);
+        if (has) ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }).observe(ws, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // Preset preselection event from hero
+    document.addEventListener('snapsignfit:preset', (e) => {
+      if (e.detail) {
+        this.selectPresetBySpec(e.detail);
+      }
+    });
 
     this.restoreSession(); // Restore previous session after DOM is ready
 
@@ -477,38 +345,16 @@ class SnapSignFitApp {
 
     // Zoom Preview Toggle
     const zoomToggleBtn = document.getElementById('btnToggleZoom');
-    zoomToggleBtn.addEventListener('click', () => {
-      this.customOptions.zoom2x = !this.customOptions.zoom2x;
-      const vp = document.getElementById('afterViewport');
-      if (this.customOptions.zoom2x) {
-        vp.classList.add('zoom-2x');
-        zoomToggleBtn.textContent = '2× Zoomed';
-        this.afterPanZoom?.setScale(2.0);
-      } else {
-        vp.classList.remove('zoom-2x');
-        zoomToggleBtn.textContent = '1× Real Pixels';
-        this.afterPanZoom?.setScale(1.0);
-      }
-    });
-
-    // Space Key Panning (D3)
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
-        if (!e.repeat) {
-          window.isSpacePressed = true;
-          this.beforePanZoom?.setSpaceHeld(true);
-          this.afterPanZoom?.setSpaceHeld(true);
+    if (zoomToggleBtn) {
+      zoomToggleBtn.addEventListener('click', () => {
+        this.customOptions.zoom2x = !this.customOptions.zoom2x;
+        const vp = document.getElementById('afterViewport');
+        if (vp) {
+          const is2x = vp.classList.toggle('zoom-2x', this.customOptions.zoom2x);
+          zoomToggleBtn.textContent = is2x ? '2× Zoomed' : '1× Real Pixels';
         }
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
-        window.isSpacePressed = false;
-        this.beforePanZoom?.setSpaceHeld(false);
-        this.afterPanZoom?.setSpaceHeld(false);
-      }
-    });
+      });
+    }
 
     // Action Buttons
     const btnDiscard = document.getElementById('btnDiscard');
@@ -614,6 +460,22 @@ class SnapSignFitApp {
     });
   }
 
+  selectPresetBySpec(spec) {
+    const match = PRESETS.find(p => p.width === spec.w && p.height === spec.h) || {
+      id: `custom_${spec.w}x${spec.h}`,
+      name: `${spec.w}×${spec.h}`,
+      category: 'custom',
+      kind: spec.kind || (spec.h <= 100 ? 'signature' : 'photo'),
+      width: spec.w,
+      height: spec.h,
+      maxKB: spec.maxKB || 99,
+      format: 'jpg',
+      fit: 'cover',
+      locked: !!spec.maxKB && spec.maxKB <= 99
+    };
+    this.applyPreset(match);
+  }
+
   applyPreset(preset) {
     this.currentPreset = preset;
     this.hasDownloadedCurrentWork = false;
@@ -694,8 +556,6 @@ class SnapSignFitApp {
       document.querySelector('.main-content')?.classList.add('has-image');
       document.getElementById('workspaceSection').classList.remove('hidden');
       this.resetUserTransforms();
-      this.beforePanZoom?.reset();
-      this.afterPanZoom?.reset();
       await this.runProcessingPipeline({ fromFileUpload: true });
     } catch (err) {
       console.error('Image load failed:', err);
@@ -1280,8 +1140,6 @@ class SnapSignFitApp {
       document.body.classList.add('has-image');
       document.querySelector('.main-content')?.classList.add('has-image');
       document.getElementById('workspaceSection').classList.remove('hidden');
-      this.beforePanZoom?.reset();
-      this.afterPanZoom?.reset();
       await this.runProcessingPipeline();
 
       console.log('[Session] 100% of user progress and manual edits restored successfully');
@@ -1323,8 +1181,6 @@ class SnapSignFitApp {
     this.hasDownloadedCurrentWork = false;
     this.resetUserTransforms();
 
-    this.beforePanZoom?.reset();
-    this.afterPanZoom?.reset();
     document.body.classList.remove('has-image');
     document.querySelector('.main-content')?.classList.remove('has-image');
 

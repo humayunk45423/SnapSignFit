@@ -26,12 +26,22 @@
         <img src="./snapsignfit_logo.svg" alt="SnapSignFit Logo" class="brand-logo" aria-hidden="true">
         <div class="brand-info">
           <h1 data-i18n="siteName">SnapSignFit</h1>
-          <div class="brand-tagline" data-i18n="tagline">Snap it. Sign it. Fit it.</div>
+          <div class="brand-tagline" data-i18n="tagline">Govt Photo &amp; Sign Resizer</div>
         </div>
       </div>
+      <nav class="header-nav">
+        <span class="nav-pill active">Resizer</span>
+        <a href="#presetChips" class="nav-link">Govt Presets</a>
+        <a href="#how" class="nav-link">How It Works</a>
+        <span class="nav-badge-offline">100% Offline</span>
+      </nav>
       <div class="header-actions">
-        <button type="button" class="btn btn-secondary btn-sm" id="langToggleBtn"
-          aria-label="Switch Language">বাংলা</button>
+        <button type="button" class="btn btn-secondary btn-sm seg-lang-btn" id="langToggleBtn"
+          aria-label="Switch Language">
+          <span class="lang-en active">EN</span>
+          <span class="lang-sep">|</span>
+          <span class="lang-bn">বাংলা</span>
+        </button>
         <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn"
           aria-label="Toggle Dark/Light Mode">Theme</button>
       </div>
@@ -47,25 +57,64 @@
 
   <main class="main-content">
 
-    <!-- Upload Drop Zone -->
-    <section class="dropzone-section">
-      <div class="dropzone" id="dropzone" tabindex="0" role="region" aria-label="Image upload dropzone">
-        <div class="dropzone-title" data-i18n="dropzoneTitle">Drop your photo or signature here</div>
-        <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or
-          take a photo</div>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-grid">
 
-        <div class="dropzone-actions">
-          <button type="button" class="btn btn-primary" id="btnChooseFile" data-i18n="chooseFile">Choose File</button>
-          <button type="button" class="btn btn-secondary" id="btnTakePhoto" data-i18n="takePhoto">Take Photo</button>
+        <div class="hero-copy">
+          <span class="hero-badge"><i class="dot"></i><span data-i18n="heroBadge">MADE FOR BCS, TELETALK, NID &amp; EXAM FORMS</span></span>
+          <h1 class="hero-title" data-i18n="heroTitle">Resize your photo &amp; signature to Bangladesh Government form presets.</h1>
+          <p class="hero-sub" data-i18n="heroSub">Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 60KB)</p>
+
+          <div class="hero-ctas">
+            <button type="button" class="btn btn-accent" id="heroUploadPhoto">Upload Photo</button>
+            <button type="button" class="btn btn-secondary" id="heroUploadSig">Upload Signature</button>
+            <a class="btn-ghost" href="#presetChips">View Presets</a>
+          </div>
+
+          <div class="chip-row" id="presetChips">
+            <button type="button" class="chip" data-w="300" data-h="300" data-kb="100">BCS 300×300 <small>(≤ 100KB)</small></button>
+            <button type="button" class="chip" data-w="300" data-h="80"  data-kb="60">Teletalk Sign 300×80 <small>(≤ 60KB)</small></button>
+            <button type="button" class="chip" data-w="531" data-h="650" data-kb="300">E-Passport 45×55mm</button>
+            <button type="button" class="chip" data-w="200" data-h="200" data-kb="50">NID Card 200×200 <small>(≤ 50KB)</small></button>
+          </div>
         </div>
 
-        <div class="dropzone-hint" data-i18n="dropzoneHint">Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up
-          to 40 MB)</div>
+        <div class="hero-card">
+          <div class="seg" role="tablist">
+            <button type="button" class="seg-btn active" id="heroTabPhoto" role="tab" aria-selected="true"><i class="dot"></i><span>Photo (300×300)</span></button>
+            <button type="button" class="seg-btn" id="heroTabSig" role="tab" aria-selected="false"><span>Signature (300×80)</span></button>
+          </div>
 
-        <!-- Hidden File Inputs -->
-        <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
-        <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden">
+          <!-- Dropzone block -->
+          <div class="dropzone" id="dropzone" tabindex="0" role="region" aria-label="Image upload dropzone">
+            <div class="dropzone-title" data-i18n="dropzoneTitle">Drop your photo or signature here</div>
+            <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or take a photo</div>
+
+            <div class="dropzone-actions">
+              <button type="button" class="btn btn-primary" id="btnChooseFile" data-i18n="chooseFile">Choose File</button>
+              <button type="button" class="btn btn-secondary" id="btnTakePhoto" data-i18n="takePhoto">Take Photo</button>
+            </div>
+
+            <div class="dropzone-hint" data-i18n="dropzoneHint">Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up to 40 MB)</div>
+
+            <!-- Hidden File Inputs -->
+            <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
+            <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden">
+          </div>
+
+          <div class="spec-row"><span id="heroSpecName">BCS Photo Spec</span><code id="heroSpecValue">300×300 px (≤ 100 KB)</code></div>
+          <p class="privacy-line"><i class="dot"></i><span data-i18n="heroPrivacy">100% private · runs in your browser · works offline</span></p>
+        </div>
+
       </div>
+    </section>
+
+    <!-- Value Features Strip -->
+    <section class="feature-strip" id="how">
+      <article><b>1</b><div><h3>Exact Pixel Dimensions</h3><p>Strictly resizes to 300×300 px for portraits and 300×80 px for signatures. Zero stretch or distortion.</p></div></article>
+      <article><b>2</b><div><h3>Automatic File Size Lock</h3><p>Calculates exact JPEG compression so photo is under 100 KB and signature is under 60 KB every time.</p></div></article>
+      <article><b>3</b><div><h3>Zero Server Storage</h3><p>Processing happens locally in HTML5 Canvas. Your signature and face never leave your device.</p></div></article>
     </section>
 
     <!-- Workspace (Visible after image loaded) -->
@@ -315,7 +364,9 @@
     </div>
   </div>
 
-  <!-- App Main ES Module -->
+  <!-- Modules -->
+  <script type="module" src="./js/editor-pan.js"></script>
+  <script type="module" src="./js/hero.js"></script>
   <script type="module" src="./js/app.js"></script>
 
   <!-- PWA Service Worker Registration -->
