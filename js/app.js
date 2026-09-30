@@ -855,6 +855,7 @@ class SnapSignFitApp {
       this.updateStatusReadout();
       document.getElementById('btnDownload').disabled = false;
       document.getElementById('btnCopyClipboard').disabled = false;
+      this.saveSession();
     } catch (err) {
       console.error('Export guarantee failed:', err);
       this.updateStatusReadout(false, err.message);
@@ -922,12 +923,13 @@ class SnapSignFitApp {
 
   /** Save complete session state (image + settings) */
   saveSession() {
-    if (!this.sourceData) return;
-    saveSessionImage(this.sourceData.fullCanvas);
+    if (this.sourceData && this.sourceData.fullCanvas) {
+      saveSessionImage(this.sourceData.fullCanvas);
+    }
     saveSessionState({
       presetId: this.currentPreset?.id || null,
       category: this.currentCategory,
-      fileName: this.sourceData.fileName || 'image',
+      fileName: this.sourceData?.fileName || 'image',
       customOptions: { ...this.customOptions },
       userTransforms: this.userTransforms,
       autoFixes: this.autoFixes
@@ -950,8 +952,14 @@ class SnapSignFitApp {
         // Apply preset without triggering a pipeline run (no image yet)
         this.currentPreset = savedPreset;
         this.customOptions = { ...this.customOptions, ...(state.customOptions || {}) };
-        document.getElementById('exportFormatSelect').value = this.customOptions.format;
-        document.getElementById('exportFitSelect').value = this.customOptions.fit;
+        // Sync all UI inputs with restored options
+        if (document.getElementById('exportFormatSelect')) document.getElementById('exportFormatSelect').value = this.customOptions.format;
+        if (document.getElementById('exportFitSelect')) document.getElementById('exportFitSelect').value = this.customOptions.fit;
+        if (document.getElementById('exportBgModeSelect') && this.customOptions.bgMode) document.getElementById('exportBgModeSelect').value = this.customOptions.bgMode;
+        if (document.getElementById('exportMaxSizeSelect') && this.customOptions.maxKB !== undefined) document.getElementById('exportMaxSizeSelect').value = String(this.customOptions.maxKB);
+        if (document.getElementById('sigThickenSlider') && this.customOptions.thickenPx !== undefined) document.getElementById('sigThickenSlider').value = this.customOptions.thickenPx;
+        if (document.getElementById('sigKeepColorCheck') && this.customOptions.keepInkColor !== undefined) document.getElementById('sigKeepColorCheck').checked = this.customOptions.keepInkColor;
+        if (document.getElementById('autoDetectCheck') && this.customOptions.autoDetect !== undefined) document.getElementById('autoDetectCheck').checked = this.customOptions.autoDetect;
         this.renderPresetsGrid();
       }
 
