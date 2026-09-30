@@ -40,6 +40,9 @@ export class ManualEditor {
     this.step3BaseCanvas = null;
     this.maskCanvas = null;
     this.compositeBuffer = null;
+    this.step3Zoom = 1.0;
+    this.step3PanX = 0;
+    this.step3PanY = 0;
     this.brushSize = 30; // 5 to 150 px
     this.brushHardness = 80; // 0% to 100%
     this.brushMode = 'erase'; // 'erase' or 'restore'
@@ -716,6 +719,9 @@ export class ManualEditor {
     this.step3BaseCanvas = null;
     this.maskCanvas = options.maskCanvas || null;
     this.croppedCanvas = options.croppedCanvas || null;
+    this.step3Zoom = 1.0;
+    this.step3PanX = 0;
+    this.step3PanY = 0;
     this.maskUndoStack = [];
     this.maskRedoStack = [];
     this.brushMode = 'erase';
@@ -799,6 +805,9 @@ export class ManualEditor {
     this.flipV = false;
     this.step3BaseCanvas = null;
     this.maskCanvas = null;
+    this.step3Zoom = 1.0;
+    this.step3PanX = 0;
+    this.step3PanY = 0;
     this.overlayEl.querySelector('#straightenSlider').value = 0;
     this.overlayEl.querySelector('#editorZoomSlider').value = 1.0;
     this.updateStraightenInputDisplay();
@@ -1205,9 +1214,9 @@ export class ManualEditor {
 
   drawStep3Brush(ctx, cw, ch) {
     if (!this.step3BaseCanvas) this.commitStep2ToBitmap();
-    const baseScale = Math.min((cw - 40) / this.targetW, (ch - 40) / this.targetH);
-    const cx = cw / 2;
-    const cy = ch / 2;
+    const baseScale = Math.min((cw - 40) / this.targetW, (ch - 40) / this.targetH) * (this.step3Zoom || 1.0);
+    const cx = cw / 2 + (this.step3PanX || 0);
+    const cy = ch / 2 + (this.step3PanY || 0);
 
     this.displayScale = baseScale;
     this.displayOffsetX = cx;
@@ -1576,7 +1585,12 @@ export class ManualEditor {
       this.updateZoomInputDisplay();
       this.requestRender();
     } else if (this.currentStep === 3) {
-      if (e.shiftKey) {
+      if (e.altKey || e.ctrlKey || e.metaKey) {
+        // Alt + Scroll (or Ctrl+Scroll) → Zoom in/out the image in background and brush tab
+        const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
+        this.step3Zoom = Math.max(0.2, Math.min(8.0, Math.round(((this.step3Zoom || 1.0) + zoomDelta) * 100) / 100));
+        this.requestRender();
+      } else if (e.shiftKey) {
         // Shift + Scroll → Hardness (±5%)
         const delta = e.deltaY < 0 ? 5 : -5;
         this.brushHardness = Math.max(0, Math.min(100, this.brushHardness + delta));
