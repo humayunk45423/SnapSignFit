@@ -1,6 +1,9 @@
 node_modules/
 test-results/
 tests/downloads/
+tests/screenshots/
+playwright-report/
+.playwright/
 .system_generated/
 npm-debug.log*
 .DS_Store

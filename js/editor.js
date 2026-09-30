@@ -128,7 +128,7 @@ export class ManualEditor {
             </div>
 
             <!-- STEP 2 CONTROLS -->
-            <div class="editor-tools hidden" id="step2Controls">
+            <div class="editor-tools" id="step2Controls">
               <!-- Straighten Slider + Keyboard Input (B1b) -->
               <div class="editor-control-group">
                 <div class="editor-control-header">
@@ -221,6 +221,16 @@ export class ManualEditor {
                   </div>
                 </div>
                 <input type="range" id="brushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-slider" aria-label="Brush Hardness Slider">
+              </div>
+
+              <!-- Undo / Redo -->
+              <div class="editor-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushUndo" title="Undo brush stroke (Ctrl+Z)">
+                  ${icon('rotate-ccw')} <span data-i18n="undo">Undo</span>
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnBrushRedo" title="Redo brush stroke (Ctrl+Shift+Z)">
+                  ${icon('rotate-cw')} <span data-i18n="redo">Redo</span>
+                </button>
               </div>
 
               <!-- AI Quick Remove & Reset -->
@@ -445,6 +455,16 @@ export class ManualEditor {
     el.querySelector('#btnBrushAutoAi')?.addEventListener('click', () => this.autoAiRemoveBg());
     el.querySelector('#btnBrushResetMask')?.addEventListener('click', () => this.resetMask());
 
+    // Step 3 Undo / Redo Buttons
+    el.querySelector('#btnBrushUndo')?.addEventListener('click', () => {
+      this.undoMask();
+      this.updateBrushUndoRedoState();
+    });
+    el.querySelector('#btnBrushRedo')?.addEventListener('click', () => {
+      this.redoMask();
+      this.updateBrushUndoRedoState();
+    });
+
     // Straighten Line Tool Toggle
     const strToolBtn = el.querySelector('#btnStraightenTool');
     strToolBtn.addEventListener('click', () => {
@@ -588,8 +608,12 @@ export class ManualEditor {
     tab2?.classList.toggle('active', stepNumber === 2);
     tab3?.classList.toggle('active', stepNumber === 3);
 
+    // p1 (commit crop button) is only shown in step 1
     if (p1) p1.classList.toggle('hidden', stepNumber !== 1);
-    if (p2) p2.classList.toggle('hidden', stepNumber !== 2);
+    // p2 (rotation/flip/straighten tools) stays visible in steps 1 & 2 — matches original
+    // behavior where rotation buttons were always accessible; hidden only in step 3
+    if (p2) p2.classList.toggle('hidden', stepNumber === 3);
+    // p3 (brush controls) is only shown in step 3
     if (p3) p3.classList.toggle('hidden', stepNumber !== 3);
 
     if (this.editorCanvas) {
@@ -846,6 +870,7 @@ export class ManualEditor {
     this.maskUndoStack.push(copy);
     if (this.maskUndoStack.length > 25) this.maskUndoStack.shift();
     this.maskRedoStack = [];
+    this.updateBrushUndoRedoState();
   }
 
   undo() {
@@ -877,6 +902,7 @@ export class ManualEditor {
     const mCtx = this.maskCanvas.getContext('2d');
     mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
     mCtx.drawImage(prev, 0, 0);
+    this.updateBrushUndoRedoState();
     this.requestRender();
   }
 
@@ -909,6 +935,7 @@ export class ManualEditor {
     const mCtx = this.maskCanvas.getContext('2d');
     mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
     mCtx.drawImage(next, 0, 0);
+    this.updateBrushUndoRedoState();
     this.requestRender();
   }
 
@@ -926,6 +953,13 @@ export class ManualEditor {
     this.updateStraightenInputDisplay();
     this.updateZoomInputDisplay();
     this.requestRender();
+  }
+
+  updateBrushUndoRedoState() {
+    const undoBtn = this.overlayEl.querySelector('#btnBrushUndo');
+    const redoBtn = this.overlayEl.querySelector('#btnBrushRedo');
+    if (undoBtn) undoBtn.disabled = this.maskUndoStack.length === 0;
+    if (redoBtn) redoBtn.disabled = this.maskRedoStack.length === 0;
   }
 
   applyBrushStamp(imgX, imgY) {
