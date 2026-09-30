@@ -159,6 +159,7 @@
         <div class="preview-pane">
           <div class="preview-pane-header">
             <span class="preview-pane-title" data-i18n="before">Original & Detection</span>
+            <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
           </div>
           <div class="preview-viewport" id="beforeViewport">
             <canvas id="beforeCanvas"></canvas>
@@ -182,19 +183,20 @@
         </div>
       </div>
 
-      <!-- Detection Chips & Quality Warnings -->
-      <div class="chips-container" id="chipsContainer" aria-live="polite">
-        <!-- Dynamically populated -->
-      </div>
-
       <!-- Actions & Size Guarantee Bar -->
       <div class="actions-bar">
-        <div class="size-status-badge under-limit" id="sizeStatusBadge">
-          <span id="sizeStatusText">Ready</span>
+        <!-- Left: Size Status Badge & Quality Warning Chips -->
+        <div class="status-chips-section">
+          <div class="size-status-badge under-limit" id="sizeStatusBadge">
+            <span id="sizeStatusText">Ready</span>
+          </div>
+          <div class="chips-container" id="chipsContainer" aria-live="polite">
+            <!-- Dynamically populated -->
+          </div>
         </div>
 
+        <!-- Right: Action Buttons Group -->
         <div class="action-buttons-group">
-          <button type="button" class="btn btn-danger-outline" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
           <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust
             Manually</button>
           <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to

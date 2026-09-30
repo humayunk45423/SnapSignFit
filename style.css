@@ -648,12 +648,25 @@ button {
   to { transform: rotate(360deg); }
 }
 
-/* Chips Container */
+/* Status & Chips Section */
+.status-chips-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  flex: 1;
+}
+
 .chips-container {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--s-2);
-  margin-bottom: var(--s-4);
+}
+
+.chips-container:empty {
+  display: none;
 }
 
 .chip {
@@ -666,6 +679,29 @@ button {
   border-radius: var(--r-sm);
   background-color: var(--surface-2);
   color: var(--text);
+}
+
+.chip-warning {
+  border-color: rgba(234, 179, 8, 0.35);
+  background-color: rgba(234, 179, 8, 0.08);
+  color: #eab308;
+}
+
+.chip-fix {
+  border-color: rgba(34, 197, 94, 0.35);
+  background-color: rgba(34, 197, 94, 0.08);
+  color: #22c55e;
+}
+
+.chip-undo-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-left: var(--s-1);
 }
 
 .chip-dot {
@@ -699,8 +735,11 @@ button {
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: var(--s-4);
+  padding: var(--s-3) var(--s-4);
   margin-bottom: var(--s-4);
+  gap: var(--s-4);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .size-status-badge {
@@ -711,20 +750,30 @@ button {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   color: var(--text);
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-sm);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .size-status-badge.under-limit {
   color: var(--ok);
+  border-color: rgba(34, 197, 94, 0.3);
+  background-color: rgba(34, 197, 94, 0.08);
 }
 
 .size-status-badge.over-limit {
   color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.08);
 }
 
 .action-buttons-group {
   display: flex;
   align-items: center;
   gap: var(--s-2);
+  flex-shrink: 0;
 }
 
 /* Settings Bar */
@@ -1207,15 +1256,28 @@ button {
 
   .actions-bar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: var(--s-3);
+  }
+
+  .status-chips-section {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .action-buttons-group {
     width: 100%;
-    justify-content: flex-start;
+    display: flex;
     flex-wrap: wrap;
     gap: var(--s-2);
+  }
+
+  .action-buttons-group .btn {
+    flex: 1 1 140px;
+  }
+
+  .action-buttons-group #btnDownload {
+    flex: 2 1 100%;
   }
 
   /* Editor Modal Responsive Layout */
