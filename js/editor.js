@@ -1565,12 +1565,21 @@ export class ManualEditor {
       this.updateZoomInputDisplay();
       this.requestRender();
     } else if (this.currentStep === 3) {
-      // Step 3: Mouse wheel changes brush size
-      const delta = e.deltaY < 0 ? 5 : -5;
-      this.brushSize = Math.max(5, Math.min(150, this.brushSize + delta));
-      this.overlayEl.querySelector('#brushSizeSlider').value = this.brushSize;
-      this.updateBrushSizeInputDisplay();
-      this.requestRender();
+      if (e.shiftKey) {
+        // Shift + Scroll → Hardness (±5%)
+        const delta = e.deltaY < 0 ? 5 : -5;
+        this.brushHardness = Math.max(0, Math.min(100, this.brushHardness + delta));
+        this.overlayEl.querySelector('#brushHardnessSlider').value = this.brushHardness;
+        this.updateBrushHardnessInputDisplay();
+        this.requestRender();
+      } else {
+        // Scroll → Brush Size (±5px)
+        const delta = e.deltaY < 0 ? 5 : -5;
+        this.brushSize = Math.max(5, Math.min(150, this.brushSize + delta));
+        this.overlayEl.querySelector('#brushSizeSlider').value = this.brushSize;
+        this.updateBrushSizeInputDisplay();
+        this.requestRender();
+      }
     }
   }
 }
