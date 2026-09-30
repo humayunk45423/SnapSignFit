@@ -405,12 +405,18 @@ body.has-image .main-content,
 /* Workspace */
 .workspace-section {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-5);
   margin-top: var(--s-4);
   min-width: 0;
   max-width: 100%;
   align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .workspace-section {
+    grid-template-columns: 360px 1fr;
+  }
 }
 
 .workspace-main {
@@ -419,6 +425,7 @@ body.has-image .main-content,
   gap: var(--s-4);
   min-width: 0;
   max-width: 100%;
+  order: 1;
 }
 
 .presets-section {
@@ -433,6 +440,16 @@ body.has-image .main-content,
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  order: 2;
+}
+
+@media (min-width: 1024px) {
+  .workspace-main {
+    order: 2;
+  }
+  .presets-section {
+    order: 1;
+  }
 }
 
 .section-title {
