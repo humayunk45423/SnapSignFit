@@ -1,6 +1,7 @@
 // js/editor.js - Two-Step Photoshop-Style Manual Crop & Straighten Editor
 import { createCanvas, stepDownDownscale } from './loader.js';
 import { parseLocalizedNumber, formatLocalizedNumber, getLanguage, t } from './i18n.js';
+import { icon } from './icons.js';
 
 export class ManualEditor {
   constructor(options = {}) {
@@ -74,10 +75,10 @@ export class ManualEditor {
           </div>
           <div class="editor-step-tabs" role="tablist">
             <button type="button" class="editor-step-tab active" id="tabStep1" data-step="1">
-              <i class="fa-solid fa-crop-simple"></i> <span data-i18n="step1Crop">1. Crop Frame</span>
+              ${icon('crop')} <span data-i18n="step1Crop">1. Crop Frame</span>
             </button>
             <button type="button" class="editor-step-tab" id="tabStep2" data-step="2">
-              <i class="fa-solid fa-ruler"></i> <span data-i18n="step2Straighten">2. Straighten & Rotate</span>
+              ${icon('ruler')} <span data-i18n="step2Straighten">2. Straighten & Rotate</span>
             </button>
           </div>
         </div>
@@ -139,23 +140,23 @@ export class ManualEditor {
               <!-- Transforms Buttons -->
               <div class="editor-btn-row">
                 <button type="button" class="btn btn-secondary btn-sm" id="btnRotLeft" title="Rotate -90°">
-                  <i class="fa-solid fa-rotate-left"></i> -90°
+                  ${icon('rotate-ccw')} -90°
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btnRotRight" title="Rotate +90°">
-                  <i class="fa-solid fa-rotate-right"></i> +90°
+                  ${icon('rotate-cw')} +90°
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btnFlipH" title="Flip Horizontal">
-                  <i class="fa-solid fa-left-right"></i> Flip H
+                  ${icon('flip-horizontal')} Flip H
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btnFlipV" title="Flip Vertical">
-                  <i class="fa-solid fa-up-down"></i> Flip V
+                  ${icon('flip-vertical')} Flip V
                 </button>
               </div>
 
               <!-- Straighten Line Tool Toggle -->
               <div class="editor-straighten-tool-row">
                 <button type="button" class="btn btn-secondary btn-sm btn-block" id="btnStraightenTool">
-                  <i class="fa-solid fa-ruler"></i> <span data-i18n="straightenTool">Straighten Line Tool</span>
+                  ${icon('ruler')} <span data-i18n="straightenTool">Straighten Line Tool</span>
                 </button>
               </div>
 

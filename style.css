@@ -321,6 +321,20 @@ button {
   transition: border-color var(--t) var(--ease), background-color var(--t) var(--ease);
 }
 
+.dropzone-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  margin-bottom: var(--s-1);
+}
+
+.lucide-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 .dropzone.drag-active {
   border-color: var(--accent);
   background-color: var(--surface-2);

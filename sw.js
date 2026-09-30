@@ -18,6 +18,7 @@ const PRECACHE_ASSETS = [
   '/js/signature.js',
   '/js/smartcrop.js',
   '/js/bg.js',
+  '/js/icons.js',
   '/vendor/pako.min.js',
   '/vendor/UPNG.js'
 ];
@@ -26,8 +27,7 @@ const PRECACHE_ASSETS = [
 const VENDOR_PATTERNS = [
   '/vendor/mediapipe/',
   '/vendor/jsquash-jpeg/',
-  '/vendor/opencv/',
-  '/vendor/fontawesome/'
+  '/vendor/opencv/'
 ];
 
 self.addEventListener('install', event => {

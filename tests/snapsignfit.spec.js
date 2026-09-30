@@ -502,17 +502,34 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
     expect(hasSOF2).toBeFalsy();
   });
 
-  // T9: Font Awesome icons rendered, zero emojis in DOM & zero external requests
-  test('T9: Font Awesome & zero external requests / zero emojis', async ({ page }) => {
+  // T9: Attribution-free Lucide icons rendered, zero Font Awesome / CC BY / Credits in DOM & zero emojis
+  test('T9: Lucide icons & zero FA / zero CC BY / zero emojis', async ({ page }) => {
     await page.goto('/');
-    const fontFacesLoaded = await page.evaluate(async () => {
+
+    // Verify zero Font Awesome font faces
+    const fontAwesomeLoaded = await page.evaluate(async () => {
       await document.fonts.ready;
       return Array.from(document.fonts).some(f => f.family.includes('Font Awesome') || f.family.includes('FontAwesome'));
     });
+    expect(fontAwesomeLoaded).toBeFalsy();
+
+    // Verify zero fa- classes in DOM
+    const faCount = await page.evaluate(() => document.querySelectorAll('[class*="fa-"]').length);
+    expect(faCount).toBe(0);
+
+    // Verify inline Lucide SVGs are rendered with stroke="currentColor"
+    const svgCount = await page.evaluate(() => document.querySelectorAll('svg[stroke="currentColor"]').length);
+    expect(svgCount).toBeGreaterThan(0);
+
     // Check for any raw emojis in DOM text
     const emojiRegex = /[\u{1F300}-\u{1FAFF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
     const bodyText = await page.evaluate(() => document.body.innerText);
     expect(emojiRegex.test(bodyText)).toBeFalsy();
+
+    // Check zero "Font Awesome", "CC BY", or "Credits" in body text
+    expect(bodyText).not.toContain('Font Awesome');
+    expect(bodyText).not.toContain('CC BY');
+    expect(bodyText).not.toContain('Credits');
   });
 
   // T10: Full regression check

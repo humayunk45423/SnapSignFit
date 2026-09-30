@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self'; font-src 'self';">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self'; font-src 'self';">
   <title>SnapSignFit — Photo & Signature Auto-Formatter (100% Free & Client-Side)</title>
-  <meta name="description" content="Resize photos and signatures to the exact pixel size and file size limit. Made for government forms, BCS, passport, visa and exams, works for social media and custom sizes. 100% client-side and free.">
+  <meta name="description"
+    content="Resize photos and signatures to the exact pixel size and file size limit. Made for government forms, BCS, passport, visa and exams, works for social media and custom sizes. 100% client-side and free.">
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./vendor/fontawesome/css/fontawesome.min.css">
-  <link rel="stylesheet" href="./vendor/fontawesome/css/solid.min.css">
   <link rel="icon" type="image/svg+xml" href="./snapsignfit_logo.svg">
   <!-- Vendored Core Libraries -->
   <script src="./vendor/pako.min.js"></script>
   <script src="./vendor/UPNG.js"></script>
 </head>
+
 <body>
 
   <!-- Site Header -->
   <header class="site-header">
     <div class="header-container">
       <div class="brand-wrapper">
-        <img src="./snapsignfit_logo.svg" alt="SnapSignFit Logo" class="brand-logo" width="36" height="36">
         <div class="brand-info">
           <h1 data-i18n="siteName">SnapSignFit</h1>
           <div class="brand-tagline" data-i18n="tagline">Snap it. Sign it. Fit it.</div>
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" class="btn btn-secondary btn-sm" id="langToggleBtn" aria-label="Switch Language">বাংলা</button>
-        <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn" aria-label="Toggle Dark/Light Mode">Theme</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="langToggleBtn"
+          aria-label="Switch Language">বাংলা</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn"
+          aria-label="Toggle Dark/Light Mode">Theme</button>
       </div>
     </div>
   </header>
@@ -37,24 +40,27 @@
   <!-- Global Error Banner -->
   <div id="globalBanner" class="global-banner hidden" role="alert" aria-live="assertive">
     <span id="globalBannerText">An unexpected issue occurred.</span>
-    <button type="button" class="btn btn-outline btn-sm" id="bannerManualBtn" data-i18n="adjustManually">Adjust Manually</button>
+    <button type="button" class="btn btn-outline btn-sm" id="bannerManualBtn" data-i18n="adjustManually">Adjust
+      Manually</button>
   </div>
 
   <main class="main-content">
-    
+
     <!-- Upload Drop Zone -->
     <section class="dropzone-section">
       <div class="dropzone" id="dropzone" tabindex="0" role="region" aria-label="Image upload dropzone">
         <div class="dropzone-title" data-i18n="dropzoneTitle">Drop your photo or signature here</div>
-        <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or take a photo</div>
-        
+        <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or
+          take a photo</div>
+
         <div class="dropzone-actions">
           <button type="button" class="btn btn-primary" id="btnChooseFile" data-i18n="chooseFile">Choose File</button>
           <button type="button" class="btn btn-secondary" id="btnTakePhoto" data-i18n="takePhoto">Take Photo</button>
         </div>
 
-        <div class="dropzone-hint" data-i18n="dropzoneHint">Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up to 40 MB)</div>
-        
+        <div class="dropzone-hint" data-i18n="dropzoneHint">Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up
+          to 40 MB)</div>
+
         <!-- Hidden File Inputs -->
         <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
         <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden">
@@ -63,7 +69,7 @@
 
     <!-- Workspace (Visible after image loaded) -->
     <section class="workspace-section hidden" id="workspaceSection">
-      
+
       <!-- Preset Picker -->
       <div class="presets-section">
         <div class="section-title">
@@ -72,9 +78,12 @@
 
         <!-- Category Tabs -->
         <div class="category-tabs" role="tablist">
-          <button type="button" class="tab-btn tab-gov active" id="tabGov" role="tab" aria-selected="true" data-i18n="catGov">Government & Exam</button>
-          <button type="button" class="tab-btn" id="tabSocial" role="tab" aria-selected="false" data-i18n="catSocial">Social & Web</button>
-          <button type="button" class="tab-btn" id="tabCustom" role="tab" aria-selected="false" data-i18n="catCustom">Custom Size</button>
+          <button type="button" class="tab-btn tab-gov active" id="tabGov" role="tab" aria-selected="true"
+            data-i18n="catGov">Government & Exam</button>
+          <button type="button" class="tab-btn" id="tabSocial" role="tab" aria-selected="false"
+            data-i18n="catSocial">Social & Web</button>
+          <button type="button" class="tab-btn" id="tabCustom" role="tab" aria-selected="false"
+            data-i18n="catCustom">Custom Size</button>
         </div>
 
         <!-- Gov Note Banner -->
@@ -84,7 +93,8 @@
 
         <!-- Presets Search Input -->
         <div class="presets-search-bar" id="presetsSearchBar">
-          <input type="text" class="search-input" id="presetSearchInput" data-i18n-placeholder="searchPresets" placeholder="Search presets (e.g. 300x300, passport, facebook)...">
+          <input type="text" class="search-input" id="presetSearchInput" data-i18n-placeholder="searchPresets"
+            placeholder="Search presets (e.g. 300x300, passport, facebook)...">
         </div>
 
         <!-- Presets Cards Grid -->
@@ -135,7 +145,8 @@
             </div>
           </div>
           <div class="custom-actions">
-            <button type="button" class="btn btn-secondary btn-sm" id="btnSaveCustomPreset" data-i18n="saveCustomPreset">Save preset</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnSaveCustomPreset"
+              data-i18n="saveCustomPreset">Save preset</button>
           </div>
         </div>
 
@@ -157,7 +168,8 @@
         <div class="preview-pane">
           <div class="preview-pane-header">
             <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real
+              Pixels</button>
           </div>
           <div class="preview-viewport" id="afterViewport">
             <canvas id="afterCanvas"></canvas>
@@ -181,8 +193,10 @@
         </div>
 
         <div class="action-buttons-group">
-          <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust Manually</button>
-          <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to Clipboard</button>
+          <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust
+            Manually</button>
+          <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to
+            Clipboard</button>
           <button type="button" class="btn btn-primary btn-lg" id="btnDownload" data-i18n="download">Download</button>
         </div>
       </div>
@@ -265,12 +279,12 @@
   <footer class="site-footer">
     <div class="footer-content">
       <p id="footerPrivacy" data-i18n="privacyNotice">
-        Your images never leave your device. Independent free tool, not affiliated with or endorsed by any government or agency. Always check your form's official requirements.
+        Your images never leave your device. Independent free tool, not affiliated with or endorsed by any government or
+        agency. Always check your form's official requirements.
       </p>
       <p id="footerOffline" data-i18n="offlineNotice">
         Works 100% offline. Zero server uploads.
       </p>
-      <p class="footer-license">Icons: Font Awesome Free (CC BY 4.0, OFL, MIT)</p>
     </div>
   </footer>
 
@@ -281,7 +295,5 @@
   <script src="./js/register-sw.js"></script>
 
 </body>
+
 </html>
-
-
-
