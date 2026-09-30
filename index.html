@@ -194,6 +194,7 @@
         </div>
 
         <div class="action-buttons-group">
+          <button type="button" class="btn btn-danger-outline" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
           <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust
             Manually</button>
           <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to
@@ -288,6 +289,24 @@
       </p>
     </div>
   </footer>
+
+  <!-- Discard Confirmation Modal Dialog -->
+  <div class="confirm-modal-overlay hidden" id="discardModal" role="dialog" aria-modal="true">
+    <div class="confirm-modal-dialog">
+      <div class="confirm-modal-header">
+        <div class="confirm-modal-icon">⚠️</div>
+        <h3 class="confirm-modal-title" data-i18n="discardModalTitle">Discard Changes?</h3>
+      </div>
+      <p class="confirm-modal-body" data-i18n="discardModalDesc">
+        You haven't downloaded your processed image yet. Do you want to download before closing?
+      </p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="btn btn-primary" id="btnModalDownloadAndClose" data-i18n="btnDownloadAndClose">Download & Close</button>
+        <button type="button" class="btn btn-danger-outline" id="btnModalDiscardAnyway" data-i18n="btnDiscardAnyway">Discard Anyway</button>
+        <button type="button" class="btn btn-outline" id="btnModalCancel" data-i18n="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <!-- App Main ES Module -->
   <script type="module" src="./js/app.js"></script>

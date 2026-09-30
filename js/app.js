@@ -9,12 +9,13 @@ import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smar
 import { ManualEditor } from './editor.js';
 import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.js';
 import { removeBackgroundToWhite } from './bg.js';
-import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, saveSessionState, loadSessionState } from './session.js';
+import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, clearSession, saveSessionState, loadSessionState } from './session.js';
 
 class SnapSignFitApp {
   constructor() {
     // Pipeline State
     this.sourceData = null; // { fullCanvas, workingCanvas, workingScale, fileName }
+    this.hasDownloadedCurrentWork = false;
     this.currentPreset = PRESETS[0]; // Default: Photo 300x300
     this.currentCategory = 'gov';
     
@@ -259,6 +260,7 @@ class SnapSignFitApp {
     const formatSelect = document.getElementById('exportFormatSelect');
     formatSelect.addEventListener('change', (e) => {
       this.customOptions.format = e.target.value;
+      this.hasDownloadedCurrentWork = false;
       this.runExportGuarantee();
     });
 
@@ -271,12 +273,14 @@ class SnapSignFitApp {
         maxSizeSelect.value = '99';
       }
       this.customOptions.maxKB = val;
+      this.hasDownloadedCurrentWork = false;
       this.runExportGuarantee();
     });
 
     const fitSelect = document.getElementById('exportFitSelect');
     fitSelect.addEventListener('change', (e) => {
       this.customOptions.fit = e.target.value;
+      this.hasDownloadedCurrentWork = false;
       this.runProcessingPipeline();
     });
 
@@ -284,6 +288,7 @@ class SnapSignFitApp {
     if (bgModeSelect) {
       bgModeSelect.addEventListener('change', (e) => {
         this.customOptions.bgMode = e.target.value;
+        this.hasDownloadedCurrentWork = false;
         this.runProcessingPipeline();
       });
     }
@@ -291,18 +296,21 @@ class SnapSignFitApp {
     const thickenSlider = document.getElementById('sigThickenSlider');
     thickenSlider.addEventListener('input', (e) => {
       this.customOptions.thickenPx = parseInt(e.target.value) || 0;
+      this.hasDownloadedCurrentWork = false;
       this.runProcessingPipeline();
     });
 
     const keepColorCheck = document.getElementById('sigKeepColorCheck');
     keepColorCheck.addEventListener('change', (e) => {
       this.customOptions.keepInkColor = e.target.checked;
+      this.hasDownloadedCurrentWork = false;
       this.runProcessingPipeline();
     });
 
     const autoDetectCheck = document.getElementById('autoDetectCheck');
     autoDetectCheck.addEventListener('change', (e) => {
       this.customOptions.autoDetect = e.target.checked;
+      this.hasDownloadedCurrentWork = false;
       this.resetUserTransforms();
       this.runProcessingPipeline();
     });
@@ -322,6 +330,49 @@ class SnapSignFitApp {
     });
 
     // Action Buttons
+    const btnDiscard = document.getElementById('btnDiscard');
+    if (btnDiscard) {
+      btnDiscard.addEventListener('click', () => this.handleDiscardClick());
+    }
+
+    const btnModalDownloadAndClose = document.getElementById('btnModalDownloadAndClose');
+    if (btnModalDownloadAndClose) {
+      btnModalDownloadAndClose.addEventListener('click', async () => {
+        this.triggerDownload();
+        this.closeDiscardModal();
+        await this.discardAndReset();
+      });
+    }
+
+    const btnModalDiscardAnyway = document.getElementById('btnModalDiscardAnyway');
+    if (btnModalDiscardAnyway) {
+      btnModalDiscardAnyway.addEventListener('click', async () => {
+        this.closeDiscardModal();
+        await this.discardAndReset();
+      });
+    }
+
+    const btnModalCancel = document.getElementById('btnModalCancel');
+    if (btnModalCancel) {
+      btnModalCancel.addEventListener('click', () => this.closeDiscardModal());
+    }
+
+    const discardModal = document.getElementById('discardModal');
+    if (discardModal) {
+      discardModal.addEventListener('click', (e) => {
+        if (e.target === discardModal) this.closeDiscardModal();
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('discardModal');
+        if (modal && !modal.classList.contains('hidden')) {
+          this.closeDiscardModal();
+        }
+      }
+    });
+
     document.getElementById('btnOpenEditor').addEventListener('click', () => this.openManualEditor());
     document.getElementById('btnDownload').addEventListener('click', () => this.triggerDownload());
     document.getElementById('btnCopyClipboard').addEventListener('click', () => this.copyToClipboard());
@@ -384,6 +435,7 @@ class SnapSignFitApp {
 
   applyPreset(preset) {
     this.currentPreset = preset;
+    this.hasDownloadedCurrentWork = false;
     this.customOptions.format = preset.format || 'jpg';
     this.customOptions.fit = preset.fit || 'cover';
     this.customOptions.maxKB = preset.maxKB || (preset.locked ? 99 : 100);
@@ -456,6 +508,7 @@ class SnapSignFitApp {
 
     try {
       this.sourceData = await loadImageFile(file);
+      this.hasDownloadedCurrentWork = false;
       document.getElementById('workspaceSection').classList.remove('hidden');
       this.resetUserTransforms();
       await this.runProcessingPipeline({ fromFileUpload: true });
@@ -926,6 +979,7 @@ class SnapSignFitApp {
       croppedCanvas: state.croppedCanvas,
       step2Transform: state.step2Transform
     };
+    this.hasDownloadedCurrentWork = false;
     this.saveSession();
     this.runProcessingPipeline();
   }
@@ -1042,6 +1096,67 @@ class SnapSignFitApp {
   triggerDownload() {
     if (!this.currentExport) return;
     triggerDownload(this.currentExport.url, this.currentExport.filename);
+    this.hasDownloadedCurrentWork = true;
+  }
+
+  handleDiscardClick() {
+    if (!this.sourceData) return;
+    if (this.hasDownloadedCurrentWork) {
+      this.discardAndReset();
+    } else {
+      this.openDiscardModal();
+    }
+  }
+
+  openDiscardModal() {
+    const modal = document.getElementById('discardModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  closeDiscardModal() {
+    const modal = document.getElementById('discardModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async discardAndReset() {
+    this.sourceData = null;
+    this.exactCanvas = null;
+    this.currentExport = null;
+    this.lastBeforeState = null;
+    this.hasDownloadedCurrentWork = false;
+    this.resetUserTransforms();
+
+    await clearSession();
+
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) fileInput.value = '';
+    const cameraInput = document.getElementById('cameraInput');
+    if (cameraInput) cameraInput.value = '';
+
+    const beforeCanvas = document.getElementById('beforeCanvas');
+    if (beforeCanvas) {
+      const ctx = beforeCanvas.getContext('2d');
+      ctx.clearRect(0, 0, beforeCanvas.width, beforeCanvas.height);
+      beforeCanvas.width = 0;
+      beforeCanvas.height = 0;
+    }
+
+    const afterCanvas = document.getElementById('afterCanvas');
+    if (afterCanvas) {
+      const ctx = afterCanvas.getContext('2d');
+      ctx.clearRect(0, 0, afterCanvas.width, afterCanvas.height);
+      afterCanvas.width = 0;
+      afterCanvas.height = 0;
+    }
+
+    const chipsContainer = document.getElementById('chipsContainer');
+    if (chipsContainer) chipsContainer.innerHTML = '';
+
+    const workspace = document.getElementById('workspaceSection');
+    if (workspace) workspace.classList.add('hidden');
+
+    this.selectCategory('gov');
+    this.applyPreset(PRESETS[0]);
   }
 
   async copyToClipboard() {
