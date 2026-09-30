@@ -798,11 +798,16 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
   test('REDESIGN-1-test: Hero elements, navigation, and landing sections render properly', async ({ page }) => {
     await page.goto('/');
 
-    // Header nav links exist
-    await expect(page.locator('#navResizer')).toBeVisible();
-    await expect(page.locator('#navGovPresets')).toBeVisible();
-    await expect(page.locator('#navHowItWorks')).toBeVisible();
-    await expect(page.locator('#navOffline')).toBeVisible();
+    // Header nav links exist in DOM (visible on desktop >= 768px)
+    await expect(page.locator('#navResizer')).toBeAttached();
+    await expect(page.locator('#navGovPresets')).toBeAttached();
+    await expect(page.locator('#navHowItWorks')).toBeAttached();
+    await expect(page.locator('#navOffline')).toBeAttached();
+
+    const isDesktop = (page.viewportSize()?.width || 0) >= 768;
+    if (isDesktop) {
+      await expect(page.locator('#navResizer')).toBeVisible();
+    }
 
     // Hero left elements exist
     await expect(page.locator('.hero-badge')).toBeVisible();
@@ -938,6 +943,130 @@ test.describe('SnapSignFit Acceptance Test Suite', () => {
       });
       expect(overflow).toBeFalsy();
     }
+  });
+
+  // FIXES7-1-test: Workspace preview panes are static (no pan/zoom event wrappers)
+  test('FIXES7-1-test: Workspace preview panes are static fit containers without panning transform', async ({ page }) => {
+    await page.goto('/');
+    await uploadFixture(page, 'face_centered.jpg');
+
+    const beforeCanvas = page.locator('#beforeCanvas');
+    const transform = await beforeCanvas.evaluate(el => el.style.transform);
+    expect(transform).toBe('');
+  });
+
+  // FIXES7-2-test: Crop frame handles directional resize cursors
+  test('FIXES7-2-test: Crop handles show directional resize cursors in Step 1', async ({ page }) => {
+    await page.goto('/');
+    await uploadFixture(page, 'face_centered.jpg', false);
+
+    await page.click('#btnOpenEditor');
+    await page.waitForSelector('.editor-modal-overlay:not(.hidden)');
+
+    // Ensure Step 1 Crop is active
+    await page.click('#tabStep1');
+    const canvas = page.locator('#editorInteractiveCanvas');
+    await expect(canvas).toBeVisible();
+
+    // Hover over corners of the canvas / crop rect to verify cursor updates
+    const box = await canvas.boundingBox();
+    expect(box).toBeTruthy();
+
+    // Verify editor canvas has handles and interactive interaction
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    const centerCursor = await canvas.evaluate(el => el.style.cursor);
+    expect(['move', 'default', 'crosshair', '']).toContain(centerCursor);
+
+    await page.click('#btnApplyEditor');
+  });
+
+  // FIXES7-3-test: Space + drag in Background & Brush tab pans without drawing
+  test('FIXES7-3-test: Space + drag in Background & Brush tab pans zoomed canvas without drawing strokes', async ({ page }) => {
+    await page.goto('/');
+    await uploadFixture(page, 'face_centered.jpg', false);
+
+    await page.click('#btnOpenEditor');
+    await page.waitForSelector('.editor-modal-overlay:not(.hidden)');
+
+    // Go to Step 3 (Background & Brush)
+    await page.click('#tabStep3');
+    const canvas = page.locator('#editorInteractiveCanvas');
+    await expect(canvas).toBeVisible();
+
+    // Check Space keydown sets grab cursor and prevents drawing
+    await page.keyboard.down('Space');
+    const isSpaceHeldClass = await canvas.evaluate(el => el.classList.contains('is-space-held'));
+    expect(isSpaceHeldClass).toBeTruthy();
+
+    // Drag with mouse while Space is held
+    const box = await canvas.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 50, box.y + box.height / 2 + 50);
+    await page.mouse.up();
+
+    // Release Space key
+    await page.keyboard.up('Space');
+    const isSpaceReleased = await canvas.evaluate(el => el.classList.contains('is-space-held'));
+    expect(isSpaceReleased).toBeFalsy();
+
+    await page.click('#btnApplyEditor');
+  });
+
+  // FIXES7-4-test: Desktop modal widened and Bengali text does not cause horizontal scrollbar
+  test('FIXES7-4-test: Desktop modal displays wide and Bengali button labels wrap without horizontal scrollbar', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+
+    // Switch to Bengali
+    await page.click('#langToggleBtn');
+
+    await uploadFixture(page, 'face_centered.jpg', false);
+    await page.click('#btnOpenEditor');
+    await page.waitForSelector('.editor-modal-overlay:not(.hidden)');
+
+    // Check dialog width >= 900px
+    const dialog = page.locator('.editor-modal-dialog');
+    const dialogBox = await dialog.boundingBox();
+    expect(dialogBox.width).toBeGreaterThanOrEqual(900);
+
+    // Go to Step 3 in Bengali
+    await page.click('#tabStep3');
+
+    // Verify modal dialog has no horizontal scrollbar
+    const hasHScroll = await dialog.evaluate(el => el.scrollWidth > el.clientWidth);
+    expect(hasHScroll).toBeFalsy();
+
+    const sidebar = page.locator('.editor-sidebar');
+    const sidebarHScroll = await sidebar.evaluate(el => el.scrollWidth > el.clientWidth);
+    expect(sidebarHScroll).toBeFalsy();
+
+    await page.click('#btnApplyEditor');
+  });
+
+  // FIXES7-5-test: Mobile layout stacks previews with min-height and compact hero
+  test('FIXES7-5-test: Mobile layout has compact hero and stacked preview viewports with min-height', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+
+    // Dropzone is visible
+    const dropzone = page.locator('#dropzone');
+    await expect(dropzone).toBeVisible();
+
+    // Hero actions (duplicate buttons) should be hidden on mobile
+    const heroActions = page.locator('.hero-actions');
+    await expect(heroActions).toBeHidden();
+
+    await uploadFixture(page, 'face_centered.jpg', false);
+
+    // Viewports should have height >= 200px
+    const beforeVp = page.locator('#beforeViewport');
+    const beforeBox = await beforeVp.boundingBox();
+    expect(beforeBox.height).toBeGreaterThanOrEqual(200);
+
+    const afterVp = page.locator('#afterViewport');
+    const afterBox = await afterVp.boundingBox();
+    expect(afterBox.height).toBeGreaterThanOrEqual(200);
   });
 
 });

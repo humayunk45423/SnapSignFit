@@ -12,155 +12,6 @@ import { removeBackgroundToWhite } from './bg.js';
 import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, clearSession, saveSessionState, loadSessionState } from './session.js';
 import { icon } from './icons.js';
 
-class PanZoomViewport {
-  constructor(viewportEl, canvasEl) {
-    this.viewport = viewportEl;
-    this.canvas = canvasEl;
-    this.scale = 1.0;
-    this.panX = 0;
-    this.panY = 0;
-    this.isPanning = false;
-    this.startX = 0;
-    this.startY = 0;
-    this.startPanX = 0;
-    this.startPanY = 0;
-    this.pointers = new Map();
-    this.initialPinchDist = 0;
-    this.initialPinchScale = 1.0;
-    this.rafId = null;
-
-    this.init();
-  }
-
-  init() {
-    if (!this.viewport || !this.canvas) return;
-    this.viewport.style.touchAction = 'none';
-
-    this.viewport.addEventListener('pointerdown', (e) => this.onPointerDown(e));
-    window.addEventListener('pointermove', (e) => this.onPointerMove(e));
-    window.addEventListener('pointerup', (e) => this.onPointerUp(e));
-    window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
-    this.viewport.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
-  }
-
-  setSpaceHeld(isHeld) {
-    if (this.viewport) {
-      this.viewport.classList.toggle('is-space-held', isHeld);
-    }
-  }
-
-  reset() {
-    this.scale = 1.0;
-    this.panX = 0;
-    this.panY = 0;
-    this.isPanning = false;
-    this.pointers.clear();
-    this.applyTransform();
-  }
-
-  setScale(scale) {
-    this.scale = scale;
-    this.applyTransform();
-  }
-
-  onPointerDown(e) {
-    if (e.target.closest('button')) return;
-    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-    const isSpace = window.isSpacePressed || false;
-    const isMiddle = e.button === 1;
-    const isZoomed = this.scale > 1.01;
-
-    if (isSpace || isMiddle || isZoomed || this.pointers.size > 1) {
-      this.isPanning = true;
-      this.startX = e.clientX;
-      this.startY = e.clientY;
-      this.startPanX = this.panX;
-      this.startPanY = this.panY;
-      this.viewport.classList.add('is-panning');
-      try {
-        this.viewport.setPointerCapture(e.pointerId);
-      } catch (err) {}
-    }
-
-    if (this.pointers.size === 2) {
-      const pts = Array.from(this.pointers.values());
-      this.initialPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      this.initialPinchScale = this.scale;
-    }
-  }
-
-  onPointerMove(e) {
-    if (!this.pointers.has(e.pointerId)) return;
-    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-    if (this.pointers.size === 2) {
-      const pts = Array.from(this.pointers.values());
-      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      if (this.initialPinchDist > 0) {
-        const factor = dist / this.initialPinchDist;
-        this.scale = Math.max(0.25, Math.min(8.0, this.initialPinchScale * factor));
-      }
-      const midX = (pts[0].x + pts[1].x) / 2;
-      const midY = (pts[0].y + pts[1].y) / 2;
-      this.panX = this.startPanX + (midX - this.startX);
-      this.panY = this.startPanY + (midY - this.startY);
-      this.requestApplyTransform();
-      return;
-    }
-
-    if (this.isPanning) {
-      const dx = e.clientX - this.startX;
-      const dy = e.clientY - this.startY;
-      this.panX = this.startPanX + dx;
-      this.panY = this.startPanY + dy;
-      this.requestApplyTransform();
-    }
-  }
-
-  onPointerUp(e) {
-    this.pointers.delete(e.pointerId);
-    if (this.pointers.size === 0) {
-      this.isPanning = false;
-      this.viewport.classList.remove('is-panning');
-      try {
-        this.viewport.releasePointerCapture(e.pointerId);
-      } catch (err) {}
-    }
-  }
-
-  onWheel(e) {
-    e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      const zoomDelta = e.deltaY < 0 ? 1.15 : 0.85;
-      this.scale = Math.max(0.25, Math.min(8.0, Math.round(this.scale * zoomDelta * 100) / 100));
-    } else {
-      this.panX -= e.deltaX;
-      this.panY -= e.deltaY;
-    }
-    this.requestApplyTransform();
-  }
-
-  requestApplyTransform() {
-    if (this.rafId) return;
-    this.rafId = requestAnimationFrame(() => {
-      this.rafId = null;
-      this.applyTransform();
-    });
-  }
-
-  applyTransform() {
-    if (!this.canvas) return;
-    if (this.scale === 1.0 && this.panX === 0 && this.panY === 0) {
-      this.canvas.style.transform = '';
-      this.canvas.style.imageRendering = 'auto';
-    } else {
-      this.canvas.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
-      this.canvas.style.imageRendering = this.scale > 1.0 ? 'pixelated' : 'auto';
-    }
-  }
-}
-
 class SnapSignFitApp {
   constructor() {
     // Pipeline State
@@ -219,15 +70,6 @@ class SnapSignFitApp {
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
     this.updateHeroCardTab('photo');
-
-    this.beforePanZoom = new PanZoomViewport(
-      document.getElementById('beforeViewport'),
-      document.getElementById('beforeCanvas')
-    );
-    this.afterPanZoom = new PanZoomViewport(
-      document.getElementById('afterViewport'),
-      document.getElementById('afterCanvas')
-    );
 
     this.restoreSession(); // Restore previous session after DOM is ready
 
@@ -387,6 +229,12 @@ class SnapSignFitApp {
       }
     });
 
+    dropzone.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) {
+        fileInput.click();
+      }
+    });
+
     // Drag and Drop
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
@@ -535,30 +383,9 @@ class SnapSignFitApp {
       if (this.customOptions.zoom2x) {
         vp.classList.add('zoom-2x');
         zoomToggleBtn.textContent = '2× Zoomed';
-        this.afterPanZoom?.setScale(2.0);
       } else {
         vp.classList.remove('zoom-2x');
         zoomToggleBtn.textContent = '1× Real Pixels';
-        this.afterPanZoom?.setScale(1.0);
-      }
-    });
-
-    // Space Key Panning (D3)
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
-        if (!e.repeat) {
-          window.isSpacePressed = true;
-          this.beforePanZoom?.setSpaceHeld(true);
-          this.afterPanZoom?.setSpaceHeld(true);
-        }
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
-        window.isSpacePressed = false;
-        this.beforePanZoom?.setSpaceHeld(false);
-        this.afterPanZoom?.setSpaceHeld(false);
       }
     });
 
@@ -609,6 +436,16 @@ class SnapSignFitApp {
     document.getElementById('btnOpenEditor').addEventListener('click', () => this.openManualEditor());
     document.getElementById('btnDownload').addEventListener('click', () => this.triggerDownload());
     document.getElementById('btnCopyClipboard').addEventListener('click', () => this.copyToClipboard());
+
+    // Fix 0: Kill all drag/pan/wheel events on workspace preview panes
+    document.querySelectorAll('.preview-pane').forEach(p => {
+      ['wheel', 'dragstart', 'contextmenu', 'touchmove'].forEach(evt =>
+        p.addEventListener(evt, e => e.preventDefault(), { passive: false })
+      );
+      p.querySelectorAll('img, canvas').forEach(i => {
+        if (i.draggable !== undefined) i.draggable = false;
+      });
+    });
   }
 
   selectCategory(cat) {
@@ -830,11 +667,13 @@ class SnapSignFitApp {
       this.hasDownloadedCurrentWork = false;
       document.body.classList.add('has-image');
       document.querySelector('.main-content')?.classList.add('has-image');
-      document.getElementById('workspaceSection').classList.remove('hidden');
+      const ws = document.getElementById('workspaceSection');
+      ws.classList.remove('hidden');
       this.resetUserTransforms();
-      this.beforePanZoom?.reset();
-      this.afterPanZoom?.reset();
       await this.runProcessingPipeline({ fromFileUpload: true });
+      if (window.innerWidth <= 860) {
+        ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     } catch (err) {
       console.error('Image load failed:', err);
       let msg = t('errCorrupt');
