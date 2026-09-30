@@ -9,6 +9,7 @@ import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smar
 import { ManualEditor } from './editor.js';
 import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.js';
 import { removeBackgroundToWhite } from './bg.js';
+import { saveSessionImage, loadSessionImage, saveSessionState, loadSessionState } from './session.js';
 
 class SnapSignFitApp {
   constructor() {
@@ -64,6 +65,7 @@ class SnapSignFitApp {
     this.renderPresetsGrid();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
+    this.restoreSession(); // Restore previous session after DOM is ready
 
     if (typeof ResizeObserver !== 'undefined') {
       const beforeVp = document.getElementById('beforeViewport');
@@ -914,7 +916,84 @@ class SnapSignFitApp {
       allowPadding: state.allowPadding,
       transformedCanvas: state.transformedCanvas
     };
+    this.saveSession();
     this.runProcessingPipeline();
+  }
+
+  /** Save complete session state (image + settings) */
+  saveSession() {
+    if (!this.sourceData) return;
+    saveSessionImage(this.sourceData.fullCanvas);
+    saveSessionState({
+      presetId: this.currentPreset?.id || null,
+      category: this.currentCategory,
+      fileName: this.sourceData.fileName || 'image',
+      customOptions: { ...this.customOptions },
+      userTransforms: this.userTransforms,
+      autoFixes: this.autoFixes
+    });
+  }
+
+  /** Restore session from IndexedDB + localStorage on page load */
+  async restoreSession() {
+    const state = loadSessionState();
+    if (!state) return;
+
+    try {
+      // Restore preset / category first (before image loads)
+      if (state.category) {
+        this.selectCategory(state.category, { silent: true });
+      }
+
+      const savedPreset = PRESETS.find(p => p.id === state.presetId);
+      if (savedPreset) {
+        // Apply preset without triggering a pipeline run (no image yet)
+        this.currentPreset = savedPreset;
+        this.customOptions = { ...this.customOptions, ...(state.customOptions || {}) };
+        document.getElementById('exportFormatSelect').value = this.customOptions.format;
+        document.getElementById('exportFitSelect').value = this.customOptions.fit;
+        this.renderPresetsGrid();
+      }
+
+      // Restore transforms
+      if (state.userTransforms) {
+        this.userTransforms = {
+          crop: state.userTransforms.crop || null,
+          rotation: state.userTransforms.rotation || 0,
+          straightenDeg: state.userTransforms.straightenDeg || 0,
+          flipH: state.userTransforms.flipH || false,
+          flipV: state.userTransforms.flipV || false,
+          allowPadding: state.userTransforms.allowPadding || false,
+          transformedCanvas: null
+        };
+      }
+
+      if (state.autoFixes) {
+        this.autoFixes = state.autoFixes;
+      }
+
+      // Restore image from IndexedDB
+      const img = await loadSessionImage();
+      if (!img) return;
+
+      // Convert restored image to a canvas so the full pipeline can process it
+      const canvas = createCanvas(img.naturalWidth, img.naturalHeight);
+      canvas.getContext('2d').drawImage(img, 0, 0);
+
+      this.sourceData = {
+        fullCanvas: canvas,
+        workingCanvas: canvas,
+        workingScale: 1,
+        fileName: state.fileName || 'restored_image'
+      };
+
+      document.getElementById('workspaceSection').classList.remove('hidden');
+      await this.runProcessingPipeline();
+
+      console.log('[Session] Restored successfully');
+    } catch (err) {
+      console.warn('[Session] Restore failed:', err);
+    }
   }
 
   triggerDownload() {
