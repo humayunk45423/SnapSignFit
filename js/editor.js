@@ -690,7 +690,7 @@ export class ManualEditor {
     this.bgColor = options.bgColor || '#ffffff';
     this.transparent = options.transparent || false;
 
-    // Reset initial transforms
+    // Reset / restore initial transforms
     this.rotation = options.rotation || 0;
     this.straightenDeg = options.straightenDeg || 0;
     this.step2Zoom = 1.0;
@@ -702,9 +702,20 @@ export class ManualEditor {
     this.undoStack = [];
     this.redoStack = [];
 
-    // Reset Step 3 state
+    if (options.step2Transform) {
+      if (options.step2Transform.rotation !== undefined) this.rotation = options.step2Transform.rotation;
+      if (options.step2Transform.straightenDeg !== undefined) this.straightenDeg = options.step2Transform.straightenDeg;
+      if (options.step2Transform.zoom !== undefined) this.step2Zoom = options.step2Transform.zoom;
+      if (options.step2Transform.panX !== undefined) this.step2PanX = options.step2Transform.panX;
+      if (options.step2Transform.panY !== undefined) this.step2PanY = options.step2Transform.panY;
+      if (options.step2Transform.flipH !== undefined) this.flipH = options.step2Transform.flipH;
+      if (options.step2Transform.flipV !== undefined) this.flipV = options.step2Transform.flipV;
+    }
+
+    // Step 3 state
     this.step3BaseCanvas = null;
-    this.maskCanvas = null;
+    this.maskCanvas = options.maskCanvas || null;
+    this.croppedCanvas = options.croppedCanvas || null;
     this.maskUndoStack = [];
     this.maskRedoStack = [];
     this.brushMode = 'erase';
@@ -719,7 +730,7 @@ export class ManualEditor {
 
     this.overlayEl.querySelector('#allowPaddingCheck').checked = this.allowPadding;
     this.overlayEl.querySelector('#straightenSlider').value = this.straightenDeg;
-    this.overlayEl.querySelector('#editorZoomSlider').value = 1.0;
+    this.overlayEl.querySelector('#editorZoomSlider').value = this.step2Zoom;
     this.overlayEl.querySelector('#brushSizeSlider').value = this.brushSize;
     this.overlayEl.querySelector('#brushHardnessSlider').value = this.brushHardness;
     this.updateStraightenInputDisplay();

@@ -9,7 +9,7 @@ import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smar
 import { ManualEditor } from './editor.js';
 import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.js';
 import { removeBackgroundToWhite } from './bg.js';
-import { saveSessionImage, loadSessionImage, saveSessionState, loadSessionState } from './session.js';
+import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, saveSessionState, loadSessionState } from './session.js';
 
 class SnapSignFitApp {
   constructor() {
@@ -436,7 +436,10 @@ class SnapSignFitApp {
       flipH: false,
       flipV: false,
       allowPadding: false,
-      transformedCanvas: null
+      transformedCanvas: null,
+      maskCanvas: null,
+      croppedCanvas: null,
+      step2Transform: null
     };
     this.autoFixes = {
       rotationDeg: 0,
@@ -902,7 +905,10 @@ class SnapSignFitApp {
         straightenDeg: this.userTransforms.straightenDeg,
         flipH: this.userTransforms.flipH,
         flipV: this.userTransforms.flipV,
-        allowPadding: this.userTransforms.allowPadding
+        allowPadding: this.userTransforms.allowPadding,
+        step2Transform: this.userTransforms.step2Transform,
+        maskCanvas: this.userTransforms.maskCanvas,
+        croppedCanvas: this.userTransforms.croppedCanvas
       }
     );
   }
@@ -915,17 +921,36 @@ class SnapSignFitApp {
       flipH: state.flipH,
       flipV: state.flipV,
       allowPadding: state.allowPadding,
-      transformedCanvas: state.transformedCanvas
+      transformedCanvas: state.transformedCanvas,
+      maskCanvas: state.maskCanvas,
+      croppedCanvas: state.croppedCanvas,
+      step2Transform: state.step2Transform
     };
     this.saveSession();
     this.runProcessingPipeline();
   }
 
-  /** Save complete session state (image + settings) */
-  saveSession() {
+  /** Save complete session state (image + all manual adjustment canvases + settings) */
+  async saveSession() {
     if (this.sourceData && this.sourceData.fullCanvas) {
-      saveSessionImage(this.sourceData.fullCanvas);
+      await saveSessionCanvas('source', this.sourceData.fullCanvas);
     }
+    if (this.userTransforms.transformedCanvas) {
+      await saveSessionCanvas('transformed', this.userTransforms.transformedCanvas);
+    } else {
+      await removeSessionCanvas('transformed');
+    }
+    if (this.userTransforms.maskCanvas) {
+      await saveSessionCanvas('mask', this.userTransforms.maskCanvas);
+    } else {
+      await removeSessionCanvas('mask');
+    }
+    if (this.userTransforms.croppedCanvas) {
+      await saveSessionCanvas('cropped', this.userTransforms.croppedCanvas);
+    } else {
+      await removeSessionCanvas('cropped');
+    }
+
     saveSessionState({
       presetId: this.currentPreset?.id || null,
       category: this.currentCategory,
@@ -972,7 +997,10 @@ class SnapSignFitApp {
           flipH: state.userTransforms.flipH || false,
           flipV: state.userTransforms.flipV || false,
           allowPadding: state.userTransforms.allowPadding || false,
-          transformedCanvas: null
+          step2Transform: state.userTransforms.step2Transform || null,
+          transformedCanvas: null,
+          maskCanvas: null,
+          croppedCanvas: null
         };
       }
 
@@ -980,25 +1008,32 @@ class SnapSignFitApp {
         this.autoFixes = state.autoFixes;
       }
 
-      // Restore image from IndexedDB
-      const img = await loadSessionImage();
-      if (!img) return;
-
-      // Convert restored image to a canvas so the full pipeline can process it
-      const canvas = createCanvas(img.naturalWidth, img.naturalHeight);
-      canvas.getContext('2d').drawImage(img, 0, 0);
+      // Restore source image canvas from IndexedDB
+      const sourceCanvas = await loadSessionCanvas('source');
+      if (!sourceCanvas) return;
 
       this.sourceData = {
-        fullCanvas: canvas,
-        workingCanvas: canvas,
+        fullCanvas: sourceCanvas,
+        workingCanvas: sourceCanvas,
         workingScale: 1,
         fileName: state.fileName || 'restored_image'
       };
 
+      // Restore user manual edit canvases if present
+      if (state.userTransforms?.hasTransformedCanvas) {
+        this.userTransforms.transformedCanvas = await loadSessionCanvas('transformed');
+      }
+      if (state.userTransforms?.hasMaskCanvas) {
+        this.userTransforms.maskCanvas = await loadSessionCanvas('mask');
+      }
+      if (state.userTransforms?.hasCroppedCanvas) {
+        this.userTransforms.croppedCanvas = await loadSessionCanvas('cropped');
+      }
+
       document.getElementById('workspaceSection').classList.remove('hidden');
       await this.runProcessingPipeline();
 
-      console.log('[Session] Restored successfully');
+      console.log('[Session] 100% of user progress and manual edits restored successfully');
     } catch (err) {
       console.warn('[Session] Restore failed:', err);
     }

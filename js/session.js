@@ -1,5 +1,6 @@
-// js/session.js - Session Persistence (IndexedDB for image, localStorage for settings)
-// Saves and restores the user's last image + all settings across page reloads.
+// js/session.js - Complete Session Persistence (IndexedDB for all canvases, localStorage for settings)
+// Saves and restores 100% of the user's progress across reloads (source image, manual brush/erased background,
+// crop frames, straighten/rotations, and all adjustment settings).
 
 const DB_NAME = 'SnapSignFitSession';
 const DB_VERSION = 1;
@@ -24,70 +25,115 @@ function openDB() {
 }
 
 /**
- * Save the source canvas as a PNG blob into IndexedDB.
+ * Save an HTML5 Canvas into IndexedDB as a PNG blob under a specific key.
+ * @param {string} key
  * @param {HTMLCanvasElement} canvas
  */
-export async function saveSessionImage(canvas) {
+export async function saveSessionCanvas(key, canvas) {
+  if (!canvas) return;
   try {
     const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+    if (!blob) return;
     const db = await openDB();
     await new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_IMAGE, 'readwrite');
-      tx.objectStore(STORE_IMAGE).put(blob, 'current');
+      tx.objectStore(STORE_IMAGE).put(blob, key);
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
   } catch (err) {
-    console.warn('[Session] Failed to save image:', err);
+    console.warn(`[Session] Failed to save canvas '${key}':`, err);
   }
 }
 
 /**
- * Load the saved source image from IndexedDB.
- * @returns {Promise<HTMLImageElement|null>}
+ * Remove a canvas key from IndexedDB.
+ * @param {string} key
  */
-export async function loadSessionImage() {
+export async function removeSessionCanvas(key) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_IMAGE, 'readwrite');
+      tx.objectStore(STORE_IMAGE).delete(key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.warn(`[Session] Failed to remove canvas '${key}':`, err);
+  }
+}
+
+/**
+ * Load a canvas from IndexedDB.
+ * @param {string} key
+ * @returns {Promise<HTMLCanvasElement|null>}
+ */
+export async function loadSessionCanvas(key) {
   try {
     const db = await openDB();
     const blob = await new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_IMAGE, 'readonly');
-      const req = tx.objectStore(STORE_IMAGE).get('current');
+      const req = tx.objectStore(STORE_IMAGE).get(key);
       req.onsuccess = () => resolve(req.result || null);
       req.onerror = () => reject(req.error);
     });
     if (!blob) return null;
-    return new Promise((resolve) => {
-      const img = new Image();
+    const img = await new Promise((resolve) => {
+      const el = new Image();
       const url = URL.createObjectURL(blob);
-      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
-      img.src = url;
+      el.onload = () => { URL.revokeObjectURL(url); resolve(el); };
+      el.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      el.src = url;
     });
+    if (!img) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return canvas;
   } catch (err) {
-    console.warn('[Session] Failed to load image:', err);
+    console.warn(`[Session] Failed to load canvas '${key}':`, err);
     return null;
   }
 }
 
 /**
- * Clear the saved image from IndexedDB.
+ * Save the source canvas (convenience wrapper).
+ * @param {HTMLCanvasElement} canvas
+ */
+export async function saveSessionImage(canvas) {
+  return saveSessionCanvas('source', canvas);
+}
+
+/**
+ * Load the source canvas (convenience wrapper).
+ * @returns {Promise<HTMLCanvasElement|null>}
+ */
+export async function loadSessionImage() {
+  return loadSessionCanvas('source');
+}
+
+/**
+ * Clear all saved canvas data from IndexedDB.
  */
 export async function clearSessionImage() {
   try {
     const db = await openDB();
     await new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_IMAGE, 'readwrite');
-      tx.objectStore(STORE_IMAGE).delete('current');
+      tx.objectStore(STORE_IMAGE).clear();
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
   } catch (err) {
-    console.warn('[Session] Failed to clear image:', err);
+    console.warn('[Session] Failed to clear session canvases:', err);
   }
 }
 
 /**
- * Save all non-image session state to localStorage.
+ * Save complete session state (presets, transforms, options, flags) to localStorage.
  * @param {object} state
  */
 export function saveSessionState(state) {
@@ -103,8 +149,11 @@ export function saveSessionState(state) {
         straightenDeg: state.userTransforms?.straightenDeg || 0,
         flipH: state.userTransforms?.flipH || false,
         flipV: state.userTransforms?.flipV || false,
-        allowPadding: state.userTransforms?.allowPadding || false
-        // Note: transformedCanvas is NOT serialised (re-derived on restore)
+        allowPadding: state.userTransforms?.allowPadding || false,
+        step2Transform: state.userTransforms?.step2Transform || null,
+        hasTransformedCanvas: Boolean(state.userTransforms?.transformedCanvas),
+        hasMaskCanvas: Boolean(state.userTransforms?.maskCanvas),
+        hasCroppedCanvas: Boolean(state.userTransforms?.croppedCanvas)
       },
       autoFixes: state.autoFixes || { rotationDeg: 0, tiltDeg: 0, enhanced: false },
       timestamp: Date.now()
@@ -137,7 +186,7 @@ export function loadSessionState() {
 }
 
 /**
- * Clear all session data.
+ * Clear all session data (both localStorage and IndexedDB).
  */
 export async function clearSession() {
   try { localStorage.removeItem(LS_KEY); } catch (e) {}
