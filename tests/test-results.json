@@ -95,7 +95,7 @@
         {
           "title": "SnapSignFit Acceptance Test Suite",
           "file": "snapsignfit.spec.js",
-          "line": 91,
+          "line": 99,
           "column": 6,
           "specs": [
             {
@@ -114,12 +114,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 14564,
+                      "duration": 18220,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:55:18.774Z",
+                      "startTime": "2026-09-30T10:23:14.988Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -129,7 +129,7 @@
               ],
               "id": "889f38c0441b1b4167cd-d3f7548af44c85f7e890",
               "file": "snapsignfit.spec.js",
-              "line": 104,
+              "line": 112,
               "column": 3
             },
             {
@@ -148,12 +148,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6829,
+                      "duration": 7387,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:55:34.196Z",
+                      "startTime": "2026-09-30T10:23:33.397Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -163,7 +163,7 @@
               ],
               "id": "889f38c0441b1b4167cd-4010b26e3cc533659379",
               "file": "snapsignfit.spec.js",
-              "line": 129,
+              "line": 137,
               "column": 3
             },
             {
@@ -182,12 +182,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 28110,
+                      "duration": 39583,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:55:41.045Z",
+                      "startTime": "2026-09-30T10:23:40.830Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -197,7 +197,7 @@
               ],
               "id": "889f38c0441b1b4167cd-de5d731972ae6d06cf5b",
               "file": "snapsignfit.spec.js",
-              "line": 156,
+              "line": 164,
               "column": 3
             },
             {
@@ -216,12 +216,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3951,
+                      "duration": 5822,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:09.176Z",
+                      "startTime": "2026-09-30T10:24:20.435Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -231,7 +231,7 @@
               ],
               "id": "889f38c0441b1b4167cd-4cb4f83069e76be1a071",
               "file": "snapsignfit.spec.js",
-              "line": 187,
+              "line": 195,
               "column": 3
             },
             {
@@ -250,12 +250,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 21550,
+                      "duration": 31834,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:13.142Z",
+                      "startTime": "2026-09-30T10:24:26.276Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -265,7 +265,7 @@
               ],
               "id": "889f38c0441b1b4167cd-f764fa7e52c3b90fc62a",
               "file": "snapsignfit.spec.js",
-              "line": 204,
+              "line": 212,
               "column": 3
             },
             {
@@ -284,12 +284,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7358,
+                      "duration": 7671,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:34.705Z",
+                      "startTime": "2026-09-30T10:24:58.124Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -299,7 +299,7 @@
               ],
               "id": "889f38c0441b1b4167cd-a15cb5b0609eccf66bff",
               "file": "snapsignfit.spec.js",
-              "line": 247,
+              "line": 255,
               "column": 3
             },
             {
@@ -320,12 +320,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 16492,
+                      "duration": 16419,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:42.075Z",
+                      "startTime": "2026-09-30T10:25:05.810Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -335,7 +335,7 @@
               ],
               "id": "889f38c0441b1b4167cd-418f83c2dfbbcf09d69a",
               "file": "snapsignfit.spec.js",
-              "line": 277,
+              "line": 285,
               "column": 3
             },
             {
@@ -354,12 +354,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 14932,
+                      "duration": 15314,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:58.586Z",
+                      "startTime": "2026-09-30T10:25:22.241Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -369,7 +369,7 @@
               ],
               "id": "889f38c0441b1b4167cd-e01799ad6adb477ee654",
               "file": "snapsignfit.spec.js",
-              "line": 310,
+              "line": 318,
               "column": 3
             },
             {
@@ -388,12 +388,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4177,
+                      "duration": 5536,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:13.540Z",
+                      "startTime": "2026-09-30T10:25:37.570Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -403,7 +403,7 @@
               ],
               "id": "889f38c0441b1b4167cd-3ae2529d1870100f37b9",
               "file": "snapsignfit.spec.js",
-              "line": 335,
+              "line": 343,
               "column": 3
             },
             {
@@ -422,12 +422,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3950,
+                      "duration": 4391,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:17.731Z",
+                      "startTime": "2026-09-30T10:25:43.122Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -437,7 +437,7 @@
               ],
               "id": "889f38c0441b1b4167cd-e9b3da03fecef0776d41",
               "file": "snapsignfit.spec.js",
-              "line": 360,
+              "line": 368,
               "column": 3
             },
             {
@@ -456,12 +456,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2098,
+                      "duration": 3822,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:21.695Z",
+                      "startTime": "2026-09-30T10:25:47.531Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -471,7 +471,7 @@
               ],
               "id": "889f38c0441b1b4167cd-d978ab2af389708b9f39",
               "file": "snapsignfit.spec.js",
-              "line": 383,
+              "line": 391,
               "column": 3
             },
             {
@@ -490,12 +490,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1771,
+                      "duration": 3303,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:23.807Z",
+                      "startTime": "2026-09-30T10:25:51.367Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -505,7 +505,7 @@
               ],
               "id": "889f38c0441b1b4167cd-97cd6baaf8501b255b57",
               "file": "snapsignfit.spec.js",
-              "line": 400,
+              "line": 408,
               "column": 3
             },
             {
@@ -524,12 +524,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 243,
+                      "duration": 283,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:25.594Z",
+                      "startTime": "2026-09-30T10:25:54.682Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -539,7 +539,7 @@
               ],
               "id": "889f38c0441b1b4167cd-593b59c8ea6653cc735e",
               "file": "snapsignfit.spec.js",
-              "line": 408,
+              "line": 416,
               "column": 3
             },
             {
@@ -558,12 +558,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4847,
+                      "duration": 5036,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:25.848Z",
+                      "startTime": "2026-09-30T10:25:54.979Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -573,7 +573,7 @@
               ],
               "id": "889f38c0441b1b4167cd-2656b5e94eaa2f5a639f",
               "file": "snapsignfit.spec.js",
-              "line": 427,
+              "line": 435,
               "column": 3
             },
             {
@@ -592,12 +592,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2312,
+                      "duration": 3258,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:30.708Z",
+                      "startTime": "2026-09-30T10:26:00.035Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -607,7 +607,7 @@
               ],
               "id": "889f38c0441b1b4167cd-145609251edc33bcbeef",
               "file": "snapsignfit.spec.js",
-              "line": 445,
+              "line": 453,
               "column": 3
             },
             {
@@ -626,12 +626,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7971,
+                      "duration": 7275,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:33.045Z",
+                      "startTime": "2026-09-30T10:26:03.307Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -641,7 +641,7 @@
               ],
               "id": "889f38c0441b1b4167cd-97752225a15704e8099a",
               "file": "snapsignfit.spec.js",
-              "line": 454,
+              "line": 462,
               "column": 3
             },
             {
@@ -660,12 +660,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 27634,
+                      "duration": 23690,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:41.041Z",
+                      "startTime": "2026-09-30T10:26:10.597Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -675,7 +675,7 @@
               ],
               "id": "889f38c0441b1b4167cd-c0b7436a6d7de018e11b",
               "file": "snapsignfit.spec.js",
-              "line": 466,
+              "line": 474,
               "column": 3
             },
             {
@@ -694,12 +694,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 2158,
+                      "duration": 3200,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:08.701Z",
+                      "startTime": "2026-09-30T10:26:34.300Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -709,7 +709,7 @@
               ],
               "id": "889f38c0441b1b4167cd-c5e1da71f7b31a972003",
               "file": "snapsignfit.spec.js",
-              "line": 489,
+              "line": 497,
               "column": 3
             },
             {
@@ -728,12 +728,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 302,
+                      "duration": 225,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:10.882Z",
+                      "startTime": "2026-09-30T10:26:37.514Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -743,7 +743,7 @@
               ],
               "id": "889f38c0441b1b4167cd-aebc240c4e1dd657c531",
               "file": "snapsignfit.spec.js",
-              "line": 506,
+              "line": 514,
               "column": 3
             },
             {
@@ -762,12 +762,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4488,
+                      "duration": 3403,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:11.197Z",
+                      "startTime": "2026-09-30T10:26:37.750Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -777,7 +777,7 @@
               ],
               "id": "889f38c0441b1b4167cd-c33bfe557e3995d460f6",
               "file": "snapsignfit.spec.js",
-              "line": 536,
+              "line": 544,
               "column": 3
             },
             {
@@ -796,12 +796,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9737,
+                      "duration": 10273,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:15.702Z",
+                      "startTime": "2026-09-30T10:26:41.162Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -811,7 +811,173 @@
               ],
               "id": "889f38c0441b1b4167cd-9722f052e1fb1fb6c174",
               "file": "snapsignfit.spec.js",
-              "line": 542,
+              "line": 550,
+              "column": 3
+            },
+            {
+              "title": "D1-test: Wide viewport — container expands with image loaded, no wide blank margins",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 9365,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m96\u001b[39m\nReceived:   \u001b[31m160\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m96\u001b[39m\nReceived:   \u001b[31m160\u001b[39m\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:696:29",
+                        "location": {
+                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                          "column": 29,
+                          "line": 696
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 694 |\u001b[39m       \u001b[90m// Container should not leave more than ~4% (≈50px at 1280) as blank margin per side\u001b[39m\n \u001b[90m 695 |\u001b[39m       \u001b[36mconst\u001b[39m unusedPerSide \u001b[33m=\u001b[39m (vpW \u001b[33m-\u001b[39m containerW) \u001b[33m/\u001b[39m \u001b[35m2\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m       expect(unusedPerSide)\u001b[33m.\u001b[39mtoBeLessThan(vpW \u001b[33m*\u001b[39m \u001b[35m0.05\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m     }\n \u001b[90m 698 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 699 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                            "column": 29,
+                            "line": 696
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m96\u001b[39m\nReceived:   \u001b[31m160\u001b[39m\n\n  694 |       // Container should not leave more than ~4% (≈50px at 1280) as blank margin per side\n  695 |       const unusedPerSide = (vpW - containerW) / 2;\n> 696 |       expect(unusedPerSide).toBeLessThan(vpW * 0.05);\n      |                             ^\n  697 |     }\n  698 |   });\n  699 |\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:696:29"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:26:51.448Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-f907a-oaded-no-wide-blank-margins-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                        "column": 29,
+                        "line": 696
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-0a590954fa9e9b160969",
+              "file": "snapsignfit.spec.js",
+              "line": 678,
+              "column": 3
+            },
+            {
+              "title": "D2-test: Status readout and action buttons never overlap at any viewport width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12173,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:27:01.430Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-200c69d5371523840d4a",
+              "file": "snapsignfit.spec.js",
+              "line": 701,
+              "column": 3
+            },
+            {
+              "title": "D3-test: Space+drag pan changes transform on preview viewport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3316,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:27:13.748Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-e95ae31d7d1a7ebdcb2b",
+              "file": "snapsignfit.spec.js",
+              "line": 734,
+              "column": 3
+            },
+            {
+              "title": "D4/D5-test: Footer centering at all widths and developer credit link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 684,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:27:17.075Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-44d97d95015cc10ac401",
+              "file": "snapsignfit.spec.js",
+              "line": 764,
               "column": 3
             },
             {
@@ -830,31 +996,31 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "failed",
-                      "duration": 14477,
+                      "duration": 14031,
                       "error": {
                         "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:120:33",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:128:33",
                         "location": {
                           "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
                           "column": 33,
-                          "line": 120
+                          "line": 128
                         },
-                        "snippet": "\u001b[0m \u001b[90m 118 |\u001b[39m       \u001b[36mawait\u001b[39m uploadFixture(page\u001b[33m,\u001b[39m f)\u001b[33m;\u001b[39m\n \u001b[90m 119 |\u001b[39m       \u001b[36mconst\u001b[39m afterCanvas \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#afterCanvas'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 120 |\u001b[39m       \u001b[36mawait\u001b[39m expect(afterCanvas)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 121 |\u001b[39m\n \u001b[90m 122 |\u001b[39m       \u001b[90m// Download and verify exact dimensions (default gov 300x300, <= 99,000 bytes)\u001b[39m\n \u001b[90m 123 |\u001b[39m       \u001b[36mconst\u001b[39m res \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m assertDownload(page\u001b[33m,\u001b[39m \u001b[35m300\u001b[39m\u001b[33m,\u001b[39m \u001b[35m300\u001b[39m\u001b[33m,\u001b[39m \u001b[35m99000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 126 |\u001b[39m       \u001b[36mawait\u001b[39m uploadFixture(page\u001b[33m,\u001b[39m f)\u001b[33m;\u001b[39m\n \u001b[90m 127 |\u001b[39m       \u001b[36mconst\u001b[39m afterCanvas \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#afterCanvas'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 128 |\u001b[39m       \u001b[36mawait\u001b[39m expect(afterCanvas)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 129 |\u001b[39m\n \u001b[90m 130 |\u001b[39m       \u001b[90m// Download and verify exact dimensions (default gov 300x300, <= 99,000 bytes)\u001b[39m\n \u001b[90m 131 |\u001b[39m       \u001b[36mconst\u001b[39m res \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m assertDownload(page\u001b[33m,\u001b[39m \u001b[35m300\u001b[39m\u001b[33m,\u001b[39m \u001b[35m300\u001b[39m\u001b[33m,\u001b[39m \u001b[35m99000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
                             "column": 33,
-                            "line": 120
+                            "line": 128
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  118 |       await uploadFixture(page, f);\n  119 |       const afterCanvas = page.locator('#afterCanvas');\n> 120 |       await expect(afterCanvas).toBeVisible();\n      |                                 ^\n  121 |\n  122 |       // Download and verify exact dimensions (default gov 300x300, <= 99,000 bytes)\n  123 |       const res = await assertDownload(page, 300, 300, 99000);\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:120:33"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  126 |       await uploadFixture(page, f);\n  127 |       const afterCanvas = page.locator('#afterCanvas');\n> 128 |       await expect(afterCanvas).toBeVisible();\n      |                                 ^\n  129 |\n  130 |       // Download and verify exact dimensions (default gov 300x300, <= 99,000 bytes)\n  131 |       const res = await assertDownload(page, 300, 300, 99000);\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:128:33"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:55:18.776Z",
+                      "startTime": "2026-09-30T10:23:14.988Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -866,7 +1032,7 @@
                       "errorLocation": {
                         "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
                         "column": 33,
-                        "line": 120
+                        "line": 128
                       }
                     }
                   ],
@@ -875,7 +1041,7 @@
               ],
               "id": "889f38c0441b1b4167cd-97a6b3e2f7de41e41477",
               "file": "snapsignfit.spec.js",
-              "line": 104,
+              "line": 112,
               "column": 3
             },
             {
@@ -894,12 +1060,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 6539,
+                      "duration": 7797,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:55:34.824Z",
+                      "startTime": "2026-09-30T10:23:30.011Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -909,7 +1075,7 @@
               ],
               "id": "889f38c0441b1b4167cd-20fe2ea8485d8c0939f5",
               "file": "snapsignfit.spec.js",
-              "line": 129,
+              "line": 137,
               "column": 3
             },
             {
@@ -928,12 +1094,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 28067,
+                      "duration": 37656,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:55:41.529Z",
+                      "startTime": "2026-09-30T10:23:38.018Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -943,7 +1109,7 @@
               ],
               "id": "889f38c0441b1b4167cd-19d5983968b921d81672",
               "file": "snapsignfit.spec.js",
-              "line": 156,
+              "line": 164,
               "column": 3
             },
             {
@@ -962,12 +1128,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3748,
+                      "duration": 3863,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:09.613Z",
+                      "startTime": "2026-09-30T10:24:15.696Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -977,7 +1143,7 @@
               ],
               "id": "889f38c0441b1b4167cd-0349d522089d263d36a4",
               "file": "snapsignfit.spec.js",
-              "line": 187,
+              "line": 195,
               "column": 3
             },
             {
@@ -996,12 +1162,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 21565,
+                      "duration": 31589,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:13.386Z",
+                      "startTime": "2026-09-30T10:24:19.578Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1011,7 +1177,7 @@
               ],
               "id": "889f38c0441b1b4167cd-3a71402323cac3d8ae4c",
               "file": "snapsignfit.spec.js",
-              "line": 204,
+              "line": 212,
               "column": 3
             },
             {
@@ -1030,12 +1196,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 7152,
+                      "duration": 5895,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:34.969Z",
+                      "startTime": "2026-09-30T10:24:51.187Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1045,7 +1211,7 @@
               ],
               "id": "889f38c0441b1b4167cd-6feb7344b6d4fd050485",
               "file": "snapsignfit.spec.js",
-              "line": 247,
+              "line": 255,
               "column": 3
             },
             {
@@ -1066,12 +1232,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 16430,
+                      "duration": 16370,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:42.141Z",
+                      "startTime": "2026-09-30T10:24:57.100Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1081,7 +1247,7 @@
               ],
               "id": "889f38c0441b1b4167cd-bcaf000d03d633db3b93",
               "file": "snapsignfit.spec.js",
-              "line": 277,
+              "line": 285,
               "column": 3
             },
             {
@@ -1100,12 +1266,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 14872,
+                      "duration": 16215,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:56:58.592Z",
+                      "startTime": "2026-09-30T10:25:13.489Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1115,7 +1281,7 @@
               ],
               "id": "889f38c0441b1b4167cd-b7e7cc317172373a8aa4",
               "file": "snapsignfit.spec.js",
-              "line": 310,
+              "line": 318,
               "column": 3
             },
             {
@@ -1134,12 +1300,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 4178,
+                      "duration": 3664,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:13.486Z",
+                      "startTime": "2026-09-30T10:25:29.720Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1149,7 +1315,7 @@
               ],
               "id": "889f38c0441b1b4167cd-a397d164cc0cd6233444",
               "file": "snapsignfit.spec.js",
-              "line": 335,
+              "line": 343,
               "column": 3
             },
             {
@@ -1168,12 +1334,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3887,
+                      "duration": 3150,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:17.687Z",
+                      "startTime": "2026-09-30T10:25:33.399Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1183,7 +1349,7 @@
               ],
               "id": "889f38c0441b1b4167cd-bb413bde6935f2941eed",
               "file": "snapsignfit.spec.js",
-              "line": 360,
+              "line": 368,
               "column": 3
             },
             {
@@ -1202,12 +1368,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 2058,
+                      "duration": 2133,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:21.586Z",
+                      "startTime": "2026-09-30T10:25:36.561Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1217,7 +1383,7 @@
               ],
               "id": "889f38c0441b1b4167cd-9a1a5646c1264f98b872",
               "file": "snapsignfit.spec.js",
-              "line": 383,
+              "line": 391,
               "column": 3
             },
             {
@@ -1236,12 +1402,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1803,
+                      "duration": 1595,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:23.660Z",
+                      "startTime": "2026-09-30T10:25:38.710Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1251,7 +1417,7 @@
               ],
               "id": "889f38c0441b1b4167cd-108005f2b170848eb006",
               "file": "snapsignfit.spec.js",
-              "line": 400,
+              "line": 408,
               "column": 3
             },
             {
@@ -1270,12 +1436,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 235,
+                      "duration": 194,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:25.472Z",
+                      "startTime": "2026-09-30T10:25:40.314Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1285,7 +1451,7 @@
               ],
               "id": "889f38c0441b1b4167cd-e45db5604af039b948d3",
               "file": "snapsignfit.spec.js",
-              "line": 408,
+              "line": 416,
               "column": 3
             },
             {
@@ -1304,12 +1470,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 4855,
+                      "duration": 4392,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:25.718Z",
+                      "startTime": "2026-09-30T10:25:40.517Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1319,7 +1485,7 @@
               ],
               "id": "889f38c0441b1b4167cd-b573f908b6437cfbff5e",
               "file": "snapsignfit.spec.js",
-              "line": 427,
+              "line": 435,
               "column": 3
             },
             {
@@ -1338,12 +1504,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 2261,
+                      "duration": 2346,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:30.584Z",
+                      "startTime": "2026-09-30T10:25:44.921Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1353,7 +1519,7 @@
               ],
               "id": "889f38c0441b1b4167cd-e7451bbb1a4f3e209975",
               "file": "snapsignfit.spec.js",
-              "line": 445,
+              "line": 453,
               "column": 3
             },
             {
@@ -1372,12 +1538,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 7970,
+                      "duration": 6303,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:32.863Z",
+                      "startTime": "2026-09-30T10:25:47.278Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1387,7 +1553,7 @@
               ],
               "id": "889f38c0441b1b4167cd-4fe7425673210ba2a2b3",
               "file": "snapsignfit.spec.js",
-              "line": 454,
+              "line": 462,
               "column": 3
             },
             {
@@ -1406,12 +1572,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 27878,
+                      "duration": 21751,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:57:40.848Z",
+                      "startTime": "2026-09-30T10:25:53.593Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1421,7 +1587,7 @@
               ],
               "id": "889f38c0441b1b4167cd-b014beb0a27d9345cbec",
               "file": "snapsignfit.spec.js",
-              "line": 466,
+              "line": 474,
               "column": 3
             },
             {
@@ -1440,12 +1606,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 2168,
+                      "duration": 2024,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:08.749Z",
+                      "startTime": "2026-09-30T10:26:15.360Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1455,7 +1621,7 @@
               ],
               "id": "889f38c0441b1b4167cd-736424a7de0f83e701a4",
               "file": "snapsignfit.spec.js",
-              "line": 489,
+              "line": 497,
               "column": 3
             },
             {
@@ -1474,12 +1640,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 275,
+                      "duration": 261,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:10.937Z",
+                      "startTime": "2026-09-30T10:26:17.402Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1489,7 +1655,7 @@
               ],
               "id": "889f38c0441b1b4167cd-7bbc453c98b111707cd3",
               "file": "snapsignfit.spec.js",
-              "line": 506,
+              "line": 514,
               "column": 3
             },
             {
@@ -1508,12 +1674,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 4341,
+                      "duration": 3451,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:11.227Z",
+                      "startTime": "2026-09-30T10:26:17.674Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1523,7 +1689,7 @@
               ],
               "id": "889f38c0441b1b4167cd-0eb17dbee5a836e301a4",
               "file": "snapsignfit.spec.js",
-              "line": 536,
+              "line": 544,
               "column": 3
             },
             {
@@ -1542,12 +1708,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 9789,
+                      "duration": 11484,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-09-30T09:58:15.584Z",
+                      "startTime": "2026-09-30T10:26:21.139Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -1557,7 +1723,203 @@
               ],
               "id": "889f38c0441b1b4167cd-e6286ddb8d4e2afa2895",
               "file": "snapsignfit.spec.js",
-              "line": 542,
+              "line": 550,
+              "column": 3
+            },
+            {
+              "title": "D1-test: Wide viewport — container expands with image loaded, no wide blank margins",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 8867,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m96\u001b[39m\nReceived:   \u001b[31m160\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m96\u001b[39m\nReceived:   \u001b[31m160\u001b[39m\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:696:29",
+                        "location": {
+                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                          "column": 29,
+                          "line": 696
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 694 |\u001b[39m       \u001b[90m// Container should not leave more than ~4% (≈50px at 1280) as blank margin per side\u001b[39m\n \u001b[90m 695 |\u001b[39m       \u001b[36mconst\u001b[39m unusedPerSide \u001b[33m=\u001b[39m (vpW \u001b[33m-\u001b[39m containerW) \u001b[33m/\u001b[39m \u001b[35m2\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 696 |\u001b[39m       expect(unusedPerSide)\u001b[33m.\u001b[39mtoBeLessThan(vpW \u001b[33m*\u001b[39m \u001b[35m0.05\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 697 |\u001b[39m     }\n \u001b[90m 698 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 699 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                            "column": 29,
+                            "line": 696
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m96\u001b[39m\nReceived:   \u001b[31m160\u001b[39m\n\n  694 |       // Container should not leave more than ~4% (≈50px at 1280) as blank margin per side\n  695 |       const unusedPerSide = (vpW - containerW) / 2;\n> 696 |       expect(unusedPerSide).toBeLessThan(vpW * 0.05);\n      |                             ^\n  697 |     }\n  698 |   });\n  699 |\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:696:29"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:26:32.637Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-f907a-oaded-no-wide-blank-margins-mobile-chrome\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                        "column": 29,
+                        "line": 696
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-c0e255c0c67e7daf4256",
+              "file": "snapsignfit.spec.js",
+              "line": 678,
+              "column": 3
+            },
+            {
+              "title": "D2-test: Status readout and action buttons never overlap at any viewport width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 12636,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:26:42.198Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-72f8d6943d8e7caebf59",
+              "file": "snapsignfit.spec.js",
+              "line": 701,
+              "column": 3
+            },
+            {
+              "title": "D3-test: Space+drag pan changes transform on preview viewport",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 11762,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:738:26",
+                        "location": {
+                          "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                          "column": 26,
+                          "line": 738
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 736 |\u001b[39m\n \u001b[90m 737 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#afterCanvas'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 738 |\u001b[39m     \u001b[36mawait\u001b[39m expect(canvas)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 739 |\u001b[39m\n \u001b[90m 740 |\u001b[39m     \u001b[90m// Get initial transform\u001b[39m\n \u001b[90m 741 |\u001b[39m     \u001b[36mconst\u001b[39m initialTransform \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m canvas\u001b[33m.\u001b[39mevaluate(el \u001b[33m=>\u001b[39m el\u001b[33m.\u001b[39mstyle\u001b[33m.\u001b[39mtransform \u001b[33m||\u001b[39m \u001b[32m'none'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                            "column": 26,
+                            "line": 738
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#afterCanvas')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('#afterCanvas') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#afterCanvas')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas width=\"300\" height=\"300\" id=\"afterCanvas\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  736 |\n  737 |     const canvas = page.locator('#afterCanvas');\n> 738 |     await expect(canvas).toBeVisible();\n      |                          ^\n  739 |\n  740 |     // Get initial transform\n  741 |     const initialTransform = await canvas.evaluate(el => el.style.transform || 'none');\n    at F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js:738:26"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:26:54.981Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\test-results\\snapsignfit-SnapSignFit-Ac-18179-ansform-on-preview-viewport-mobile-chrome\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\tests\\snapsignfit.spec.js",
+                        "column": 26,
+                        "line": 738
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-825f1e6e4ae2f3933dac",
+              "file": "snapsignfit.spec.js",
+              "line": 734,
+              "column": 3
+            },
+            {
+              "title": "D4/D5-test: Footer centering at all widths and developer credit link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 835,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-30T10:27:07.395Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-19fe80b9f9dcb7797f9f",
+              "file": "snapsignfit.spec.js",
+              "line": 764,
               "column": 3
             }
           ]
@@ -1567,11 +1929,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-09-30T09:55:18.046Z",
-    "duration": 187784.28399999999,
-    "expected": 41,
+    "startTime": "2026-09-30T10:23:14.202Z",
+    "duration": 243868.28699999998,
+    "expected": 46,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 4,
     "flaky": 0
   }
 }
