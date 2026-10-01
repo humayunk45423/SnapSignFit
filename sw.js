@@ -1,6 +1,6 @@
 // sw.js - SnapSignFit Service Worker: cache-first offline strategy
-const CACHE_VERSION = 'snapsignfit-v5';
-const VENDOR_CACHE = 'snapsignfit-vendor-v5';
+const CACHE_VERSION = 'snapsignfit-v6';
+const VENDOR_CACHE = 'snapsignfit-vendor-v6';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -81,19 +81,20 @@ self.addEventListener('fetch', event => {
       })
     );
   } else {
-    // App shell: stale-while-revalidate
+    // App shell: Network-first, cache fallback (immediate updates)
     event.respondWith(
-      caches.open(CACHE_VERSION).then(async cache => {
-        const cached = await cache.match(event.request);
-        const fetchPromise = fetch(event.request)
-          .then(resp => {
-            if (resp.ok) cache.put(event.request, resp.clone());
-            return resp;
-          })
-          .catch(() => null);
-
-        return cached || fetchPromise || new Response('Offline', { status: 503 });
-      })
+      fetch(event.request)
+        .then(async resp => {
+          if (resp.ok) {
+            const cache = await caches.open(CACHE_VERSION);
+            cache.put(event.request, resp.clone());
+          }
+          return resp;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          return cached || new Response('Offline', { status: 503 });
+        })
     );
   }
 });
