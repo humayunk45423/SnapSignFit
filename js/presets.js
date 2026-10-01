@@ -37,9 +37,9 @@ export const PRESETS = [
     kind: 'signature',
     fit: 'contain',
     format: 'jpg',
-    maxKB: 99,
+    maxKB: 60,
     locked: true,
-    note: 'Standard Bangladesh Government, Teletalk & Bank applicant signature'
+    note: 'Standard Bangladesh Government, Teletalk & Bank applicant signature (≤ 60 KB)'
   },
   {
     id: 'gov_sig_250x50',
@@ -50,9 +50,9 @@ export const PRESETS = [
     kind: 'signature',
     fit: 'contain',
     format: 'jpg',
-    maxKB: 99,
+    maxKB: 50,
     locked: true,
-    note: 'University & College admission standard signature'
+    note: 'University & College admission standard signature (≤ 50 KB)'
   },
   {
     id: 'gov_passport_35x45',

@@ -21,7 +21,7 @@ export function setKind(kind) {
   if (specValue) specValue.textContent = photo ? '300×300 px (≤ 100 KB)' : '300×80 px (≤ 60 KB)';
   // Tell app.js which preset to preselect for the next upload:
   document.dispatchEvent(new CustomEvent('snapsignfit:preset', {
-    detail: photo ? { w: 300, h: 300, maxKB: 99, kind: 'photo' } : { w: 300, h: 80, maxKB: 59, kind: 'signature' }
+    detail: photo ? { w: 300, h: 300, maxKB: 99, kind: 'photo' } : { w: 300, h: 80, maxKB: 60, kind: 'signature' }
   }));
 }
 
@@ -29,7 +29,7 @@ export function setKind(kind) {
 document.querySelectorAll('#presetChips .chip').forEach(c => c.addEventListener('click', () => {
   const { w, h, kb } = c.dataset;
   document.dispatchEvent(new CustomEvent('snapsignfit:preset', {
-    detail: { w: +w, h: +h, maxKB: +kb - 1, kind: +h <= 100 ? 'signature' : 'photo' }
+    detail: { w: +w, h: +h, maxKB: +kb, kind: +h <= 100 ? 'signature' : 'photo' }
   }));
   fileInput?.click();
 }));

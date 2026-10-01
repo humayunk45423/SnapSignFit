@@ -319,11 +319,15 @@ export async function exportWithGuarantee(exactCanvas, targetW, targetH, options
     presetKind = 'photo'
   } = options;
 
-  // Max bytes rule: locked gov presets strictly capped at 99,000 bytes
+  // Max bytes rule: locked gov presets strictly capped
   let maxBytes;
   if (locked) {
-    // Lowered limit allowed, but never above 99,000 bytes
-    maxBytes = Math.min(CONFIG.DEFAULT_MAX_BYTES_GOV, Math.round((maxKB || 99) * 1000));
+    let cap = Math.round((maxKB || 99) * 1000);
+    // Strictly guarantee output is less than 60 KB and less than 50 KB
+    if (cap === 60000 || maxKB === 60) cap = 59000;
+    else if (cap === 50000 || maxKB === 50) cap = 49000;
+    else if (cap >= 100000 || cap === 99000) cap = CONFIG.DEFAULT_MAX_BYTES_GOV;
+    maxBytes = Math.min(CONFIG.DEFAULT_MAX_BYTES_GOV, cap);
   } else if (!maxKB || maxKB <= 0) {
     maxBytes = 200 * 1024 * 1024; // No limit
   } else {

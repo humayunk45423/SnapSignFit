@@ -191,10 +191,13 @@ class SnapSignFitApp {
         card.className = `preset-popup-card ${preset.locked ? 'gov-card' : ''}`;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
-        card.setAttribute('aria-label', `${preset.label}, ${preset.w} by ${preset.h} pixels${preset.maxKB ? `, under ${preset.maxKB} kilobytes` : ''}`);
+        const kindLabel = t(`kind${preset.kind.charAt(0).toUpperCase() + preset.kind.slice(1)}`) || preset.kind;
+        const badgeHtml = preset.locked
+          ? `<span class="ppc-badge"><i class="fa-solid fa-star" style="color: #f59e0b; margin-right: 4px;"></i> ${t('govOfficialBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`
+          : '';
         card.innerHTML = `
-          ${preset.locked ? '<span class="ppc-badge"><i class="fa fa-star" style="color: #f59e0b; margin-right: 4px;"></i> Govt Official</span>' : ''}
-          <span class="ppc-kind">${preset.kind}</span>
+          ${badgeHtml}
+          <span class="ppc-kind">${kindLabel}</span>
           <div class="ppc-label">${preset.label}</div>
           <div class="ppc-dims">${preset.w} × ${preset.h} px${preset.maxKB ? ` · ≤${preset.maxKB}KB` : ''}</div>
           <div class="ppc-note">${preset.note || ''}</div>
@@ -275,6 +278,31 @@ class SnapSignFitApp {
 
     // "Govt Presets" nav link
     document.getElementById('navGovPresetsBtn')?.addEventListener('click', () => openPopup('gov'));
+
+    // Re-render popup if open when language changes
+    window.addEventListener('snapsignfit:lang', () => {
+      if (!overlay.classList.contains('hidden')) {
+        renderPopupGrid(popupCurrentCat);
+      }
+    });
+
+    // "How It Works" nav link smooth scroll & smooth flash highlight
+    const howNav = document.querySelector('a[href="#how"]');
+    if (howNav) {
+      howNav.addEventListener('click', (e) => {
+        e.preventDefault();
+        const howSec = document.getElementById('how');
+        if (howSec) {
+          howSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          howSec.classList.remove('flash-highlight');
+          void howSec.offsetWidth; // Force reflow
+          howSec.classList.add('flash-highlight');
+          setTimeout(() => {
+            howSec.classList.remove('flash-highlight');
+          }, 1500);
+        }
+      });
+    }
 
     // Expose for external use (e.g., chip row)
     this._openPresetPopup = openPopup;
@@ -473,9 +501,10 @@ class SnapSignFitApp {
     maxSizeSelect.addEventListener('change', (e) => {
       let val = parseInt(e.target.value);
       // Strictly enforce Gov lock
-      if (this.currentPreset.locked && val > 99) {
-        val = 99;
-        maxSizeSelect.value = '99';
+      const maxLimit = this.currentPreset?.locked ? (this.currentPreset.maxKB || 99) : 2000;
+      if (this.currentPreset?.locked && val > maxLimit) {
+        val = maxLimit;
+        maxSizeSelect.value = String(maxLimit);
       }
       this.customOptions.maxKB = val;
       this.hasDownloadedCurrentWork = false;
@@ -638,11 +667,12 @@ class SnapSignFitApp {
     filtered.forEach(preset => {
       const card = document.createElement('div');
       card.className = `preset-card ${preset.locked ? 'card-gov' : ''} ${preset.id === this.currentPreset?.id ? 'active' : ''}`;
+      const kindLabel = t(`kind${preset.kind.charAt(0).toUpperCase() + preset.kind.slice(1)}`) || preset.kind;
       card.innerHTML = `
         <div>
           <div class="preset-card-header">
-            <span class="preset-card-kind">${preset.kind}</span>
-            ${preset.locked ? `<span class="preset-card-badge">${t('lockedGovBadge')}</span>` : ''}
+            <span class="preset-card-kind">${kindLabel}</span>
+            ${preset.locked ? `<span class="preset-card-badge">${t('lockedGovBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>` : ''}
           </div>
           <div class="preset-card-title">${preset.label}</div>
           <div class="preset-card-dims">${preset.w} × ${preset.h} px</div>
@@ -686,14 +716,27 @@ class SnapSignFitApp {
     maxSizeSelect.innerHTML = '';
 
     if (preset.locked) {
-      // Allowed: 50 KB, 99 KB (can only be lowered, never raised above 99 KB)
-      maxSizeSelect.innerHTML = `
-        <option value="50">50 KB</option>
-        <option value="99" selected>99 KB (Gov locked)</option>
-      `;
+      const pKB = preset.maxKB || 99;
+      if (pKB <= 50) {
+        maxSizeSelect.innerHTML = `
+          <option value="50" selected>50 KB (Gov locked)</option>
+        `;
+      } else if (pKB <= 60) {
+        maxSizeSelect.innerHTML = `
+          <option value="50">50 KB</option>
+          <option value="60" selected>60 KB (Gov locked)</option>
+        `;
+      } else {
+        maxSizeSelect.innerHTML = `
+          <option value="50">50 KB</option>
+          <option value="60">60 KB</option>
+          <option value="99" selected>100 KB (Gov locked)</option>
+        `;
+      }
     } else {
       maxSizeSelect.innerHTML = `
         <option value="50">50 KB</option>
+        <option value="60">60 KB</option>
         <option value="100" selected>100 KB</option>
         <option value="200">200 KB</option>
         <option value="500">500 KB</option>
@@ -1193,7 +1236,7 @@ class SnapSignFitApp {
     const kb = (size / 1024).toFixed(1);
     const { w, h, locked } = this.currentPreset;
 
-    const maxBytes = locked ? 99000 : this.customOptions.maxKB * 1000;
+    const maxBytes = locked ? ((this.currentPreset.maxKB || 99) * 1000) : (this.customOptions.maxKB * 1000);
     const isUnder = size <= maxBytes;
 
     badge.className = `size-status-badge ${isUnder ? 'under-limit' : 'over-limit'}`;

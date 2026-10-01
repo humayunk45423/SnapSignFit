@@ -30,11 +30,29 @@ export const translations = {
     themeToggle: 'Toggle theme',
     dark: 'Dark',
     light: 'Light',
+    navGovPresets: 'Govt Presets',
+    navHowItWorks: 'How It Works',
+    navOffline: '100% Offline',
+
+    // How it works
+    howItWorks: 'How it works',
+    howStep1Title: 'Exact Pixel Dimensions',
+    howStep1Desc: 'Strictly resizes to 300×300 px for portraits, 300×80 px (≤ 60 KB) & 250×50 px (≤ 50 KB) for signatures. Zero stretch or distortion.',
+    howStep2Title: 'Automatic File Size Lock',
+    howStep2Desc: 'Calculates exact JPEG compression so photo is under 100 KB, 300×80 signature is under 60 KB, and 250×50 signature is under 50 KB every time.',
+    howStep3Title: 'Zero Server Storage',
+    howStep3Desc: 'Processing happens locally in HTML5 Canvas. Your signature and face never leave your device.',
+
+    // Preset popup modal
+    choosePresetModalTitle: 'Choose a Preset',
+    choosePresetModalSubtitle: 'Select a size, then pick your photo or signature from your device.',
+    presetPopupHint: 'Click a preset → your file picker will open → image is processed automatically.',
+    govOfficialBadge: 'Gov Official',
     
     // Upload zone & Hero
     heroBadge: 'MADE FOR BCS, TELETALK & EXAM FORMS',
     heroTitle: 'Resize your photo & signature to Bangladesh Government form presets.',
-    heroSub: 'Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 60KB)',
+    heroSub: 'Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 50KB)',
     heroPrivacy: '100% private · runs in your browser · works offline',
     dropzoneTitle: 'Drop your photo or signature here',
     dropzoneSubtitle: 'or click to browse from device, paste (Ctrl+V), or take a photo',
@@ -54,7 +72,7 @@ export const translations = {
     kindSignature: 'Signature',
     kindAvatar: 'Avatar',
     kindImage: 'Image',
-    lockedGovBadge: 'Gov Locked (<100KB)',
+    lockedGovBadge: 'Gov Locked',
     customPreset: 'Custom Preset',
     
     // Custom controls
@@ -204,11 +222,29 @@ export const translations = {
     themeToggle: 'থিম',
     dark: 'ডার্ক',
     light: 'লাইট',
+    navGovPresets: 'সরকারি প্রিসেট',
+    navHowItWorks: 'কীভাবে কাজ করে',
+    navOffline: '১০০% অফলাইন',
+
+    // How it works
+    howItWorks: 'কীভাবে কাজ করে',
+    howStep1Title: 'সঠিক পিক্সেল মাপ',
+    howStep1Desc: 'ছবির জন্য ৩০০×৩০০ পিক্সেল, স্বাক্ষরের জন্য ৩০০×৮০ পিক্সেল (≤ ৬০ KB) ও ২৫০×৫০ পিক্সেল (≤ ৫০ KB)। কোনো বিকৃতি বা টানাটানি ছাড়াই নিখুঁত মাপ।',
+    howStep2Title: 'স্বয়ংক্রিয় ফাইল সাইজ নিয়ন্ত্রণ',
+    howStep2Desc: 'নিখুঁত জেপিইজি কম্প্রেশন—ছবি ১০০ KB-এর নিচে, ৩০০×৮০ স্বাক্ষর ৬০ KB-এর নিচে এবং ২৫০×৫০ স্বাক্ষর ৫০ KB-এর নিচে নিশ্চিত করে।',
+    howStep3Title: 'কোনো সার্ভার স্টোরেজ নেই',
+    howStep3Desc: 'সমস্ত প্রসেসিং সরাসরি আপনার ব্রাউজারের HTML5 ক্যানভাসে হয়। আপনার ছবি ও স্বাক্ষর কখনোই আপনার ডিভাইস ত্যাগ করে না।',
+
+    // Preset popup modal
+    choosePresetModalTitle: 'একটি প্রিসেট বেছে নিন',
+    choosePresetModalSubtitle: 'যেকোনো মাপ নির্বাচন করুন, তারপর আপনার ডিভাইস থেকে ছবি বা স্বাক্ষর আপলোড করুন।',
+    presetPopupHint: 'প্রিসেটে ক্লিক করুন → ফাইল সিলেক্ট করুন → স্বয়ংক্রিয়ভাবে প্রসেস হয়ে যাবে।',
+    govOfficialBadge: 'অফিসিয়াল স্পেক',
     
     // Upload zone & Hero
     heroBadge: 'বিসিএস, টেলিটক ও পরীক্ষার ফর্ম',
     heroTitle: 'সরকারি ফর্মের সাইজে ছবি ও স্বাক্ষর কনভার্ট করুন',
-    heroSub: 'ছবি ৩০০×৩০০ (≤১০০KB) · ছবি ২৫০×২৫০ (≤১০০KB) · স্বাক্ষর ৩০০×৮০ (≤৬০KB) · স্বাক্ষর ২৫০×৫০ (≤৬০KB)',
+    heroSub: 'ছবি ৩০০×৩০০ (≤১০০KB) · ছবি ২৫০×২৫০ (≤১০০KB) · স্বাক্ষর ৩০০×৮০ (≤৬০KB) · স্বাক্ষর ২৫০×৫০ (≤৫০KB)',
     heroPrivacy: '১০০% নিরাপদ · ব্রাউজারে প্রসেস · অফলাইন',
     dropzoneTitle: 'ছবি বা স্বাক্ষর এখানে ড্রপ করুন',
     dropzoneSubtitle: 'বা ফাইল নির্বাচন / ক্যামেরা দিয়ে তুলুন',
@@ -228,7 +264,7 @@ export const translations = {
     kindSignature: 'স্বাক্ষর',
     kindAvatar: 'অবতার',
     kindImage: 'ছবি',
-    lockedGovBadge: 'সরকারি লকড (<১০০KB)',
+    lockedGovBadge: 'সরকারি লকড',
     customPreset: 'কাস্টম',
     
     // Custom controls

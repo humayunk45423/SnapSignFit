@@ -202,9 +202,16 @@ html {
   -moz-osx-font-smoothing: grayscale;
   overflow-wrap: anywhere;
   overflow-x: hidden;
+/* Font Awesome protection from language font-family overrides */
+.fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands, [class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "FontAwesome" !important;
+}
+.fa-brands {
+  font-family: "Font Awesome 6 Brands" !important;
 }
 
-:lang(bn), [data-lang="bn"] {
+:lang(bn):not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]),
+[data-lang="bn"]:not(.fa):not(.fas):not(.far):not(.fab):not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]) {
   font-family: 'Noto Sans Bengali', 'Hind Siliguri', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.65;
 }
@@ -2416,23 +2423,105 @@ body.dark .hero-ctas .btn-preset-pill {
 
 /* ── Feature Strip ──────────────────────────────── */
 .feature-strip {
-  padding-block: clamp(14px, 2vh, 24px);
+  padding-block: clamp(16px, 2.5vh, 28px);
   max-width: 1240px;
   margin-inline: auto;
   width: 100%;
+  scroll-margin-top: 80px;
+  transition: all 0.3s ease;
 }
 
 .feature-strip-header {
-  margin-bottom: 14px;
-  text-align: center;
+  margin-bottom: 18px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .feature-strip-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--muted);
-  letter-spacing: 0.07em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  padding: 6px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.1);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .feature-strip-title,
+body.dark .feature-strip-title {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.feature-strip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px #3b82f6;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .feature-strip-dot,
+body.dark .feature-strip-dot {
+  background: #818cf8;
+  box-shadow: 0 0 10px #818cf8;
+}
+
+/* Flash highlight animation for "How It Works" */
+@keyframes smoothCardFlash {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border-color: var(--border);
+  }
+  30% {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.32), 0 0 0 2px rgba(99, 102, 241, 0.45);
+    border-color: rgba(99, 102, 241, 0.75);
+  }
+  65% {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border-color: var(--border);
+  }
+}
+
+@keyframes smoothTitleFlash {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.08);
+    box-shadow: 0 0 22px rgba(99, 102, 241, 0.55);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.feature-strip.flash-highlight article {
+  animation: smoothCardFlash 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.feature-strip.flash-highlight .feature-strip-title {
+  animation: smoothTitleFlash 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .feature-cards {
@@ -2960,10 +3049,15 @@ body.dark .hero-ctas .btn-preset-pill {
 
   .feature-strip-header {
     margin-bottom: 10px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .feature-strip-title {
-    font-size: 15px;
+    font-size: 12px;
+    padding: 4px 12px;
   }
 
   .feature-cards {
