@@ -31,7 +31,7 @@
       </div>
       <nav class="header-nav">
         <span class="nav-pill active">Resizer</span>
-        <a href="#presetChips" class="nav-link">Govt Presets</a>
+        <button type="button" class="nav-link" id="navGovPresetsBtn">Govt Presets</button>
         <a href="#how" class="nav-link">How It Works</a>
         <span class="nav-badge-offline">100% Offline</span>
       </nav>
@@ -89,7 +89,7 @@
               </svg>
               <span>Upload Signature</span>
             </button>
-            <a class="btn-ghost" href="#presetChips">
+            <button type="button" class="btn-ghost" id="btnViewPresetsHero">
               <svg class="lucide-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="4" x2="4" y1="21" y2="14"></line>
                 <line x1="4" x2="4" y1="10" y2="3"></line>
@@ -102,7 +102,7 @@
                 <line x1="17" x2="23" y1="16" y2="16"></line>
               </svg>
               <span>View Presets</span>
-            </a>
+            </button>
           </div>
 
           <div class="chip-row" id="presetChips">
@@ -422,6 +422,36 @@
         <button type="button" class="btn btn-danger-outline" id="btnModalDiscardAnyway" data-i18n="btnDiscardAnyway">Discard Anyway</button>
         <button type="button" class="btn btn-outline" id="btnModalCancel" data-i18n="cancel">Cancel</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Preset Picker Popup Modal -->
+  <div class="preset-popup-overlay hidden" id="presetPopupOverlay" role="dialog" aria-modal="true" aria-label="Choose a Preset">
+    <div class="preset-popup-dialog">
+      <div class="preset-popup-header">
+        <div class="preset-popup-title-row">
+          <h2 class="preset-popup-title">Choose a Preset</h2>
+          <p class="preset-popup-subtitle">Select a size, then pick your photo or signature from your device.</p>
+        </div>
+        <button type="button" class="preset-popup-close" id="btnPresetPopupClose" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="preset-popup-tabs" role="tablist">
+        <button type="button" class="preset-popup-tab active" id="ppTabGov" data-cat="gov">⭐ Govt &amp; Exam</button>
+        <button type="button" class="preset-popup-tab" id="ppTabSocial" data-cat="social">🌐 Social &amp; Web</button>
+      </div>
+
+      <!-- Preset Grid -->
+      <div class="preset-popup-grid" id="presetPopupGrid"></div>
+
+      <!-- File picker (hidden) -->
+      <input type="file" id="presetPopupFileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
+
+      <!-- Bottom hint -->
+      <p class="preset-popup-hint">Click a preset → your file picker will open → image is processed automatically.</p>
     </div>
   </div>
 

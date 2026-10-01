@@ -149,6 +149,9 @@ class SnapSignFitApp {
 
     this.restoreSession(); // Restore previous session after DOM is ready
 
+    // Preset Popup Modal
+    this.initPresetPopup();
+
     if (typeof ResizeObserver !== 'undefined') {
       const beforeVp = document.getElementById('beforeViewport');
       if (beforeVp) {
@@ -166,6 +169,97 @@ class SnapSignFitApp {
       }
     }
   }
+
+  initPresetPopup() {
+    const overlay = document.getElementById('presetPopupOverlay');
+    const grid = document.getElementById('presetPopupGrid');
+    const closeBtn = document.getElementById('btnPresetPopupClose');
+    const fileInput = document.getElementById('presetPopupFileInput');
+    const viewPresetsBtn = document.getElementById('btnViewPresetsHero');
+
+    if (!overlay || !grid) return;
+
+    let popupCurrentCat = 'gov';
+
+    const renderPopupGrid = (cat) => {
+      popupCurrentCat = cat;
+      grid.innerHTML = '';
+      const list = PRESETS.filter(p => p.category === cat);
+      list.forEach(preset => {
+        const card = document.createElement('div');
+        card.className = `preset-popup-card ${preset.locked ? 'gov-card' : ''}`;
+        card.innerHTML = `
+          ${preset.locked ? '<span class="ppc-badge">⭐ Govt Official</span>' : ''}
+          <span class="ppc-kind">${preset.kind}</span>
+          <div class="ppc-label">${preset.label}</div>
+          <div class="ppc-dims">${preset.w} × ${preset.h} px${preset.maxKB ? ` · ≤${preset.maxKB}KB` : ''}</div>
+          <div class="ppc-note">${preset.note || ''}</div>
+        `;
+        card.addEventListener('click', () => {
+          this.applyPreset(preset);
+          // Reset file input so the same file can be re-selected
+          fileInput.value = '';
+          fileInput.click();
+        });
+        grid.appendChild(card);
+      });
+    };
+
+    const openPopup = (cat = 'gov') => {
+      // Sync tab state
+      document.querySelectorAll('.preset-popup-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.cat === cat);
+      });
+      renderPopupGrid(cat);
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closePopup = () => {
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    // Tab switching
+    document.querySelectorAll('.preset-popup-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.preset-popup-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderPopupGrid(tab.dataset.cat);
+      });
+    });
+
+    // Close button & overlay backdrop click
+    closeBtn?.addEventListener('click', closePopup);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closePopup();
+    });
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closePopup();
+    });
+
+    // File input change: handle the selected file
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        closePopup();
+        this.handleFileUpload(e.target.files[0]);
+        fileInput.value = '';
+      }
+    });
+
+    // "View Presets" hero button
+    viewPresetsBtn?.addEventListener('click', () => openPopup('gov'));
+
+    // "Govt Presets" nav link
+    document.getElementById('navGovPresetsBtn')?.addEventListener('click', () => openPopup('gov'));
+
+    // Expose for external use (e.g., chip row)
+    this._openPresetPopup = openPopup;
+  }
+
+
 
   setupGlobalErrors() {
     const banner = document.getElementById('globalBanner');
@@ -519,16 +613,16 @@ class SnapSignFitApp {
   }
 
   selectPresetBySpec(spec) {
-    const match = PRESETS.find(p => p.width === spec.w && p.height === spec.h) || {
+    const match = PRESETS.find(p => p.w === spec.w && p.h === spec.h) || {
       id: `custom_${spec.w}x${spec.h}`,
-      name: `${spec.w}×${spec.h}`,
+      label: `${spec.w}×${spec.h}`,
       category: 'custom',
       kind: spec.kind || (spec.h <= 100 ? 'signature' : 'photo'),
-      width: spec.w,
-      height: spec.h,
+      w: spec.w,
+      h: spec.h,
       maxKB: spec.maxKB || 99,
       format: 'jpg',
-      fit: 'cover',
+      fit: spec.kind === 'signature' ? 'contain' : 'cover',
       locked: !!spec.maxKB && spec.maxKB <= 99
     };
     this.applyPreset(match);
