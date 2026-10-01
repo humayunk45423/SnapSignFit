@@ -78,12 +78,22 @@ class SnapSignFitApp {
     const isSpaceActive = () => window.isSpacePressed || this.isGlobalSpacePressed;
 
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) return;
+      if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') {
+        e.preventDefault();
+        return;
+      }
+      if (e.code === 'Space' || e.key === ' ') {
+        e.preventDefault();
         this.isGlobalSpacePressed = true;
       }
     });
     window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
+      if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') {
+        e.preventDefault();
+        return;
+      }
+      if (e.code === 'Space' || e.key === ' ') {
         this.isGlobalSpacePressed = false;
       }
     });
@@ -202,7 +212,13 @@ class SnapSignFitApp {
 
   updateThemeButtonIcon(theme) {
     const btn = document.getElementById('themeToggleBtn');
-    if (btn) btn.textContent = theme === 'dark' ? 'Light' : 'Dark';
+    if (btn) {
+      const isDark = theme === 'dark';
+      const iconMarkup = isDark ? icon('sun', { size: 14 }) : icon('moon', { size: 14 });
+      const label = isDark ? 'Light' : 'Dark';
+      btn.innerHTML = `${iconMarkup}<span>${label}</span>`;
+      btn.setAttribute('aria-label', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+    }
   }
 
   toggleTheme() {

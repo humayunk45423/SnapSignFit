@@ -1657,13 +1657,42 @@ export class ManualEditor {
   onWheel(e) {
     e.preventDefault();
     if (this.currentStep === 1) {
-      const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
-      const currentZoom = Math.min(this.sourceCanvas.width / this.crop.w, this.sourceCanvas.height / this.crop.h);
-      const newZoom = Math.max(0.2, Math.min(5.0, currentZoom * (1 + zoomDelta)));
-      const baseDim = Math.min(this.sourceCanvas.width, this.sourceCanvas.height) * 0.85;
+      // Scroll UP (deltaY < 0) -> enlarge crop frame; Scroll DOWN (deltaY > 0) -> shrink crop frame
+      const scaleFactor = e.deltaY < 0 ? 1.08 : 0.92;
       const targetAspect = this.targetW / this.targetH;
-      let newH = baseDim / newZoom;
-      let newW = newH * targetAspect;
+      const minW = Math.max(16, 16 * targetAspect);
+      const minH = Math.max(16, 16 / targetAspect);
+      const maxW = this.sourceCanvas.width;
+      const maxH = this.sourceCanvas.height;
+
+      let newW = this.crop.w * scaleFactor;
+      let newH = this.crop.h * scaleFactor;
+
+      if (targetAspect >= 1) {
+        if (newW > maxW) {
+          newW = maxW;
+          newH = newW / targetAspect;
+        }
+        if (newH > maxH) {
+          newH = maxH;
+          newW = newH * targetAspect;
+        }
+      } else {
+        if (newH > maxH) {
+          newH = maxH;
+          newW = newH * targetAspect;
+        }
+        if (newW > maxW) {
+          newW = maxW;
+          newH = newW / targetAspect;
+        }
+      }
+
+      if (newW < minW || newH < minH) {
+        newW = Math.max(minW, minH * targetAspect);
+        newH = newW / targetAspect;
+      }
+
       const cx = this.crop.x + this.crop.w / 2;
       const cy = this.crop.y + this.crop.h / 2;
       this.crop.w = Math.round(newW);

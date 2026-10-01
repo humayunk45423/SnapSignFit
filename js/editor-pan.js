@@ -48,18 +48,35 @@ function paintCursor() {
   c.classList.toggle('is-panning', panning);
 }
 
-/* ---- Space key ---- */
+/* ---- Space & Alt keys ---- */
 window.addEventListener('keydown', e => {
-  if (e.code !== 'Space' || !modalOpen() || isTyping(e.target)) return;
-  e.preventDefault();                                   // no page scroll, no "click" on focused button
-  e.stopImmediatePropagation();
-  if (document.activeElement?.tagName === 'BUTTON') document.activeElement.blur();
-  if (!space) { space = true; paintCursor(); }
+  if (!modalOpen()) return;
+  if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') {
+    e.preventDefault(); // Stop Windows/Chromium from focusing browser menu bar
+    return;
+  }
+  if ((e.code === 'Space' || e.key === ' ' || e.keyCode === 32) && !isTyping(e.target)) {
+    e.preventDefault();                                   // no page scroll, no browser menu trigger
+    e.stopImmediatePropagation();
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+    if (!space) { space = true; paintCursor(); }
+  }
 }, { capture: true });
 
 window.addEventListener('keyup', e => {
-  if (e.code !== 'Space') return;
-  space = false; panning = false; paintCursor();
+  if (!modalOpen()) return;
+  if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') {
+    e.preventDefault(); // Stop Windows/Chromium from opening browser menu on Alt release
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+    return;
+  }
+  if (e.code === 'Space' || e.key === ' ' || e.keyCode === 32) {
+    space = false; panning = false; paintCursor();
+  }
 }, { capture: true });
 
 window.addEventListener('blur', () => { space = false; panning = false; paintCursor(); });
