@@ -344,8 +344,8 @@ body.dark .header-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: clamp(16px, 2.5vh, 32px);
+  justify-content: center;
+  gap: clamp(18px, 2.4vh, 28px);
   transition: max-width var(--t) var(--ease);
 }
 
@@ -1620,7 +1620,7 @@ body.dark .site-footer {
 
 /* ── Hero ───────────────────────────────────────── */
 .hero {
-  padding-block: clamp(6px, 1.2vh, 16px);
+  padding-block: clamp(8px, 1.4vh, 18px);
   max-width: 1240px;
   margin-inline: auto;
   width: 100%;
@@ -1651,7 +1651,7 @@ body.dark .site-footer {
 .hero-copy {
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.6vh, 18px);
+  gap: clamp(12px, 1.8vh, 20px);
   text-align: left;
   justify-content: center;
   width: 100%;
@@ -1684,34 +1684,34 @@ body.dark .site-footer {
 }
 
 .hero-title {
-  font-size: clamp(26px, 2.5vw, 38px);
+  font-size: clamp(30px, 3.1vw, 46px);
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.025em;
   color: var(--text);
 }
 
 .hero-sub {
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--muted);
   line-height: 1.6;
-  max-width: 56ch;
+  max-width: 58ch;
 }
 
 .hero-ctas {
-  display: grid;
-  grid-template-columns: 1.2fr 1.2fr 1fr;
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
   width: 100%;
   padding-top: 4px;
 }
 
 .hero-ctas .btn-accent {
-  padding: 10px 18px;
-  height: 42px;
+  padding: 11px 22px;
+  height: 46px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   background: var(--accent);
   color: #ffffff;
@@ -1721,7 +1721,7 @@ body.dark .site-footer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1733,10 +1733,10 @@ body.dark .site-footer {
 }
 
 .hero-ctas .btn-secondary {
-  padding: 10px 18px;
-  height: 42px;
+  padding: 11px 22px;
+  height: 46px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   background: var(--surface);
   color: var(--text);
@@ -1746,7 +1746,7 @@ body.dark .site-footer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1758,10 +1758,10 @@ body.dark .site-footer {
 }
 
 .hero-ctas .btn-ghost {
-  padding: 10px 14px;
-  height: 42px;
+  padding: 11px 16px;
+  height: 46px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--muted);
   text-decoration: none;
@@ -1778,18 +1778,18 @@ body.dark .site-footer {
   background: var(--surface-2);
 }
 
-/* Hero chip row (preset quick-picks - symmetrical 4-col grid) */
+/* Hero chip row (preset quick-picks) */
 .chip-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   width: 100%;
   padding-top: 4px;
 }
 
 .chip-row .chip {
-  padding: 6px 8px;
-  font-size: 11.5px;
+  padding: 7px 14px;
+  font-size: 12px;
   font-weight: 500;
   border-radius: 999px;
   background-color: var(--surface);
@@ -1798,7 +1798,7 @@ body.dark .site-footer {
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   transition: all 0.2s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   text-align: center;
@@ -1814,7 +1814,7 @@ body.dark .site-footer {
 
 .chip-row .chip small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   margin-left: 2px;
 }
 
@@ -1822,14 +1822,14 @@ body.dark .site-footer {
 .hero-card {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 28px;
-  padding: clamp(16px, 2.2vw, 24px);
+  border-radius: 30px;
+  padding: clamp(22px, 2.6vw, 30px);
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.5vh, 16px);
+  gap: clamp(14px, 1.8vh, 18px);
   box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.07);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
-  max-width: 460px;
+  max-width: 480px;
   width: 100%;
   margin-inline: auto;
 }
@@ -1854,9 +1854,9 @@ body.dark .site-footer {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 7px 16px;
+  padding: 8px 18px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
@@ -1880,14 +1880,14 @@ body.dark .site-footer {
 /* Dropzone styling */
 .dropzone {
   border: 1.5px dashed var(--border-strong);
-  border-radius: 18px;
+  border-radius: 20px;
   background-color: var(--surface-2);
-  padding: clamp(16px, 2.2vh, 24px) var(--s-4);
+  padding: clamp(22px, 3vh, 32px) var(--s-4);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 10px;
+  gap: 14px;
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -1899,9 +1899,9 @@ body.dark .site-footer {
 }
 
 .dropzone-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   background-color: rgba(0, 119, 182, 0.1);
   color: var(--accent);
   display: flex;
@@ -1918,7 +1918,7 @@ body.dark .site-footer {
 }
 
 .dropzone-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
@@ -1928,7 +1928,7 @@ body.dark .site-footer {
 }
 
 .dropzone-hint {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--muted);
   margin-bottom: 0;
 }
@@ -1941,10 +1941,10 @@ body.dark .site-footer {
 }
 
 .dropzone-actions .btn-primary {
-  padding: 8px 18px;
-  height: 38px;
+  padding: 9px 20px;
+  height: 40px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   background-color: #0f172a;
   color: #ffffff;
@@ -1953,7 +1953,7 @@ body.dark .site-footer {
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .dropzone-actions .btn-primary:hover {
@@ -1963,10 +1963,10 @@ body.dark .site-footer {
 }
 
 .dropzone-actions .btn-secondary {
-  padding: 8px 16px;
-  height: 38px;
+  padding: 9px 18px;
+  height: 40px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   background-color: var(--surface);
   color: var(--text);
@@ -1983,9 +1983,9 @@ body.dark .site-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--muted);
-  padding-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
   width: 100%;
 }
@@ -2010,7 +2010,7 @@ body.dark .site-footer {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--muted);
 }
@@ -2024,46 +2024,46 @@ body.dark .site-footer {
 
 /* ── Feature Strip ──────────────────────────────── */
 .feature-strip {
-  padding-block: clamp(10px, 1.6vh, 20px);
+  padding-block: clamp(14px, 2vh, 24px);
   max-width: 1240px;
   margin-inline: auto;
   width: 100%;
 }
 
 .feature-strip-header {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   text-align: center;
 }
 
 .feature-strip-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--muted);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .feature-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: clamp(12px, 1.6vw, 22px);
+  gap: clamp(16px, 1.8vw, 24px);
   width: 100%;
 }
 
 .feature-strip article {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   align-items: flex-start;
-  padding: clamp(10px, 1.4vh, 16px) 16px;
-  border-radius: 16px;
+  padding: 18px 22px;
+  border-radius: 20px;
   background-color: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   transition: all 0.2s ease;
 }
 
 .feature-strip article:hover {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
 
@@ -2071,27 +2071,27 @@ body.dark .site-footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background-color: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
 .feature-strip h3 {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .feature-strip p {
-  font-size: 11.5px;
-  line-height: 1.45;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--muted);
 }
 
