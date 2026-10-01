@@ -445,10 +445,12 @@ export function updateDOMTranslations() {
     el.setAttribute('aria-label', t(key));
   });
   
-  // Update lang toggle label on single toggle button
-  const langLabel = document.getElementById('langToggleLabel');
-  if (langLabel) {
-    langLabel.textContent = currentLang === 'bn' ? 'English' : 'বাংলা';
+  // Update segmented lang toggle state (BN on left, EN on right)
+  const langToggle = document.getElementById('langToggleBtn');
+  if (langToggle) {
+    langToggle.setAttribute('data-state', currentLang === 'en' ? 'right' : 'left');
+    langToggle.setAttribute('aria-label', currentLang === 'en' ? 'Switch to Bengali (বাংলা)' : 'Switch to English');
+    langToggle.setAttribute('title', currentLang === 'en' ? 'Switch to Bengali (বাংলা)' : 'Switch to English');
   }
 }
 

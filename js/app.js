@@ -305,10 +305,9 @@ class SnapSignFitApp {
     const btn = document.getElementById('themeToggleBtn');
     if (btn) {
       const isDark = theme === 'dark';
-      const iconMarkup = isDark ? icon('sun', { size: 14 }) : icon('moon', { size: 14 });
-      const label = isDark ? 'Light' : 'Dark';
-      btn.innerHTML = `${iconMarkup}<span>${label}</span>`;
+      btn.setAttribute('data-state', isDark ? 'right' : 'left');
       btn.setAttribute('aria-label', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+      btn.setAttribute('title', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     }
   }
 
@@ -325,15 +324,36 @@ class SnapSignFitApp {
   attachDOMEvents() {
     const langBtn = document.getElementById('langToggleBtn');
     if (langBtn) {
-      langBtn.addEventListener('click', () => {
-        const newLang = getLanguage() === 'en' ? 'bn' : 'en';
+      langBtn.addEventListener('click', (e) => {
+        const opt = e.target.closest('.toggle-opt');
+        let newLang;
+        if (opt && opt.dataset.val) {
+          newLang = opt.dataset.val;
+        } else {
+          newLang = getLanguage() === 'en' ? 'bn' : 'en';
+        }
         setLanguage(newLang);
         this.renderPresetsGrid();
         this.updateStatusReadout();
       });
     }
 
-    document.getElementById('themeToggleBtn').addEventListener('click', () => this.toggleTheme());
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', (e) => {
+        const opt = e.target.closest('.toggle-opt');
+        if (opt && opt.dataset.val) {
+          const targetTheme = opt.dataset.val;
+          document.documentElement.setAttribute('data-theme', targetTheme);
+          try {
+            localStorage.setItem('snapsignfit_theme', targetTheme);
+          } catch (err) {}
+          this.updateThemeButtonIcon(targetTheme);
+        } else {
+          this.toggleTheme();
+        }
+      });
+    }
 
     // File Upload & Camera
     const fileInput = document.getElementById('fileInput');
