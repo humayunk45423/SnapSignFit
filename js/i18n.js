@@ -446,12 +446,16 @@ export function updateDOMTranslations() {
     el.setAttribute('aria-label', t(key));
   });
   
-  // Update lang toggle active state and pill position
-  const langEnSpan = document.querySelector('.lang-en');
-  const langBnSpan = document.querySelector('.lang-bn');
-  if (langEnSpan) langEnSpan.classList.toggle('active', currentLang === 'en');
-  if (langBnSpan) langBnSpan.classList.toggle('active', currentLang === 'bn');
-  const langBtn = document.getElementById('langToggleBtn');
-  if (langBtn) langBtn.classList.toggle('bn-active', currentLang === 'bn');
+  // Update lang toggle active state
+  const langEnBtn = document.getElementById('langBtnEn') || document.querySelector('.lang-en');
+  const langBnBtn = document.getElementById('langBtnBn') || document.querySelector('.lang-bn');
+  if (langEnBtn) {
+    langEnBtn.classList.toggle('active', currentLang === 'en');
+    langEnBtn.setAttribute('aria-pressed', currentLang === 'en' ? 'true' : 'false');
+  }
+  if (langBnBtn) {
+    langBnBtn.classList.toggle('active', currentLang === 'bn');
+    langBnBtn.setAttribute('aria-pressed', currentLang === 'bn' ? 'true' : 'false');
+  }
 }
 

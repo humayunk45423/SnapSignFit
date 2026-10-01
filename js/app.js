@@ -229,16 +229,25 @@ class SnapSignFitApp {
   }
 
   attachDOMEvents() {
-    // Language & Theme
-    document.getElementById('langToggleBtn').addEventListener('click', () => {
-      const newLang = getLanguage() === 'en' ? 'bn' : 'en';
+    const switchLang = (targetLang) => {
+      const newLang = targetLang || (getLanguage() === 'en' ? 'bn' : 'en');
       setLanguage(newLang);
       this.renderPresetsGrid();
       this.updateStatusReadout();
-      // Sync pill animation class
-      const btn = document.getElementById('langToggleBtn');
-      if (btn) btn.classList.toggle('bn-active', newLang === 'bn');
-    });
+    };
+
+    const btnEn = document.getElementById('langBtnEn');
+    const btnBn = document.getElementById('langBtnBn');
+    if (btnEn) btnEn.addEventListener('click', (e) => { e.stopPropagation(); switchLang('en'); });
+    if (btnBn) btnBn.addEventListener('click', (e) => { e.stopPropagation(); switchLang('bn'); });
+
+    const langContainer = document.getElementById('langToggleBtn');
+    if (langContainer) {
+      langContainer.addEventListener('click', (e) => {
+        if (e.target.id === 'langBtnEn' || e.target.id === 'langBtnBn') return;
+        switchLang();
+      });
+    }
 
     document.getElementById('themeToggleBtn').addEventListener('click', () => this.toggleTheme());
 

@@ -36,14 +36,10 @@
         <span class="nav-badge-offline">100% Offline</span>
       </nav>
       <div class="header-actions">
-        <button type="button" class="btn btn-secondary btn-sm lang-toggle-pill" id="langToggleBtn"
-          aria-label="Switch Language">
-          <span class="lang-pill-track">
-            <span class="lang-pill-thumb"></span>
-          </span>
-          <span class="lang-en">EN</span>
-          <span class="lang-bn">বাংলা</span>
-        </button>
+        <div class="lang-toggle-group" id="langToggleBtn" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn lang-en" id="langBtnEn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn lang-bn active" id="langBtnBn" data-lang="bn">বাংলা</button>
+        </div>
         <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn"
           aria-label="Toggle Dark/Light Mode">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide-moon" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -383,15 +379,26 @@
   </main>
 
   <!-- Footer -->
-  <footer class="site-footer">
+  <!-- Footer -->
+  <footer class="site-footer" id="privacy">
     <div class="footer-content">
-      <span id="footerPrivacy" data-i18n="privacyNotice">Your images never leave your device.</span>
-      <span class="footer-sep" aria-hidden="true">·</span>
-      <span id="footerOffline" data-i18n="offlineNotice">Works 100% offline · Zero server uploads</span>
-      <span class="footer-sep" aria-hidden="true">·</span>
-      <span id="footerDisclaimer" data-i18n="disclaimerNotice">Independent free tool</span>
-      <span class="footer-sep" aria-hidden="true">·</span>
-      <a href="https://humayounkobir.vercel.app" target="_blank" rel="noopener noreferrer" class="footer-link" id="footerDevCredit">Developed by Humayoun</a>
+      <div class="footer-left">
+        <span class="footer-status-dot"></span>
+        <strong class="footer-brand-text">SnapSignFit</strong>
+        <span class="footer-sep">—</span>
+        <span id="footerPrivacy" data-i18n="privacyNotice">Crafted for Bangladesh Job Seekers</span>
+        <span class="footer-sep">•</span>
+        <a href="https://humayounkobir.vercel.app" target="_blank" rel="noopener noreferrer" class="footer-link" id="footerDevCredit">Developed by Humayoun</a>
+      </div>
+      <div class="footer-right">
+        <span class="footer-tag">BCS (PSC)</span>
+        <span class="footer-sep">•</span>
+        <span class="footer-tag">Teletalk</span>
+        <span class="footer-sep">•</span>
+        <span class="footer-tag">E-Passport</span>
+        <span class="footer-sep">•</span>
+        <span class="footer-tag">NID Smart Card</span>
+      </div>
     </div>
   </footer>
 
