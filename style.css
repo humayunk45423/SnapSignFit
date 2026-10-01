@@ -649,7 +649,7 @@ body.has-image .main-content,
   border-radius: var(--r-md);
   overflow: hidden;
   user-select: none;
-  touch-action: none;
+  touch-action: auto;
 }
 
 @media (min-width: 1024px) {

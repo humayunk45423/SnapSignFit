@@ -11,7 +11,9 @@ const canvas    = () => document.querySelector(SEL_CANVAS);
 const container = () => document.querySelector(SEL_CONTAINER);
 const modalOpen = () => {
   const m = document.querySelector(SEL_MODAL);
-  return !!m && !m.classList.contains('hidden') && m.offsetParent !== null;
+  // NOTE: offsetParent is always null for position:fixed elements, so we
+  // check computed display instead to reliably detect visibility.
+  return !!m && !m.classList.contains('hidden') && getComputedStyle(m).display !== 'none';
 };
 const isTyping = t => /^(INPUT|TEXTAREA|SELECT)$/.test(t?.tagName) && t.type !== 'range' && t.type !== 'checkbox';
 const active = () => space || handTool;
