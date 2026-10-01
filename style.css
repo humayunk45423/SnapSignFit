@@ -217,6 +217,13 @@ body.has-image .main-content,
   max-width: 1120px;
 }
 
+body.has-image .hero,
+body.has-image .feature-strip,
+.main-content.has-image .hero,
+.main-content.has-image .feature-strip {
+  display: none !important;
+}
+
 @media (min-width: 1280px) {
   body.has-image .main-content,
   .main-content.has-image {

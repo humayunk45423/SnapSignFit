@@ -69,13 +69,56 @@ class SnapSignFitApp {
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
 
-    // Safety net: Never let preview viewports swallow scroll gestures
+    // Safety net & space-pan support for preview viewports
+    let isPreviewPanning = false;
+    let previewStartX = 0, previewStartY = 0;
+    let activePreviewCanvas = null;
+    let startTransformX = 0, startTransformY = 0;
+
+    const isSpaceActive = () => window.isSpacePressed || this.isGlobalSpacePressed;
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) {
+        this.isGlobalSpacePressed = true;
+      }
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        this.isGlobalSpacePressed = false;
+      }
+    });
+
     for (const id of ['beforeViewport', 'afterViewport']) {
       const el = document.getElementById(id);
       if (!el) continue;
       el.addEventListener('dragstart', e => e.preventDefault());
       el.addEventListener('contextmenu', e => e.preventDefault());
+
+      el.addEventListener('pointerdown', (e) => {
+        if (!isSpaceActive() && e.button !== 1) return;
+        const canvas = el.querySelector('canvas');
+        if (!canvas) return;
+        isPreviewPanning = true;
+        activePreviewCanvas = canvas;
+        previewStartX = e.clientX;
+        previewStartY = e.clientY;
+        const match = (canvas.style.transform || '').match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+        startTransformX = match ? parseFloat(match[1]) : 0;
+        startTransformY = match ? parseFloat(match[2]) : 0;
+      });
     }
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isPreviewPanning || !activePreviewCanvas) return;
+      const dx = e.clientX - previewStartX;
+      const dy = e.clientY - previewStartY;
+      activePreviewCanvas.style.transform = `translate(${startTransformX + dx}px, ${startTransformY + dy}px)`;
+    });
+
+    window.addEventListener('pointerup', () => {
+      isPreviewPanning = false;
+      activePreviewCanvas = null;
+    });
 
     // Toggle body class and scroll when workspace section opens
     const ws = document.getElementById('workspaceSection');
@@ -554,6 +597,8 @@ class SnapSignFitApp {
       this.hasDownloadedCurrentWork = false;
       document.body.classList.add('has-image');
       document.querySelector('.main-content')?.classList.add('has-image');
+      document.getElementById('hero')?.classList.add('hidden');
+      document.getElementById('how')?.classList.add('hidden');
       document.getElementById('workspaceSection').classList.remove('hidden');
       this.resetUserTransforms();
       await this.runProcessingPipeline({ fromFileUpload: true });
@@ -1139,6 +1184,8 @@ class SnapSignFitApp {
 
       document.body.classList.add('has-image');
       document.querySelector('.main-content')?.classList.add('has-image');
+      document.getElementById('hero')?.classList.add('hidden');
+      document.getElementById('how')?.classList.add('hidden');
       document.getElementById('workspaceSection').classList.remove('hidden');
       await this.runProcessingPipeline();
 
@@ -1183,6 +1230,8 @@ class SnapSignFitApp {
 
     document.body.classList.remove('has-image');
     document.querySelector('.main-content')?.classList.remove('has-image');
+    document.getElementById('hero')?.classList.remove('hidden');
+    document.getElementById('how')?.classList.remove('hidden');
 
     await clearSession();
 
@@ -1197,6 +1246,7 @@ class SnapSignFitApp {
       ctx.clearRect(0, 0, beforeCanvas.width, beforeCanvas.height);
       beforeCanvas.width = 0;
       beforeCanvas.height = 0;
+      beforeCanvas.style.transform = '';
     }
 
     const afterCanvas = document.getElementById('afterCanvas');
@@ -1205,6 +1255,7 @@ class SnapSignFitApp {
       ctx.clearRect(0, 0, afterCanvas.width, afterCanvas.height);
       afterCanvas.width = 0;
       afterCanvas.height = 0;
+      afterCanvas.style.transform = '';
     }
 
     const chipsContainer = document.getElementById('chipsContainer');
