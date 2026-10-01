@@ -305,6 +305,31 @@ body.dark .header-container {
   flex-shrink: 0;
 }
 
+/* Auto AI Remove — bluish-purple gradient */
+#btnBrushAutoAi {
+  background: linear-gradient(135deg, #6B5FFF 0%, #9B59FF 55%, #C084FC 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 10px rgba(107, 95, 255, 0.35);
+  transition: filter 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+}
+
+#btnBrushAutoAi:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 16px rgba(107, 95, 255, 0.50);
+  transform: translateY(-1px);
+}
+
+#btnBrushAutoAi:active {
+  filter: brightness(0.95);
+  transform: translateY(0);
+  box-shadow: 0 1px 6px rgba(107, 95, 255, 0.30);
+}
+
+#btnBrushAutoAi svg {
+  opacity: 0.95;
+}
+
 .main-content {
   width: 100%;
   max-width: 1240px;
