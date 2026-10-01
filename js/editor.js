@@ -66,6 +66,8 @@ export class ManualEditor {
 
     // Straighten line tool state
     this.straightenToolActive = false;
+
+    window.__manualEditor = this;
     this.straightenLineStart = null;
     this.straightenLineEnd = null;
 
@@ -640,6 +642,13 @@ export class ManualEditor {
         this.commitCropToBitmap();
       }
       this.commitStep2ToBitmap();
+      if (window.__editorPan?.reset) {
+        window.__editorPan.reset();
+      }
+    } else if (this.currentStep === 3) {
+      this.step3PanX = 0;
+      this.step3PanY = 0;
+      this.step3Zoom = 1.0;
     }
     this.currentStep = stepNumber;
 
@@ -1722,8 +1731,21 @@ export class ManualEditor {
       if (e.altKey || e.ctrlKey || e.metaKey) {
         // Alt + Scroll (or Ctrl+Scroll) → Zoom in/out the image in background and brush tab
         const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
-        this.step3Zoom = Math.max(0.2, Math.min(8.0, Math.round(((this.step3Zoom || 1.0) + zoomDelta) * 100) / 100));
-        this.requestRender();
+        const oldZoom = this.step3Zoom || 1.0;
+        const newZoom = Math.max(0.2, Math.min(16.0, Math.round((oldZoom + zoomDelta) * 100) / 100));
+        if (newZoom !== oldZoom) {
+          const rect = this.editorCanvas.getBoundingClientRect();
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          const cw = this.editorCanvas.width / dpr;
+          const ch = this.editorCanvas.height / dpr;
+          const px = e.clientX - rect.left;
+          const py = e.clientY - rect.top;
+          const ratio = newZoom / oldZoom;
+          this.step3PanX = (this.step3PanX - (px - cw / 2)) * ratio + (px - cw / 2);
+          this.step3PanY = (this.step3PanY - (py - ch / 2)) * ratio + (py - ch / 2);
+          this.step3Zoom = newZoom;
+          this.requestRender();
+        }
       } else if (e.shiftKey) {
         // Shift + Scroll → Hardness (±5%)
         const delta = e.deltaY < 0 ? 5 : -5;

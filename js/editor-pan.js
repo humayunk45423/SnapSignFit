@@ -6,6 +6,7 @@ const SEL_MODAL     = '.editor-modal-overlay';
 
 let space = false, handTool = false, panning = false;
 let ox = 0, oy = 0, sx = 0, sy = 0, bx = 0, by = 0;
+let step3StartPanX = 0, step3StartPanY = 0;
 
 const canvas    = () => document.querySelector(SEL_CANVAS);
 const container = () => document.querySelector(SEL_CONTAINER);
@@ -17,9 +18,9 @@ const modalOpen = () => {
 };
 const isTyping = t => /^(INPUT|TEXTAREA|SELECT)$/.test(t?.tagName) && t.type !== 'range' && t.type !== 'checkbox';
 const active = () => space || handTool;
-// Returns true when the Background & Brush tab (step 3) is active — in that tab
-// we intentionally skip pan clamping so the user can paint at any zoom level.
-const isBrushTab = () => !!document.querySelector('#tabStep3.active');
+
+// Step 3 (Background & Brush) check
+const isBrushTab = () => window.__manualEditor?.currentStep === 3 || !!document.querySelector('#tabStep3.active');
 
 function apply() {
   const c = canvas(); if (!c) return;
@@ -34,7 +35,15 @@ function clamp() {                       // keep at least 60px of the canvas vis
   ox = Math.min(Math.max(ox, minX), maxX);
   oy = Math.min(Math.max(oy, minY), maxY);
 }
-export function resetEditorPan() { ox = oy = 0; apply(); }
+export function resetEditorPan() {
+  ox = oy = 0;
+  apply();
+  if (window.__manualEditor && window.__manualEditor.currentStep === 3) {
+    window.__manualEditor.step3PanX = 0;
+    window.__manualEditor.step3PanY = 0;
+    window.__manualEditor.requestRender();
+  }
+}
 export function setHandTool(on) {       // call from a "Hand" button on touch devices
   handTool = !!on; paintCursor();
 }
@@ -97,6 +106,11 @@ for (const type of ['pointerdown', 'mousedown', 'touchstart']) {
     e.stopImmediatePropagation();                        // brush / crop handlers never run
     const p = pt(e);
     panning = true; sx = p.clientX; sy = p.clientY; bx = ox; by = oy;
+    if (isBrushTab() && window.__manualEditor) {
+      step3StartPanX = window.__manualEditor.step3PanX || 0;
+      step3StartPanY = window.__manualEditor.step3PanY || 0;
+      ox = 0; oy = 0; apply();
+    }
     paintCursor();
   }, { capture: true, passive: false });
 }
@@ -108,12 +122,15 @@ for (const type of ['pointermove', 'mousemove', 'touchmove']) {
     e.preventDefault();
     e.stopImmediatePropagation();                        // nothing is erased/restored while panning
     const p = pt(e);
-    ox = bx + (p.clientX - sx);
-    oy = by + (p.clientY - sy);
-    // In the Background & Brush tab, skip the clamp so the user can reach
-    // every pixel of the image (including edges) at any zoom level.
-    if (!isBrushTab()) clamp();
-    apply();
+    if (isBrushTab() && window.__manualEditor) {
+      window.__manualEditor.step3PanX = step3StartPanX + (p.clientX - sx);
+      window.__manualEditor.step3PanY = step3StartPanY + (p.clientY - sy);
+      window.__manualEditor.requestRender();
+    } else {
+      ox = bx + (p.clientX - sx);
+      oy = by + (p.clientY - sy);
+      clamp(); apply();
+    }
   }, { capture: true, passive: false });
 }
 
@@ -132,3 +149,4 @@ document.addEventListener('click', e => {
 });
 new MutationObserver(() => { if (!modalOpen()) resetEditorPan(); })
   .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
