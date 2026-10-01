@@ -5,12 +5,12 @@
   --bg: #FAFAFA;
   --surface: #FFFFFF;
   --surface-2: #F4F4F5;
-  --border: #E4E4E7;
-  --border-strong: #D4D4D8;
-  --text: #18181B;
-  --muted: #71717A;
-  --accent: #1D4ED8;
-  --accent-hover: #1E40AF;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text: #0F172A;
+  --muted: #475569;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
   --accent-fg: #FFFFFF;
   --ok: #15803D;
   --warn: #B45309;
@@ -27,7 +27,7 @@
   --s-6: 32px;
   --s-7: 48px;
   --s-8: 64px;
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Bengali", sans-serif;
+  --font: 'Plus Jakarta Sans', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --ease: cubic-bezier(.2, 0, 0, 1);
   --t: 140ms;
@@ -39,11 +39,11 @@
     --surface: #141416;
     --surface-2: #1B1B1E;
     --border: #26262A;
-    --border-strong: #34343A;
-    --text: #EDEDEF;
-    --muted: #8B8B94;
-    --accent: #6B8CFF;
-    --accent-hover: #8AA4FF;
+    --border-strong: #334155;
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+    --accent: #6366F1;
+    --accent-hover: #818CF8;
     --accent-fg: #0B0B0C;
     --ok: #4ADE80;
     --warn: #FBBF24;
@@ -56,11 +56,11 @@
   --surface: #141416;
   --surface-2: #1B1B1E;
   --border: #26262A;
-  --border-strong: #34343A;
-  --text: #EDEDEF;
-  --muted: #8B8B94;
-  --accent: #6B8CFF;
-  --accent-hover: #8AA4FF;
+  --border-strong: #334155;
+  --text: #F8FAFC;
+  --muted: #94A3B8;
+  --accent: #6366F1;
+  --accent-hover: #818CF8;
   --accent-fg: #0B0B0C;
   --ok: #4ADE80;
   --warn: #FBBF24;
@@ -71,16 +71,117 @@
   --bg: #FAFAFA;
   --surface: #FFFFFF;
   --surface-2: #F4F4F5;
-  --border: #E4E4E7;
-  --border-strong: #D4D4D8;
-  --text: #18181B;
-  --muted: #71717A;
-  --accent: #1D4ED8;
-  --accent-hover: #1E40AF;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text: #0F172A;
+  --muted: #475569;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
   --accent-fg: #FFFFFF;
   --ok: #15803D;
   --warn: #B45309;
   --danger: #B91C1C;
+}
+
+/* Accessible Keyboard Focus Visible System */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* File Protocol Warning Banner */
+.file-protocol-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.25) 100%);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fef3c7;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  position: relative;
+  z-index: 9999;
+  animation: bannerSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bannerSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+:root[data-theme="light"] .file-protocol-banner {
+  background: linear-gradient(135deg, rgba(254, 243, 199, 0.98) 0%, rgba(253, 230, 138, 0.92) 100%);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.4);
+  color: #78350f;
+}
+
+.banner-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner-icon {
+  font-size: 1.25rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+:root[data-theme="light"] .banner-icon {
+  color: #d97706;
+}
+
+.banner-text {
+  flex: 1;
+}
+
+.banner-text strong {
+  display: inline-block;
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+.banner-text code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.88em;
+  font-weight: 600;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+:root[data-theme="light"] .banner-text code {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+.banner-dismiss {
+  background: transparent;
+  border: none;
+  color: currentColor;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.banner-dismiss:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 /* 2. Reset */
@@ -103,7 +204,8 @@ html {
   overflow-x: hidden;
 }
 
-:lang(bn) {
+:lang(bn), [data-lang="bn"] {
+  font-family: 'Hind Siliguri', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.65;
 }
 

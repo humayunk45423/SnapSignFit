@@ -63,6 +63,9 @@ export async function getSegmenter() {
  * }>}
  */
 export async function removeBackgroundToWhite(inputCanvas, faceCenter = null) {
+  if (!inputCanvas || inputCanvas.width <= 0 || inputCanvas.height <= 0) {
+    return { canvas: inputCanvas, skipped: true, reason: 'INVALID_DIMENSIONS' };
+  }
   const segmenter = await getSegmenter();
   if (!segmenter) {
     return { canvas: inputCanvas, skipped: true, reason: 'MODEL_UNAVAILABLE' };
@@ -224,6 +227,7 @@ export async function removeBackgroundToWhite(inputCanvas, faceCenter = null) {
  * @returns {Promise<HTMLCanvasElement|null>}
  */
 export async function getSegmentationMask(inputCanvas) {
+  if (!inputCanvas || inputCanvas.width <= 0 || inputCanvas.height <= 0) return null;
   const segmenter = await getSegmenter();
   if (!segmenter) return null;
   const w = inputCanvas.width;

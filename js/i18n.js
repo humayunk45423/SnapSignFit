@@ -21,6 +21,10 @@ export const translations = {
     tagline: CONFIG.TAGLINE,
     subtitle: CONFIG.SUBTITLE,
     
+    // File Protocol Warning
+    fileWarningTitle: 'Opened directly from local file (file:///)?',
+    fileWarningDesc: 'Modern browsers block JavaScript ES Modules on local files. To test locally, double-click start.bat in the project folder or open via localhost.',
+    
     // Header & Nav
     langSwitch: 'বাংলা',
     themeToggle: 'Toggle theme',
@@ -187,6 +191,10 @@ export const translations = {
     tagline: 'স্ন্যাপ করুন। ফিট করুন।',
     subtitle: 'ছবি ও স্বাক্ষর নির্দিষ্ট সাইজে দ্রুত কনভার্ট করুন।',
     
+    // File Protocol Warning
+    fileWarningTitle: 'লোকাল ডিস্ক (file:///) থেকে ওপেন করেছেন?',
+    fileWarningDesc: 'আধুনিক ব্রাউজার লোকাল file:/// ফাইলে জাভাস্ক্রিপ্ট মডিউল ব্লক করে। সব ফিচার চালু করতে প্রোজেক্ট ফোল্ডারে start.bat চালু করুন অথবা localhost ব্যবহার করুন।',
+
     // Header & Nav
     langSwitch: 'English',
     themeToggle: 'থিম',

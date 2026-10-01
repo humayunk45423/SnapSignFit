@@ -84,6 +84,9 @@ export class ManualEditor {
   initDOM() {
     this.overlayEl = document.createElement('div');
     this.overlayEl.className = 'editor-modal-overlay hidden';
+    this.overlayEl.setAttribute('role', 'dialog');
+    this.overlayEl.setAttribute('aria-modal', 'true');
+    this.overlayEl.setAttribute('aria-label', 'Manual Image Editor');
     this.overlayEl.innerHTML = `
       <div class="editor-modal-dialog">
         <div class="editor-header">
@@ -91,14 +94,14 @@ export class ManualEditor {
             <h3 class="editor-title" data-i18n="editorTitle">Manual Crop & Straighten</h3>
             <button type="button" class="editor-close-btn" id="editorCancelBtn" aria-label="Close" title="Close">&times;</button>
           </div>
-          <div class="editor-step-tabs" role="tablist">
-            <button type="button" class="editor-step-tab active" id="tabStep1" data-step="1">
+          <div class="editor-step-tabs" role="tablist" aria-label="Editor Steps">
+            <button type="button" class="editor-step-tab active" id="tabStep1" role="tab" aria-selected="true" data-step="1">
               ${icon('crop')} <span data-i18n="step1Crop">1. Crop Frame</span>
             </button>
-            <button type="button" class="editor-step-tab" id="tabStep2" data-step="2">
+            <button type="button" class="editor-step-tab" id="tabStep2" role="tab" aria-selected="false" data-step="2">
               ${icon('ruler')} <span data-i18n="step2Straighten">2. Straighten & Rotate</span>
             </button>
-            <button type="button" class="editor-step-tab" id="tabStep3" data-step="3">
+            <button type="button" class="editor-step-tab" id="tabStep3" role="tab" aria-selected="false" data-step="3">
               ${icon('brush')} <span data-i18n="step3Bg">3. Background & Brush</span>
             </button>
           </div>
@@ -661,8 +664,11 @@ export class ManualEditor {
     const help = this.overlayEl.querySelector('#editorHelpText');
 
     tab1?.classList.toggle('active', stepNumber === 1);
+    tab1?.setAttribute('aria-selected', stepNumber === 1 ? 'true' : 'false');
     tab2?.classList.toggle('active', stepNumber === 2);
+    tab2?.setAttribute('aria-selected', stepNumber === 2 ? 'true' : 'false');
     tab3?.classList.toggle('active', stepNumber === 3);
+    tab3?.setAttribute('aria-selected', stepNumber === 3 ? 'true' : 'false');
 
     // p1 (commit crop button) is only shown in step 1
     if (p1) p1.classList.toggle('hidden', stepNumber !== 1);
@@ -1265,7 +1271,9 @@ export class ManualEditor {
       ctx.fillRect(-bmpW / 2 * baseScale, -bmpH / 2 * baseScale, bmpW * baseScale, bmpH * baseScale);
     }
     // Single draw of cropped image
-    ctx.drawImage(bmp, -bmpW / 2 * baseScale, -bmpH / 2 * baseScale, bmpW * baseScale, bmpH * baseScale);
+    if (bmp && bmp.width > 0 && bmp.height > 0 && baseScale > 0) {
+      ctx.drawImage(bmp, -bmpW / 2 * baseScale, -bmpH / 2 * baseScale, bmpW * baseScale, bmpH * baseScale);
+    }
 
     ctx.restore();
 
@@ -1313,7 +1321,9 @@ export class ManualEditor {
     this.drawCheckerPattern(ctx, cw, ch);
 
     const comp = this.getCompositedStep3Canvas();
-    ctx.drawImage(comp, screenX, screenY, screenW, screenH);
+    if (comp && comp.width > 0 && comp.height > 0 && screenW > 0 && screenH > 0) {
+      ctx.drawImage(comp, screenX, screenY, screenW, screenH);
+    }
     ctx.restore();
 
     // Output boundary guide box

@@ -180,6 +180,7 @@ class SnapSignFitApp {
     if (!overlay || !grid) return;
 
     let popupCurrentCat = 'gov';
+    let lastActiveElement = null;
 
     const renderPopupGrid = (cat) => {
       popupCurrentCat = cat;
@@ -188,6 +189,9 @@ class SnapSignFitApp {
       list.forEach(preset => {
         const card = document.createElement('div');
         card.className = `preset-popup-card ${preset.locked ? 'gov-card' : ''}`;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `${preset.label}, ${preset.w} by ${preset.h} pixels${preset.maxKB ? `, under ${preset.maxKB} kilobytes` : ''}`);
         card.innerHTML = `
           ${preset.locked ? '<span class="ppc-badge"><i class="fa fa-star" style="color: #f59e0b; margin-right: 4px;"></i> Govt Official</span>' : ''}
           <span class="ppc-kind">${preset.kind}</span>
@@ -201,30 +205,47 @@ class SnapSignFitApp {
           fileInput.value = '';
           fileInput.click();
         });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
         grid.appendChild(card);
       });
     };
 
     const openPopup = (cat = 'gov') => {
+      lastActiveElement = document.activeElement;
       // Sync tab state
       document.querySelectorAll('.preset-popup-tab').forEach(t => {
-        t.classList.toggle('active', t.dataset.cat === cat);
+        const isActive = t.dataset.cat === cat;
+        t.classList.toggle('active', isActive);
+        t.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
       renderPopupGrid(cat);
       overlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+      closeBtn?.focus();
     };
 
     const closePopup = () => {
       overlay.classList.add('hidden');
       document.body.style.overflow = '';
+      if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+        lastActiveElement.focus();
+      }
     };
 
     // Tab switching
     document.querySelectorAll('.preset-popup-tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        document.querySelectorAll('.preset-popup-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.preset-popup-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
         tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
         renderPopupGrid(tab.dataset.cat);
       });
     });

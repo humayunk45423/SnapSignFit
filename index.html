@@ -5,10 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com; worker-src 'self' blob:; connect-src 'self';">
+    content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;">
   <title>SnapSignFit — Photo & Signature Auto-Formatter (100% Free & Client-Side)</title>
   <meta name="description"
     content="Resize photos and signatures to the exact pixel size and file size limit. Made for government forms, BCS, passport, visa and exams, works for social media and custom sizes. 100% client-side and free.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.json">
@@ -19,6 +22,30 @@
 </head>
 
 <body>
+
+  <!-- File Protocol Warning Banner (Rendered immediately without ES modules) -->
+  <div id="fileProtocolBanner" class="file-protocol-banner" style="display: none;" role="alert">
+    <div class="banner-inner">
+      <i class="fa fa-triangle-exclamation banner-icon" aria-hidden="true"></i>
+      <div class="banner-text">
+        <strong data-i18n="fileWarningTitle">Opened directly from local file (file:///)?</strong>
+        <span data-i18n="fileWarningDesc">Modern browsers block JavaScript ES Modules on local files. To test locally, double-click <code>start.bat</code> in the project folder or open via <code>localhost</code>.</span>
+      </div>
+      <button type="button" class="banner-dismiss" id="dismissFileWarning" aria-label="Dismiss warning">&times;</button>
+    </div>
+  </div>
+  <script>
+    if (window.location.protocol === 'file:') {
+      var banner = document.getElementById('fileProtocolBanner');
+      if (banner) banner.style.display = 'block';
+      var dismissBtn = document.getElementById('dismissFileWarning');
+      if (dismissBtn) {
+        dismissBtn.onclick = function() {
+          banner.style.display = 'none';
+        };
+      }
+    }
+  </script>
 
   <!-- Site Header -->
   <header class="site-header">
@@ -448,9 +475,9 @@
       </div>
 
       <!-- Category Tabs -->
-      <div class="preset-popup-tabs" role="tablist">
-        <button type="button" class="preset-popup-tab active" id="ppTabGov" data-cat="gov"><i class="fa fa-star" style="color: #f59e0b; margin-right: 6px;"></i> Govt &amp; Exam</button>
-        <button type="button" class="preset-popup-tab" id="ppTabSocial" data-cat="social"><i class="fa fa-globe" style="color: #3b82f6; margin-right: 6px;"></i> Social &amp; Web</button>
+      <div class="preset-popup-tabs" role="tablist" aria-label="Preset Categories">
+        <button type="button" class="preset-popup-tab active" id="ppTabGov" data-cat="gov" role="tab" aria-selected="true" aria-controls="presetPopupGrid"><i class="fa fa-star" style="color: #f59e0b; margin-right: 6px;"></i> Govt &amp; Exam</button>
+        <button type="button" class="preset-popup-tab" id="ppTabSocial" data-cat="social" role="tab" aria-selected="false" aria-controls="presetPopupGrid"><i class="fa fa-globe" style="color: #3b82f6; margin-right: 6px;"></i> Social &amp; Web</button>
       </div>
 
       <!-- Preset Grid -->
