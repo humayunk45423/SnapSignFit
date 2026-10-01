@@ -244,6 +244,24 @@ export class ManualEditor {
                 </button>
               </div>
 
+              <!-- Background Solid Color Swatches -->
+              <div class="editor-control-group">
+                <div class="editor-control-header">
+                  <label class="editor-label" data-i18n="bgColor">Background Color</label>
+                </div>
+                <div class="editor-bg-palette">
+                  <button type="button" class="bg-swatch active" data-color="#ffffff" title="Solid White" style="background: #ffffff; border: 1px solid #cbd5e1;"></button>
+                  <button type="button" class="bg-swatch" data-color="#dbeafe" title="Light Blue (Passport/Visa)" style="background: #dbeafe; border: 1px solid #93c5fd;"></button>
+                  <button type="button" class="bg-swatch" data-color="#f1f5f9" title="Light Gray" style="background: #f1f5f9; border: 1px solid #cbd5e1;"></button>
+                  <button type="button" class="bg-swatch" data-color="#dc2626" title="Solid Red" style="background: #dc2626; border: 1px solid #b91c1c;"></button>
+                  <button type="button" class="bg-swatch" data-color="#2563eb" title="Royal Blue" style="background: #2563eb; border: 1px solid #1d4ed8;"></button>
+                  <label class="bg-swatch-picker" title="Custom Color">
+                    <input type="color" id="editorCustomBgColor" value="#3b82f6" class="color-picker-mini">
+                    <i class="fa fa-palette" style="font-size: 11px; color: var(--text);"></i>
+                  </label>
+                </div>
+              </div>
+
               <!-- AI Quick Remove & Reset (stacked to prevent sidebar overflow) -->
               <div class="editor-step3-action-col">
                 <button type="button" class="btn btn-secondary btn-sm btn-block" id="btnBrushAutoAi" title="Auto AI Remove Background">
@@ -453,6 +471,25 @@ export class ManualEditor {
             btnRestore.classList.remove('active');
           }
         }
+      });
+    }
+
+    // Step 3 Background Color Swatches
+    const swatches = el.querySelectorAll('.bg-swatch');
+    const customBgInput = el.querySelector('#editorCustomBgColor');
+    swatches.forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        swatches.forEach(s => s.classList.remove('active'));
+        swatch.classList.add('active');
+        this.bgColor = swatch.dataset.color;
+        this.requestRender();
+      });
+    });
+    if (customBgInput) {
+      customBgInput.addEventListener('input', (e) => {
+        swatches.forEach(s => s.classList.remove('active'));
+        this.bgColor = e.target.value;
+        this.requestRender();
       });
     }
 

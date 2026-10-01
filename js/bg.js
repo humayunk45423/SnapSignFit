@@ -62,7 +62,17 @@ export async function getSegmenter() {
  *   areaFraction?: number
  * }>}
  */
-export async function removeBackgroundToWhite(inputCanvas, faceCenter = null) {
+function parseColorRgb(colorStr = '#ffffff') {
+  if (colorStr.startsWith('#')) {
+    let c = colorStr.replace('#', '');
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+  return { r: 255, g: 255, b: 255 };
+}
+
+export async function removeBackgroundToWhite(inputCanvas, faceCenter = null, bgColor = '#ffffff') {
   if (!inputCanvas || inputCanvas.width <= 0 || inputCanvas.height <= 0) {
     return { canvas: inputCanvas, skipped: true, reason: 'INVALID_DIMENSIONS' };
   }
@@ -174,7 +184,8 @@ export async function removeBackgroundToWhite(inputCanvas, faceCenter = null) {
 
     const fullMaskData = fmCtx.getImageData(0, 0, w, h).data;
 
-    // 5. Composite over pure #FFFFFF with edge decontamination
+    // 5. Composite over requested solid color with edge decontamination
+    const { r: bgR, g: bgG, b: bgB } = parseColorRgb(bgColor);
     const outCanvas = createCanvas(w, h);
     const outCtx = outCanvas.getContext('2d');
     const srcCtx = inputCanvas.getContext('2d', { willReadFrequently: true });
@@ -193,17 +204,17 @@ export async function removeBackgroundToWhite(inputCanvas, faceCenter = null) {
         outData[i + 2] = srcData[i + 2];
         outData[i + 3] = 255;
       } else if (a <= 0.01) {
-        // Pure white background
-        outData[i] = 255;
-        outData[i + 1] = 255;
-        outData[i + 2] = 255;
+        // Pure solid background
+        outData[i] = bgR;
+        outData[i + 1] = bgG;
+        outData[i + 2] = bgB;
         outData[i + 3] = 255;
       } else {
-        // Boundary blending with white decontamination to eliminate dark halos
+        // Boundary blending with background color decontamination
         const invA = 1 - a;
-        outData[i] = Math.round(srcData[i] * a + 255 * invA);
-        outData[i + 1] = Math.round(srcData[i + 1] * a + 255 * invA);
-        outData[i + 2] = Math.round(srcData[i + 2] * a + 255 * invA);
+        outData[i] = Math.round(srcData[i] * a + bgR * invA);
+        outData[i + 1] = Math.round(srcData[i + 1] * a + bgG * invA);
+        outData[i + 2] = Math.round(srcData[i + 2] * a + bgB * invA);
         outData[i + 3] = 255;
       }
     }

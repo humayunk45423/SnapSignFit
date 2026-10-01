@@ -490,11 +490,28 @@ class SnapSignFitApp {
     });
 
     const bgModeSelect = document.getElementById('exportBgModeSelect');
+    const customBgColorInput = document.getElementById('exportCustomBgColor');
     if (bgModeSelect) {
       bgModeSelect.addEventListener('change', (e) => {
-        this.customOptions.bgMode = e.target.value;
+        const val = e.target.value;
+        this.customOptions.bgMode = val;
+        if (val === 'custom') {
+          customBgColorInput?.classList.remove('hidden');
+          customBgColorInput?.click();
+        } else {
+          customBgColorInput?.classList.add('hidden');
+        }
         this.hasDownloadedCurrentWork = false;
         this.runProcessingPipeline();
+      });
+    }
+    if (customBgColorInput) {
+      customBgColorInput.addEventListener('input', (e) => {
+        this.customOptions.customBgColor = e.target.value;
+        if (this.customOptions.bgMode === 'custom') {
+          this.hasDownloadedCurrentWork = false;
+          this.runProcessingPipeline();
+        }
       });
     }
 
@@ -985,6 +1002,14 @@ class SnapSignFitApp {
       // Check user override crop from manual editor
       const effectiveCrop = this.userTransforms.crop || computedCrop;
 
+      // Resolve background color based on bgMode
+      let resolvedBgColor = '#ffffff';
+      if (this.customOptions.bgMode === 'blue') resolvedBgColor = '#dbeafe';
+      else if (this.customOptions.bgMode === 'gray') resolvedBgColor = '#f1f5f9';
+      else if (this.customOptions.bgMode === 'red') resolvedBgColor = '#dc2626';
+      else if (this.customOptions.bgMode === 'custom') resolvedBgColor = this.customOptions.customBgColor || '#3b82f6';
+      else if (this.customOptions.bgMode === 'white') resolvedBgColor = '#ffffff';
+
       if (this.userTransforms.transformedCanvas) {
         this.exactCanvas = this.userTransforms.transformedCanvas;
       } else {
@@ -992,22 +1017,22 @@ class SnapSignFitApp {
         this.exactCanvas = renderFitMode(activeFull, targetW, targetH, {
           fit: this.customOptions.fit,
           cropRect: effectiveCrop,
-          bgColor: '#ffffff',
+          bgColor: resolvedBgColor,
           blurredBg: false,
           transparent: this.customOptions.bgMode === 'transparent'
         });
       }
 
-      // Background Removal / White mode handling
-      if (this.customOptions.bgMode === 'remove' && kind !== 'signature') {
+      // Background Removal / Solid Color replacement handling
+      if ((this.customOptions.bgMode === 'remove' || this.customOptions.bgMode === 'blue' || this.customOptions.bgMode === 'gray' || this.customOptions.bgMode === 'red' || this.customOptions.bgMode === 'custom') && kind !== 'signature') {
         const faceCenter = primaryFace ? {
           x: (primaryFace.box.x + primaryFace.box.w / 2 - (effectiveCrop?.x || 0)) / (effectiveCrop?.w || activeFull.width),
           y: (primaryFace.box.y + primaryFace.box.h / 2 - (effectiveCrop?.y || 0)) / (effectiveCrop?.h || activeFull.height)
         } : null;
 
-        const bgRes = await removeBackgroundToWhite(this.exactCanvas, faceCenter);
+        const bgRes = await removeBackgroundToWhite(this.exactCanvas, faceCenter, resolvedBgColor);
         if (bgRes.skipped) {
-          this.activeWarnings.push('bgSkippedToast');
+          if (this.customOptions.bgMode === 'remove') this.activeWarnings.push('bgSkippedToast');
         } else {
           this.exactCanvas = bgRes.canvas;
         }
@@ -1175,7 +1200,7 @@ class SnapSignFitApp {
     const statusIcon = isUnder
       ? icon('circle-check', { size: 14, className: 'status-icon ok' })
       : icon('triangle-alert', { size: 14, className: 'status-icon warn' });
-    badge.innerHTML = `<span id="sizeStatusText">${w}×${h} px · ${kb} KB</span> ${statusIcon} <span>${isUnder ? t('underLimit') : t('overLimit')}</span>`;
+    badge.innerHTML = `<span class="size-badge-dims" id="sizeStatusText">${w}×${h} px · ${kb} KB</span> <span class="size-badge-pill">${statusIcon} <span>${isUnder ? t('underLimit') : t('overLimit')}</span></span>`;
   }
 
   openManualEditor() {

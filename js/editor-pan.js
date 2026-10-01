@@ -143,6 +143,91 @@ for (const type of ['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchc
   }, { capture: true });
 }
 
+/* ---- Mobile Two-Finger Pinch to Zoom & Pan ---- */
+let pinching = false;
+let pinchStartDist = 0;
+let pinchStartZoom = 1;
+let pinchStartPanX = 0, pinchStartPanY = 0;
+let pinchStartMidX = 0, pinchStartMidY = 0;
+let pinchBoxStartOx = 0, pinchBoxStartOy = 0;
+
+function touchDist(t0, t1) {
+  return Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+}
+function touchMid(t0, t1) {
+  return { x: (t0.clientX + t1.clientX) / 2, y: (t0.clientY + t1.clientY) / 2 };
+}
+
+window.addEventListener('touchstart', e => {
+  if (!modalOpen() || !container()?.contains(e.target)) return;
+  if (e.touches && e.touches.length === 2) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    pinching = true;
+    panning = false;
+    pinchStartDist = touchDist(e.touches[0], e.touches[1]);
+    const mid = touchMid(e.touches[0], e.touches[1]);
+    pinchStartMidX = mid.x;
+    pinchStartMidY = mid.y;
+
+    if (window.__manualEditor) {
+      if (window.__manualEditor.currentStep === 3) {
+        pinchStartZoom = window.__manualEditor.step3Zoom || 1.0;
+        pinchStartPanX = window.__manualEditor.step3PanX || 0;
+        pinchStartPanY = window.__manualEditor.step3PanY || 0;
+      } else if (window.__manualEditor.currentStep === 2) {
+        pinchStartZoom = window.__manualEditor.step2Zoom || 1.0;
+        pinchStartPanX = window.__manualEditor.step2PanX || 0;
+        pinchStartPanY = window.__manualEditor.step2PanY || 0;
+      } else {
+        pinchBoxStartOx = ox;
+        pinchBoxStartOy = oy;
+      }
+    }
+  }
+}, { capture: true, passive: false });
+
+window.addEventListener('touchmove', e => {
+  if (!pinching || !e.touches || e.touches.length < 2) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  const currentDist = touchDist(e.touches[0], e.touches[1]);
+  const scaleRatio = currentDist / Math.max(10, pinchStartDist);
+  const mid = touchMid(e.touches[0], e.touches[1]);
+  const deltaX = mid.x - pinchStartMidX;
+  const deltaY = mid.y - pinchStartMidY;
+
+  if (window.__manualEditor) {
+    if (window.__manualEditor.currentStep === 3) {
+      window.__manualEditor.step3Zoom = Math.min(6.0, Math.max(0.4, pinchStartZoom * scaleRatio));
+      window.__manualEditor.step3PanX = pinchStartPanX + deltaX;
+      window.__manualEditor.step3PanY = pinchStartPanY + deltaY;
+      window.__manualEditor.requestRender();
+    } else if (window.__manualEditor.currentStep === 2) {
+      window.__manualEditor.step2Zoom = Math.min(6.0, Math.max(0.4, pinchStartZoom * scaleRatio));
+      window.__manualEditor.step2PanX = pinchStartPanX + deltaX;
+      window.__manualEditor.step2PanY = pinchStartPanY + deltaY;
+      window.__manualEditor.requestRender();
+    } else {
+      ox = pinchBoxStartOx + deltaX;
+      oy = pinchBoxStartOy + deltaY;
+      clamp();
+      apply();
+    }
+  }
+}, { capture: true, passive: false });
+
+window.addEventListener('touchend', e => {
+  if (pinching && (!e.touches || e.touches.length < 2)) {
+    pinching = false;
+  }
+}, { capture: true });
+
+window.addEventListener('touchcancel', () => {
+  pinching = false;
+}, { capture: true });
+
 /* ---- Reset pan when it should reset ---- */
 document.addEventListener('click', e => {
   if (e.target.closest('.editor-step-tab, #btnEditorReset, [data-editor-reset]')) resetEditorPan();
