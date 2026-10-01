@@ -393,14 +393,26 @@ export class ManualEditor {
       format: (v) => `${Math.round(v)}%`
     });
 
-    // Step 3 Brush Mode Toggle (Eraser vs Restore)
+    // Step 3 Brush Mode Toggle (Eraser vs Restore vs Hand/Move)
     const btnErase = el.querySelector('#btnBrushErase');
     const btnRestore = el.querySelector('#btnBrushRestore');
+    const btnHandTool = el.querySelector('#btnHandTool');
+
+    const deactivateHandTool = () => {
+      if (btnHandTool) {
+        btnHandTool.setAttribute('aria-pressed', 'false');
+        btnHandTool.classList.remove('active');
+      }
+      if (window.__editorPan?.setHandTool) {
+        window.__editorPan.setHandTool(false);
+      }
+    };
 
     btnErase.addEventListener('click', () => {
       this.brushMode = 'erase';
       btnErase.classList.add('active');
       btnRestore.classList.remove('active');
+      deactivateHandTool();
       this.requestRender();
     });
 
@@ -408,16 +420,33 @@ export class ManualEditor {
       this.brushMode = 'restore';
       btnRestore.classList.add('active');
       btnErase.classList.remove('active');
+      deactivateHandTool();
       this.requestRender();
     });
 
-    const btnHandTool = el.querySelector('#btnHandTool');
     if (btnHandTool) {
       btnHandTool.addEventListener('click', (e) => {
-        const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-        e.currentTarget.setAttribute('aria-pressed', String(on));
+        const currentlyOn = e.currentTarget.getAttribute('aria-pressed') === 'true' || e.currentTarget.classList.contains('active');
+        const nextOn = !currentlyOn;
+        e.currentTarget.setAttribute('aria-pressed', String(nextOn));
+        e.currentTarget.classList.toggle('active', nextOn);
+
         if (window.__editorPan?.setHandTool) {
-          window.__editorPan.setHandTool(on);
+          window.__editorPan.setHandTool(nextOn);
+        }
+
+        if (nextOn) {
+          btnErase.classList.remove('active');
+          btnRestore.classList.remove('active');
+        } else {
+          // If turning move tool off, return active highlight to current brush mode
+          if (this.brushMode === 'restore') {
+            btnRestore.classList.add('active');
+            btnErase.classList.remove('active');
+          } else {
+            btnErase.classList.add('active');
+            btnRestore.classList.remove('active');
+          }
         }
       });
     }
@@ -633,6 +662,18 @@ export class ManualEditor {
     if (p2) p2.classList.toggle('hidden', stepNumber === 3);
     // p3 (brush controls) is only shown in step 3
     if (p3) p3.classList.toggle('hidden', stepNumber !== 3);
+
+    // Ensure hand/move tool is deactivated when switching steps
+    if (stepNumber !== 3) {
+      const btnHand = this.overlayEl.querySelector('#btnHandTool');
+      if (btnHand) {
+        btnHand.setAttribute('aria-pressed', 'false');
+        btnHand.classList.remove('active');
+      }
+      if (window.__editorPan?.setHandTool) {
+        window.__editorPan.setHandTool(false);
+      }
+    }
 
     if (this.editorCanvas) {
       this.editorCanvas.classList.toggle('brush-mode', stepNumber === 3);

@@ -1333,11 +1333,12 @@ body.has-image .feature-strip,
 
 .brush-mode-group {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--s-2);
 }
 
-.brush-mode-group .btn.active {
+.brush-mode-group .btn.active,
+.brush-mode-group .btn[aria-pressed="true"] {
   background-color: var(--accent);
   color: var(--accent-fg);
   border-color: var(--accent);
