@@ -5,7 +5,7 @@
       "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\node_modules\\@playwright\\test\\cli.js",
       "test",
       "-g",
-      "Group 1|D3-test"
+      "M-Test|D1-test|D2-test|D3-test"
     ],
     "configFile": "F:\\Me & My Docs\\1. Recent Projects\\SnapSignFit\\playwright.config.js",
     "rootDir": "F:/Me & My Docs/1. Recent Projects/SnapSignFit/tests",
@@ -101,7 +101,7 @@
           "column": 6,
           "specs": [
             {
-              "title": "Group 1: Input formats support (JPG, PNG, WebP, GIF, BMP, SVG, TIFF, HEIC, Renamed)",
+              "title": "M-Test: Mobile layout (M0-M3) — letter-wrap detector, both panels visible, zero overflow",
               "ok": true,
               "tags": [],
               "tests": [
@@ -116,12 +116,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 18862,
+                      "duration": 13126,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-10-01T06:41:13.231Z",
+                      "startTime": "2026-10-01T07:05:39.843Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -129,13 +129,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "889f38c0441b1b4167cd-d3f7548af44c85f7e890",
+              "id": "889f38c0441b1b4167cd-9722f052e1fb1fb6c174",
               "file": "snapsignfit.spec.js",
-              "line": 112,
+              "line": 554,
               "column": 3
             },
             {
-              "title": "Group 10: Bilingual toggle (English/Bengali) & sub-path execution",
+              "title": "D1-test: Wide viewport — container expands with image loaded, no wide blank margins",
               "ok": true,
               "tags": [],
               "tests": [
@@ -150,12 +150,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4292,
+                      "duration": 9656,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-10-01T06:41:32.243Z",
+                      "startTime": "2026-10-01T07:05:53.166Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -163,9 +163,43 @@
                   "status": "expected"
                 }
               ],
-              "id": "889f38c0441b1b4167cd-e9b3da03fecef0776d41",
+              "id": "889f38c0441b1b4167cd-0a590954fa9e9b160969",
               "file": "snapsignfit.spec.js",
-              "line": 372,
+              "line": 682,
+              "column": 3
+            },
+            {
+              "title": "D2-test: Status readout and action buttons never overlap at any viewport width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14917,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-01T07:06:02.838Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-200c69d5371523840d4a",
+              "file": "snapsignfit.spec.js",
+              "line": 705,
               "column": 3
             },
             {
@@ -184,12 +218,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3416,
+                      "duration": 3267,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-10-01T06:41:36.554Z",
+                      "startTime": "2026-10-01T07:06:17.772Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -203,7 +237,7 @@
               "column": 3
             },
             {
-              "title": "Group 1: Input formats support (JPG, PNG, WebP, GIF, BMP, SVG, TIFF, HEIC, Renamed)",
+              "title": "M-Test: Mobile layout (M0-M3) — letter-wrap detector, both panels visible, zero overflow",
               "ok": true,
               "tags": [],
               "tests": [
@@ -218,12 +252,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 18948,
+                      "duration": 13723,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-10-01T06:41:13.215Z",
+                      "startTime": "2026-10-01T07:05:39.876Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -231,13 +265,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "889f38c0441b1b4167cd-97a6b3e2f7de41e41477",
+              "id": "889f38c0441b1b4167cd-e6286ddb8d4e2afa2895",
               "file": "snapsignfit.spec.js",
-              "line": 112,
+              "line": 554,
               "column": 3
             },
             {
-              "title": "Group 10: Bilingual toggle (English/Bengali) & sub-path execution",
+              "title": "D1-test: Wide viewport — container expands with image loaded, no wide blank margins",
               "ok": true,
               "tags": [],
               "tests": [
@@ -252,12 +286,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 4256,
+                      "duration": 9203,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-10-01T06:41:32.301Z",
+                      "startTime": "2026-10-01T07:05:53.816Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -265,9 +299,43 @@
                   "status": "expected"
                 }
               ],
-              "id": "889f38c0441b1b4167cd-bb413bde6935f2941eed",
+              "id": "889f38c0441b1b4167cd-c0e255c0c67e7daf4256",
               "file": "snapsignfit.spec.js",
-              "line": 372,
+              "line": 682,
+              "column": 3
+            },
+            {
+              "title": "D2-test: Status readout and action buttons never overlap at any viewport width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome",
+                  "projectName": "mobile-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 13475,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-01T07:06:03.041Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "889f38c0441b1b4167cd-72f8d6943d8e7caebf59",
+              "file": "snapsignfit.spec.js",
+              "line": 705,
               "column": 3
             },
             {
@@ -286,12 +354,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3341,
+                      "duration": 3178,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-10-01T06:41:36.579Z",
+                      "startTime": "2026-10-01T07:06:16.545Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -311,9 +379,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-01T06:41:12.519Z",
-    "duration": 27820.033000000003,
-    "expected": 6,
+    "startTime": "2026-10-01T07:05:39.116Z",
+    "duration": 42239.277,
+    "expected": 8,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
