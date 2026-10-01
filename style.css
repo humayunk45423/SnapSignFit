@@ -2998,7 +2998,7 @@ body.dark .site-footer {
   overflow-y: auto;
   flex: 1 1 auto;
   min-height: 0;
-  max-height: 56vh;
+  max-height: 420px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -3029,8 +3029,8 @@ body.dark .site-footer {
   transition: all 0.18s ease;
   position: relative;
   box-sizing: border-box;
-  min-height: 84px;
-  overflow: visible;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .preset-popup-card:hover {
@@ -3125,6 +3125,8 @@ body.dark .ppc-badge {
   border-top: 1px solid var(--border);
   flex-shrink: 0;
   background: var(--surface-2);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── Mobile mode hero overrides ─────────────────── */
@@ -3273,9 +3275,9 @@ body.dark .ppc-badge {
 
   .preset-popup-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 14px 16px;
-    gap: 10px;
-    max-height: 60vh;
+    max-height: 55vh;
+    gap: 8px;
+    padding: 12px 14px;
   }
 
   .preset-popup-hint {

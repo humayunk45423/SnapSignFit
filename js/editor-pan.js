@@ -17,6 +17,9 @@ const modalOpen = () => {
 };
 const isTyping = t => /^(INPUT|TEXTAREA|SELECT)$/.test(t?.tagName) && t.type !== 'range' && t.type !== 'checkbox';
 const active = () => space || handTool;
+// Returns true when the Background & Brush tab (step 3) is active — in that tab
+// we intentionally skip pan clamping so the user can paint at any zoom level.
+const isBrushTab = () => !!document.querySelector('#tabStep3.active');
 
 function apply() {
   const c = canvas(); if (!c) return;
@@ -107,7 +110,10 @@ for (const type of ['pointermove', 'mousemove', 'touchmove']) {
     const p = pt(e);
     ox = bx + (p.clientX - sx);
     oy = by + (p.clientY - sy);
-    clamp(); apply();
+    // In the Background & Brush tab, skip the clamp so the user can reach
+    // every pixel of the image (including edges) at any zoom level.
+    if (!isBrushTab()) clamp();
+    apply();
   }, { capture: true, passive: false });
 }
 
