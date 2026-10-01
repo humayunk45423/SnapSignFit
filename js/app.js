@@ -861,88 +861,124 @@ class SnapSignFitApp {
 
     // 1. Signature Pipeline
     if (kind === 'signature') {
-      signatureResult = processSignature(activeFull, targetW, targetH, {
-        keepInkColor: this.customOptions.keepInkColor,
-        thickenPx: this.customOptions.thickenPx,
-        useFullImage: !this.customOptions.autoDetect,
-        bgColor: '#ffffff'
-      });
+      const hasCustomEdits = this.userTransforms.transformedCanvas && (
+        this.userTransforms.maskCanvas !== null ||
+        this.userTransforms.rotation !== 0 ||
+        this.userTransforms.straightenDeg !== 0 ||
+        (this.userTransforms.step2Transform?.zoom && this.userTransforms.step2Transform.zoom !== 1.0) ||
+        (this.userTransforms.step2Transform?.panX !== 0 || this.userTransforms.step2Transform?.panY !== 0) ||
+        this.userTransforms.flipH ||
+        this.userTransforms.flipV
+      );
 
-      if (!signatureResult.success) {
-        this.activeWarnings.push('warnNoSignature');
-        // Create a proper white canvas at exact target dimensions so export doesn't fail
-        const fallbackCanvas = createCanvas(targetW, targetH);
-        const fCtx = fallbackCanvas.getContext('2d');
-        fCtx.fillStyle = '#ffffff';
-        fCtx.fillRect(0, 0, targetW, targetH);
-        this.exactCanvas = fallbackCanvas;
-        computedCrop = signatureResult.bbox;
-
-        // Draw preview canvases
-        this.drawBeforeCanvas(activeFull, null, null, kind);
-        this.drawAfterCanvas(this.exactCanvas);
-        this.renderChips();
-
-        // Run export guarantee on fallback canvas
-        await this.runExportGuarantee();
-        this.setProcessing(false);
-
-        // Open manual editor only on preset/option changes, not on initial file load.
-        // This allows the test flow: upload → click preset → editor opens.
-        if (!fromFileUpload && !this.manualEditorOpenedForFile) {
-          this.manualEditorOpenedForFile = true;
-          this.openManualEditor();
-        }
-        return;
+      // If user applied manual adjustments in the editor without stroke thickening adjustments
+      if (this.userTransforms.transformedCanvas && (hasCustomEdits || (this.customOptions.thickenPx === 0 && !this.customOptions.keepInkColor))) {
+        this.exactCanvas = this.userTransforms.transformedCanvas;
+        computedCrop = this.userTransforms.crop || null;
       } else {
-        if (signatureResult.warnings) {
-          this.activeWarnings.push(...signatureResult.warnings);
+        let sigSource = activeFull;
+        let useFull = !this.customOptions.autoDetect;
+
+        if (this.userTransforms.crop) {
+          const c = this.userTransforms.crop;
+          const cropCvs = createCanvas(Math.max(1, Math.round(c.w)), Math.max(1, Math.round(c.h)));
+          const cCtx = cropCvs.getContext('2d');
+          cCtx.drawImage(activeFull, c.x, c.y, c.w, c.h, 0, 0, c.w, c.h);
+          sigSource = cropCvs;
+          useFull = true;
+          computedCrop = c;
         }
 
-        // Test signature paper tilt (§6)
-        if (signatureResult.components && signatureResult.components.length > 0) {
-          const paperTilt = detectSignaturePaperTilt(activeFull, signatureResult.components);
-          if (paperTilt !== 0 && this.autoFixes.tiltDeg === 0) {
-            this.autoFixes.tiltDeg = paperTilt;
-            this.addChip({
-              id: 'chip-tilt',
-              label: t('chipStraightened', { deg: paperTilt }),
-              isUndoable: true,
-              onUndo: () => {
-                this.autoFixes.tiltDeg = 0;
-                this.runProcessingPipeline();
+        signatureResult = processSignature(sigSource, targetW, targetH, {
+          keepInkColor: this.customOptions.keepInkColor,
+          thickenPx: this.customOptions.thickenPx,
+          useFullImage: useFull,
+          bgColor: '#ffffff'
+        });
+
+        if (!signatureResult.success) {
+          if (this.userTransforms.transformedCanvas) {
+            this.exactCanvas = this.userTransforms.transformedCanvas;
+          } else {
+            this.activeWarnings.push('warnNoSignature');
+            // Create a proper white canvas at exact target dimensions so export doesn't fail
+            const fallbackCanvas = createCanvas(targetW, targetH);
+            const fCtx = fallbackCanvas.getContext('2d');
+            fCtx.fillStyle = '#ffffff';
+            fCtx.fillRect(0, 0, targetW, targetH);
+            this.exactCanvas = fallbackCanvas;
+          }
+          if (!computedCrop) computedCrop = signatureResult.bbox;
+
+          const effectiveCrop = this.userTransforms.crop || computedCrop;
+          this.drawBeforeCanvas(activeFull, null, effectiveCrop, kind);
+          this.drawAfterCanvas(this.exactCanvas);
+          this.renderChips();
+
+          // Run export guarantee on fallback canvas
+          await this.runExportGuarantee();
+          this.setProcessing(false);
+
+          // Open manual editor only on preset/option changes, not on initial file load.
+          if (!fromFileUpload && !this.manualEditorOpenedForFile) {
+            this.manualEditorOpenedForFile = true;
+            this.openManualEditor();
+          }
+          return;
+        } else {
+          if (signatureResult.warnings) {
+            this.activeWarnings.push(...signatureResult.warnings);
+          }
+
+          // Test signature paper tilt only if user hasn't manually cropped or rotated
+          if (!this.userTransforms.crop && this.userTransforms.rotation === 0) {
+            if (signatureResult.components && signatureResult.components.length > 0) {
+              const paperTilt = detectSignaturePaperTilt(activeFull, signatureResult.components);
+              if (paperTilt !== 0 && this.autoFixes.tiltDeg === 0) {
+                this.autoFixes.tiltDeg = paperTilt;
+                this.addChip({
+                  id: 'chip-tilt',
+                  label: t('chipStraightened', { deg: paperTilt }),
+                  isUndoable: true,
+                  onUndo: () => {
+                    this.autoFixes.tiltDeg = 0;
+                    this.runProcessingPipeline();
+                  }
+                });
+                activeFull = rotateWithEdgeReplication(activeFull, -paperTilt);
               }
-            });
-            activeFull = rotateWithEdgeReplication(activeFull, -paperTilt);
+            }
+
+            // Test ink aspect rotation test (> 1.6)
+            if (signatureResult.inkAspect > 1.6 && this.autoFixes.rotationDeg === 0) {
+              this.autoFixes.rotationDeg = 90;
+              this.addChip({
+                id: 'chip-rot',
+                label: t('chipRotated', { deg: 90 }),
+                isUndoable: true,
+                onUndo: () => {
+                  this.autoFixes.rotationDeg = 0;
+                  this.runProcessingPipeline();
+                }
+              });
+              const rot = rotateCanvas(activeFull, 90);
+              activeFull = rot.rotCanvas;
+              // Re-process with rotated canvas
+              signatureResult = processSignature(activeFull, targetW, targetH, {
+                keepInkColor: this.customOptions.keepInkColor,
+                thickenPx: this.customOptions.thickenPx,
+                useFullImage: !this.customOptions.autoDetect,
+                bgColor: '#ffffff'
+              });
+            }
+          }
+
+          this.exactCanvas = signatureResult.canvas;
+          if (!computedCrop) {
+            computedCrop = signatureResult.bbox;
           }
         }
-
-        // Test ink aspect rotation test (> 1.6)
-        if (signatureResult.inkAspect > 1.6 && this.autoFixes.rotationDeg === 0) {
-          this.autoFixes.rotationDeg = 90;
-          this.addChip({
-            id: 'chip-rot',
-            label: t('chipRotated', { deg: 90 }),
-            isUndoable: true,
-            onUndo: () => {
-              this.autoFixes.rotationDeg = 0;
-              this.runProcessingPipeline();
-            }
-          });
-          const rot = rotateCanvas(activeFull, 90);
-          activeFull = rot.rotCanvas;
-          // Re-process with rotated canvas
-          signatureResult = processSignature(activeFull, targetW, targetH, {
-            keepInkColor: this.customOptions.keepInkColor,
-            thickenPx: this.customOptions.thickenPx,
-            useFullImage: !this.customOptions.autoDetect,
-            bgColor: '#ffffff'
-          });
-        }
       }
-
-      this.exactCanvas = signatureResult.canvas;
-      computedCrop = signatureResult.bbox;
     } 
     // 2. Photo / Avatar / General Image Pipeline
     else {
@@ -1082,8 +1118,11 @@ class SnapSignFitApp {
       }
     }
 
+    const effectiveCrop = this.userTransforms.crop || computedCrop;
+    this.lastComputedCrop = computedCrop;
+
     // Draw Before canvas with detection overlay
-    this.drawBeforeCanvas(activeFull, primaryFace?.box, computedCrop, kind);
+    this.drawBeforeCanvas(activeFull, primaryFace?.box, effectiveCrop, kind);
 
     // Draw After canvas
     this.drawAfterCanvas(this.exactCanvas);
@@ -1255,7 +1294,7 @@ class SnapSignFitApp {
       fullCanvas,
       w,
       h,
-      this.userTransforms.crop,
+      this.userTransforms.crop || this.lastComputedCrop,
       this.currentPreset,
       {
         rotation: this.userTransforms.rotation,
@@ -1283,6 +1322,9 @@ class SnapSignFitApp {
       croppedCanvas: state.croppedCanvas,
       step2Transform: state.step2Transform
     };
+    this.customOptions.autoDetect = false;
+    const autoDetectCheck = document.getElementById('autoDetectCheck');
+    if (autoDetectCheck) autoDetectCheck.checked = false;
     this.hasDownloadedCurrentWork = false;
     this.saveSession();
     this.runProcessingPipeline();
