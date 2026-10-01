@@ -226,25 +226,30 @@ body.dark .header-container {
 
 .brand-info {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1px;
 }
 
 .brand-info h1 {
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 1.15;
   color: var(--text);
-  display: flex;
-  align-items: center;
+  margin: 0;
   letter-spacing: -0.01em;
 }
 
 .brand-tagline {
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: 500;
   color: var(--muted);
-  border-left: 1px solid var(--border);
-  padding-left: 6px;
-  display: inline-block;
+  line-height: 1.1;
+  border-left: none;
+  padding-left: 0;
+  margin: 0;
+  display: block;
 }
 
 .header-nav {
@@ -2890,58 +2895,78 @@ body.dark .site-footer {
 
 .preset-popup-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  padding: 20px 28px;
+  padding: 20px 24px;
   overflow-y: auto;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 56vh;
+  -webkit-overflow-scrolling: touch;
+}
+
+.preset-popup-grid::-webkit-scrollbar {
+  width: 7px;
+}
+
+.preset-popup-grid::-webkit-scrollbar-track {
+  background: var(--surface-2);
+  border-radius: 4px;
+}
+
+.preset-popup-grid::-webkit-scrollbar-thumb {
+  background: var(--border-strong, #94a3b8);
+  border-radius: 4px;
 }
 
 .preset-popup-card {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 14px 16px;
-  border-radius: 14px;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 13px 15px;
+  border-radius: 12px;
   border: 1.5px solid var(--border);
   background-color: var(--surface);
   cursor: pointer;
   transition: all 0.18s ease;
   position: relative;
-  overflow: hidden;
+  box-sizing: border-box;
+  min-height: 84px;
+  overflow: visible;
 }
 
 .preset-popup-card:hover {
   border-color: var(--accent);
   background-color: var(--surface-2);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 119, 182, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 119, 182, 0.12);
 }
 
 .preset-popup-card.gov-card {
   border-color: rgba(234, 179, 8, 0.45);
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, rgba(251, 191, 36, 0.04) 100%);
+  background: var(--surface);
   box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.18);
 }
 
 .preset-popup-card.gov-card:hover {
-  border-color: rgba(234, 179, 8, 0.8);
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.16) 0%, rgba(251, 191, 36, 0.10) 100%);
-  box-shadow: 0 0 18px rgba(234, 179, 8, 0.25), 0 4px 14px rgba(0, 0, 0, 0.08);
-  transform: translateY(-3px);
+  border-color: rgba(234, 179, 8, 0.85);
+  background: var(--surface-2);
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .ppc-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: hsl(43, 90%, 38%);
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.14), rgba(251, 191, 36, 0.08));
-  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: 999px;
   padding: 2px 8px;
   width: fit-content;
@@ -2950,39 +2975,42 @@ body.dark .site-footer {
 
 [data-theme="dark"] .ppc-badge,
 body.dark .ppc-badge {
-  color: hsl(43, 95%, 68%);
-  border-color: rgba(251, 191, 36, 0.45);
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.4);
 }
 
 .ppc-kind {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
+  line-height: 1;
 }
 
 .ppc-label {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text);
-  line-height: 1.2;
+  line-height: 1.25;
+  margin-top: 1px;
+  word-break: break-word;
 }
 
+/* Ensure Gov card labels are crisp, bold and high contrast */
 .gov-card .ppc-label {
-  color: hsl(43, 85%, 36%);
-}
-
-[data-theme="dark"] .gov-card .ppc-label,
-body.dark .gov-card .ppc-label {
-  color: hsl(43, 95%, 66%);
+  color: var(--text);
+  font-weight: 800;
 }
 
 .ppc-dims {
   font-family: var(--mono);
   font-size: 11px;
+  font-weight: 500;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  margin-top: 1px;
 }
 
 .ppc-note {
@@ -2996,14 +3024,15 @@ body.dark .gov-card .ppc-label {
   font-size: 12px;
   color: var(--muted);
   text-align: center;
-  padding: 14px 28px 18px;
+  padding: 12px 24px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  background: var(--surface-2);
 }
 
 /* ── Mobile mode hero overrides ─────────────────── */
 @media (max-width: 600px) {
-  /* Hide hero-badge, hero-sub, chip-row, hero-ctas on mobile hero — keep only title + card */
+  /* Hide hero-badge, hero-sub, chip-row on mobile hero */
   .hero-badge {
     display: none;
   }
@@ -3022,8 +3051,50 @@ body.dark .gov-card .ppc-label {
     align-items: center;
   }
 
+  /* 3. Hero Headline (Mobile): Bigger headline text */
   .hero-title {
+    font-size: clamp(25px, 7.5vw, 32px);
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.025em;
     text-align: center;
+    margin-bottom: 4px;
+  }
+
+  /* 4. View Presets Button (Mobile): Placed directly beneath headline, above drop box */
+  .hero-ctas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 8px 0 16px 0;
+    padding: 0;
+  }
+
+  .hero-ctas #heroUploadPhoto,
+  .hero-ctas #heroUploadSig {
+    display: none;
+  }
+
+  .hero-ctas #btnViewPresetsHero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 22px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border-strong, var(--border));
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .hero-ctas #btnViewPresetsHero:active {
+    transform: scale(0.98);
   }
 
   /* Feature strip: stack vertically on mobile */
@@ -3060,14 +3131,34 @@ body.dark .gov-card .ppc-label {
     line-height: 1.4;
   }
 
-  /* Hide footer on mobile — only show in desktop hero view */
+  /* 2. Footer: Ensure footer is PRESENT and scrollable on mobile */
   .site-footer {
-    display: none;
+    display: block;
+    width: 100%;
+    padding: 20px 14px 28px;
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    background-color: var(--surface);
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-left,
+  .footer-right {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
   }
 }
 
 /* Preset popup responsive */
-@media (max-width: 520px) {
+@media (max-width: 680px) {
   .preset-popup-dialog {
     border-radius: 20px 20px 0 0;
     max-height: 92dvh;
@@ -3076,25 +3167,32 @@ body.dark .gov-card .ppc-label {
   }
 
   .preset-popup-header {
-    padding: 18px 18px 14px;
+    padding: 16px 18px 12px;
   }
 
   .preset-popup-tabs {
-    padding: 12px 18px 0;
+    padding: 10px 18px 0;
   }
 
   .preset-popup-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 16px 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 14px 16px;
     gap: 10px;
+    max-height: 60vh;
   }
 
   .preset-popup-hint {
-    padding: 12px 18px 16px;
+    padding: 10px 16px 14px;
   }
 
   .preset-popup-overlay {
     padding: 0;
     align-items: flex-end;
+  }
+}
+
+@media (max-width: 420px) {
+  .preset-popup-grid {
+    grid-template-columns: 1fr;
   }
 }

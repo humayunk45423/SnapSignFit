@@ -189,7 +189,7 @@ class SnapSignFitApp {
         const card = document.createElement('div');
         card.className = `preset-popup-card ${preset.locked ? 'gov-card' : ''}`;
         card.innerHTML = `
-          ${preset.locked ? '<span class="ppc-badge">⭐ Govt Official</span>' : ''}
+          ${preset.locked ? '<span class="ppc-badge"><i class="fa fa-star" style="color: #f59e0b; margin-right: 4px;"></i> Govt Official</span>' : ''}
           <span class="ppc-kind">${preset.kind}</span>
           <div class="ppc-label">${preset.label}</div>
           <div class="ppc-dims">${preset.w} × ${preset.h} px${preset.maxKB ? ` · ≤${preset.maxKB}KB` : ''}</div>
