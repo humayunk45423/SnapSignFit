@@ -28,7 +28,7 @@ export const translations = {
     light: 'Light',
     
     // Upload zone & Hero
-    heroBadge: 'MADE FOR BCS, TELETALK, NID & EXAM FORMS',
+    heroBadge: 'MADE FOR BCS, TELETALK & EXAM FORMS',
     heroTitle: 'Resize your photo & signature to Bangladesh Government form presets.',
     heroSub: 'Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 60KB)',
     heroPrivacy: '100% private · runs in your browser · works offline',
@@ -194,7 +194,7 @@ export const translations = {
     light: 'লাইট',
     
     // Upload zone & Hero
-    heroBadge: 'বিসিএস, টেলিটক, এনআইডি ও পরীক্ষার ফর্ম',
+    heroBadge: 'বিসিএস, টেলিটক ও পরীক্ষার ফর্ম',
     heroTitle: 'সরকারি ফর্মের সাইজে ছবি ও স্বাক্ষর কনভার্ট করুন',
     heroSub: 'ছবি ৩০০×৩০০ (≤১০০KB) · ছবি ২৫০×২৫০ (≤১০০KB) · স্বাক্ষর ৩০০×৮০ (≤৬০KB) · স্বাক্ষর ২৫০×৫০ (≤৬০KB)',
     heroPrivacy: '১০০% নিরাপদ · ব্রাউজারে প্রসেস · অফলাইন',
