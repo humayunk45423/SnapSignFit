@@ -351,7 +351,7 @@ export const translations = {
   }
 };
 
-let currentLang = 'en';
+let currentLang = 'bn';
 
 export function getLanguage() {
   return currentLang;
@@ -446,9 +446,12 @@ export function updateDOMTranslations() {
     el.setAttribute('aria-label', t(key));
   });
   
-  const langToggleBtn = document.getElementById('langToggleBtn');
-  if (langToggleBtn) {
-    langToggleBtn.textContent = currentLang === 'en' ? 'বাংলা' : 'English';
-  }
+  // Update lang toggle active state and pill position
+  const langEnSpan = document.querySelector('.lang-en');
+  const langBnSpan = document.querySelector('.lang-bn');
+  if (langEnSpan) langEnSpan.classList.toggle('active', currentLang === 'en');
+  if (langBnSpan) langBnSpan.classList.toggle('active', currentLang === 'bn');
+  const langBtn = document.getElementById('langToggleBtn');
+  if (langBtn) langBtn.classList.toggle('bn-active', currentLang === 'bn');
 }
 

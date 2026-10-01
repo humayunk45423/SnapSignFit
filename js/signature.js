@@ -469,11 +469,27 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     finalMask = dilateMask(keptMask, w, h, thickenPx);
   }
 
+  // Safety: if crop region is zero, return fallback
+  if (cropW <= 0 || cropH <= 0) {
+    const outCanvas = createCanvas(targetW, targetH);
+    const outCtx = outCanvas.getContext('2d');
+    outCtx.fillStyle = bgColor;
+    outCtx.fillRect(0, 0, targetW, targetH);
+    return {
+      success: false,
+      warning: 'warnNoSignature',
+      bbox: { x: 0, y: 0, w: Math.max(1, w), h: Math.max(1, h) },
+      components: [],
+      canvas: outCanvas,
+      inkAspect: 1.0
+    };
+  }
+
   // Step 8: Smooth composition
   // Alpha from norm: alpha = 1 - norm/255, contrast-stretched, gamma 0.8
-  const patchCanvas = createCanvas(cropW, cropH);
+  const patchCanvas = createCanvas(Math.max(1, cropW), Math.max(1, cropH));
   const patchCtx = patchCanvas.getContext('2d');
-  const patchImg = patchCtx.createImageData(cropW, cropH);
+  const patchImg = patchCtx.createImageData(Math.max(1, cropW), Math.max(1, cropH));
   const pData = patchImg.data;
 
   for (let py = 0; py < cropH; py++) {

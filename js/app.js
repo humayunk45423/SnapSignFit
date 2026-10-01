@@ -201,13 +201,10 @@ class SnapSignFitApp {
       savedTheme = localStorage.getItem('snapsignfit_theme');
     } catch (e) {}
 
-    if (savedTheme) {
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      this.updateThemeButtonIcon(savedTheme);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.updateThemeButtonIcon(prefersDark ? 'dark' : 'light');
-    }
+    // Default is always light; only use saved theme if the user explicitly set it
+    const theme = savedTheme || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    this.updateThemeButtonIcon(theme);
   }
 
   updateThemeButtonIcon(theme) {
@@ -238,6 +235,9 @@ class SnapSignFitApp {
       setLanguage(newLang);
       this.renderPresetsGrid();
       this.updateStatusReadout();
+      // Sync pill animation class
+      const btn = document.getElementById('langToggleBtn');
+      if (btn) btn.classList.toggle('bn-active', newLang === 'bn');
     });
 
     document.getElementById('themeToggleBtn').addEventListener('click', () => this.toggleTheme());

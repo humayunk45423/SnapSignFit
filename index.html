@@ -36,10 +36,12 @@
         <span class="nav-badge-offline">100% Offline</span>
       </nav>
       <div class="header-actions">
-        <button type="button" class="btn btn-secondary btn-sm seg-lang-btn" id="langToggleBtn"
+        <button type="button" class="btn btn-secondary btn-sm lang-toggle-pill" id="langToggleBtn"
           aria-label="Switch Language">
-          <span class="lang-en active">EN</span>
-          <span class="lang-sep">|</span>
+          <span class="lang-pill-track">
+            <span class="lang-pill-thumb"></span>
+          </span>
+          <span class="lang-en">EN</span>
           <span class="lang-bn">বাংলা</span>
         </button>
         <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn"
@@ -154,9 +156,14 @@
 
     <!-- Value Features Strip -->
     <section class="feature-strip" id="how">
-      <article><b>1</b><div><h3>Exact Pixel Dimensions</h3><p>Strictly resizes to 300×300 px for portraits and 300×80 px for signatures. Zero stretch or distortion.</p></div></article>
-      <article><b>2</b><div><h3>Automatic File Size Lock</h3><p>Calculates exact JPEG compression so photo is under 100 KB and signature is under 60 KB every time.</p></div></article>
-      <article><b>3</b><div><h3>Zero Server Storage</h3><p>Processing happens locally in HTML5 Canvas. Your signature and face never leave your device.</p></div></article>
+      <div class="feature-strip-header">
+        <h2 class="feature-strip-title">How it works</h2>
+      </div>
+      <div class="feature-cards">
+        <article><b>1</b><div><h3>Exact Pixel Dimensions</h3><p>Strictly resizes to 300×300 px for portraits and 300×80 px for signatures. Zero stretch or distortion.</p></div></article>
+        <article><b>2</b><div><h3>Automatic File Size Lock</h3><p>Calculates exact JPEG compression so photo is under 100 KB and signature is under 60 KB every time.</p></div></article>
+        <article><b>3</b><div><h3>Zero Server Storage</h3><p>Processing happens locally in HTML5 Canvas. Your signature and face never leave your device.</p></div></article>
+      </div>
     </section>
 
     <!-- Workspace (Visible after image loaded) -->

@@ -1931,12 +1931,27 @@ body.has-image .feature-strip,
 
 /* ── Feature Strip ──────────────────────────────── */
 .feature-strip {
+  padding-block: 36px;
+  max-width: 1240px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.feature-strip-header {
+  margin-bottom: 24px;
+}
+
+.feature-strip-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.feature-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  padding-block: 36px;
-  max-width: 1080px;
-  margin-inline: auto;
   width: 100%;
 }
 
@@ -1985,28 +2000,59 @@ body.has-image .feature-strip,
   color: var(--muted);
 }
 
-/* Lang segmented btn */
-.seg-lang-btn {
-  display: flex;
+/* Lang pill toggle */
+.lang-toggle-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding-inline: var(--s-3);
+  gap: 6px;
+  padding: 5px 10px 5px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  position: relative;
+  user-select: none;
+}
+
+.lang-pill-track {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background-color: var(--border-strong);
+  transition: background-color 0.25s var(--ease);
+  flex-shrink: 0;
+}
+
+.lang-toggle-pill.bn-active .lang-pill-track {
+  background-color: var(--accent);
+}
+
+.lang-pill-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #fff;
+  transition: transform 0.25s var(--ease);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.lang-toggle-pill.bn-active .lang-pill-thumb {
+  transform: translateX(12px);
 }
 
 .lang-en, .lang-bn {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--muted);
-  transition: color var(--t) var(--ease);
+  transition: color 0.2s var(--ease);
 }
 
 .lang-en.active, .lang-bn.active {
   color: var(--text);
-}
-
-.lang-sep {
-  color: var(--border-strong);
-  font-size: 12px;
+  font-weight: 700;
 }
 
 /* 6. Utilities */
@@ -2468,15 +2514,26 @@ body.has-image .feature-strip,
   }
 
   .feature-strip {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
     padding-block: 2px;
     margin-block: 6px;
-    border-top: none;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+  }
+
+  .feature-strip-header {
+    margin-bottom: 10px;
+  }
+
+  .feature-strip-title {
+    font-size: 15px;
+  }
+
+  .feature-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
   }
 
   .feature-strip article {
