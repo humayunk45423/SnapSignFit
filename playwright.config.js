@@ -8,10 +8,10 @@ module.exports = defineConfig({
   expect: {
     timeout: 10000
   },
-  fullyParallel: false, // Run sequentially for clear test reporting
+  outputDir: 'F:/Me & My Docs/1. Recent Projects/SnaSignFit extra files/SnapSignFit_Extra_Files/test-results',
   reporter: [
     ['list'],
-    ['json', { outputFile: 'tests/test-results.json' }]
+    ['json', { outputFile: 'F:/Me & My Docs/1. Recent Projects/SnaSignFit extra files/SnapSignFit_Extra_Files/test-results.json' }]
   ],
   webServer: {
     command: 'node ./tests/serve.cjs',
