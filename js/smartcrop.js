@@ -290,25 +290,29 @@ export function renderFitMode(sourceCanvas, targetW, targetH, options = {}) {
   }
 
   // Fit = 'cover' (with specified cropRect or center crop)
-  const rect = cropRect || {
-    x: 0,
-    y: 0,
-    w: sourceCanvas.width,
-    h: sourceCanvas.height
+  const rect = {
+    x: Math.round(cropRect?.x || 0),
+    y: Math.round(cropRect?.y || 0),
+    w: Math.max(1, Math.round(cropRect?.w || sourceCanvas.width)),
+    h: Math.max(1, Math.round(cropRect?.h || sourceCanvas.height))
   };
 
   const cropCanvas = createCanvas(rect.w, rect.h);
   const cCtx = cropCanvas.getContext('2d');
-  cCtx.drawImage(
-    sourceCanvas,
-    rect.x, rect.y, rect.w, rect.h,
-    0, 0, rect.w, rect.h
-  );
+  if (sourceCanvas.width > 0 && sourceCanvas.height > 0 && rect.w > 0 && rect.h > 0) {
+    cCtx.drawImage(
+      sourceCanvas,
+      rect.x, rect.y, rect.w, rect.h,
+      0, 0, rect.w, rect.h
+    );
+  }
 
   const downscaled = (rect.w > targetW * 1.5 || rect.h > targetH * 1.5)
     ? stepDownDownscale(cropCanvas, targetW, targetH)
     : cropCanvas;
 
-  ctx.drawImage(downscaled, 0, 0, targetW, targetH);
+  if (downscaled && downscaled.width > 0 && downscaled.height > 0) {
+    ctx.drawImage(downscaled, 0, 0, targetW, targetH);
+  }
   return out;
 }

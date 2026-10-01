@@ -335,15 +335,17 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     const outCtx = outCanvas.getContext('2d');
     outCtx.fillStyle = bgColor;
     outCtx.fillRect(0, 0, targetW, targetH);
-    const scale = Math.min(targetW / w, targetH / h);
-    const dw = Math.round(w * scale);
-    const dh = Math.round(h * scale);
-    outCtx.drawImage(sourceCanvas, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh);
+    if (w > 0 && h > 0 && sourceCanvas && sourceCanvas.width > 0 && sourceCanvas.height > 0) {
+      const scale = Math.min(targetW / w, targetH / h);
+      const dw = Math.max(1, Math.round(w * scale));
+      const dh = Math.max(1, Math.round(h * scale));
+      outCtx.drawImage(sourceCanvas, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh);
+    }
 
     return {
       success: false,
       warning: 'warnNoSignature',
-      bbox: { x: 0, y: 0, w, h },
+      bbox: { x: 0, y: 0, w: Math.max(1, w), h: Math.max(1, h) },
       components: [],
       canvas: outCanvas,
       inkAspect: 1.0
@@ -412,12 +414,23 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   }
 
   if (inkXs.length === 0) {
+    const outCanvas = createCanvas(targetW, targetH);
+    const outCtx = outCanvas.getContext('2d');
+    outCtx.fillStyle = bgColor;
+    outCtx.fillRect(0, 0, targetW, targetH);
+    if (w > 0 && h > 0 && sourceCanvas && sourceCanvas.width > 0 && sourceCanvas.height > 0) {
+      const scale = Math.min(targetW / w, targetH / h);
+      const dw = Math.max(1, Math.round(w * scale));
+      const dh = Math.max(1, Math.round(h * scale));
+      outCtx.drawImage(sourceCanvas, (targetW - dw) / 2, (targetH - dh) / 2, dw, dh);
+    }
     return {
       success: false,
       warning: 'warnNoSignature',
-      bbox: { x: 0, y: 0, w, h },
+      bbox: { x: 0, y: 0, w: Math.max(1, w), h: Math.max(1, h) },
       components: [],
-      canvas: sourceCanvas
+      canvas: outCanvas,
+      inkAspect: 1.0
     };
   }
 
@@ -506,9 +519,9 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   const availW = targetW - padW * 2;
   const availH = targetH - padH * 2;
 
-  const scale = Math.min(availW / cropW, availH / cropH);
-  const destW = Math.round(cropW * scale);
-  const destH = Math.round(cropH * scale);
+  const scale = Math.min(availW / Math.max(1, cropW), availH / Math.max(1, cropH));
+  const destW = Math.max(1, Math.round(cropW * scale));
+  const destH = Math.max(1, Math.round(cropH * scale));
   const destX = Math.round((targetW - destW) / 2);
   const destY = Math.round((targetH - destH) / 2);
 
@@ -527,7 +540,9 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
 
   outCtx.imageSmoothingEnabled = true;
   outCtx.imageSmoothingQuality = 'high';
-  outCtx.drawImage(downscaledPatch, destX, destY, destW, destH);
+  if (downscaledPatch && downscaledPatch.width > 0 && downscaledPatch.height > 0 && destW > 0 && destH > 0) {
+    outCtx.drawImage(downscaledPatch, destX, destY, destW, destH);
+  }
 
   // Check if stroke too thin at destination
   if (scale < 0.25) {

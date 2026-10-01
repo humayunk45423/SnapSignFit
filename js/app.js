@@ -920,18 +920,20 @@ class SnapSignFitApp {
     this.lastBeforeState = { sourceCanvas, faceBox, cropRect, kind };
     const cvs = document.getElementById('beforeCanvas');
     const vp = document.getElementById('beforeViewport');
-    if (!cvs || !vp || !sourceCanvas) return;
-    const maxW = vp.clientWidth || 360;
-    const maxH = vp.clientHeight || 280;
+    if (!cvs || !vp || !sourceCanvas || sourceCanvas.width <= 0 || sourceCanvas.height <= 0) return;
+    const maxW = Math.max(100, vp.clientWidth || 360);
+    const maxH = Math.max(100, vp.clientHeight || 280);
 
     const scale = Math.min(maxW / sourceCanvas.width, maxH / sourceCanvas.height);
-    const dw = Math.round(sourceCanvas.width * scale);
-    const dh = Math.round(sourceCanvas.height * scale);
+    const dw = Math.max(1, Math.round(sourceCanvas.width * scale));
+    const dh = Math.max(1, Math.round(sourceCanvas.height * scale));
 
     cvs.width = dw;
     cvs.height = dh;
     const ctx = cvs.getContext('2d');
-    ctx.drawImage(sourceCanvas, 0, 0, dw, dh);
+    if (sourceCanvas.width > 0 && sourceCanvas.height > 0 && dw > 0 && dh > 0) {
+      ctx.drawImage(sourceCanvas, 0, 0, dw, dh);
+    }
 
     // Overlay detected face box
     if (faceBox) {
@@ -949,7 +951,9 @@ class SnapSignFitApp {
   }
 
   drawAfterCanvas(exactCanvas) {
+    if (!exactCanvas || exactCanvas.width <= 0 || exactCanvas.height <= 0) return;
     const cvs = document.getElementById('afterCanvas');
+    if (!cvs) return;
     cvs.width = exactCanvas.width;
     cvs.height = exactCanvas.height;
     const ctx = cvs.getContext('2d');

@@ -689,8 +689,11 @@ export class ManualEditor {
   }
 
   commitCropToBitmap() {
-    if (!this.sourceCanvas) return;
-    const { x, y, w, h } = this.crop;
+    if (!this.sourceCanvas || this.sourceCanvas.width <= 0 || this.sourceCanvas.height <= 0) return;
+    if (!this.crop || !this.crop.w || !this.crop.h || this.crop.w <= 0 || this.crop.h <= 0) {
+      this.resetCropToCenter();
+    }
+    const { x = 0, y = 0, w = 1, h = 1 } = this.crop || {};
     const clampedW = Math.max(1, Math.round(w));
     const clampedH = Math.max(1, Math.round(h));
 
@@ -700,13 +703,18 @@ export class ManualEditor {
       pCtx.fillStyle = this.bgColor;
       pCtx.fillRect(0, 0, clampedW, clampedH);
     }
-    pCtx.drawImage(this.sourceCanvas, x, y, clampedW, clampedH, 0, 0, clampedW, clampedH);
+    if (this.sourceCanvas.width > 0 && this.sourceCanvas.height > 0 && clampedW > 0 && clampedH > 0) {
+      pCtx.drawImage(this.sourceCanvas, x, y, clampedW, clampedH, 0, 0, clampedW, clampedH);
+    }
     this.croppedCanvas = patch;
   }
 
   commitStep2ToBitmap() {
-    if (!this.croppedCanvas) this.commitCropToBitmap();
+    if (!this.croppedCanvas || this.croppedCanvas.width <= 0 || this.croppedCanvas.height <= 0) {
+      this.commitCropToBitmap();
+    }
     const bmp = this.croppedCanvas;
+    if (!bmp || bmp.width <= 0 || bmp.height <= 0) return;
     const totalDeg = this.rotation + this.straightenDeg;
 
     this.step3BaseCanvas = createCanvas(this.targetW, this.targetH);
@@ -728,7 +736,9 @@ export class ManualEditor {
     ctx.rotate((totalDeg * Math.PI) / 180);
     ctx.scale(scale * (this.flipH ? -1 : 1), scale * (this.flipV ? -1 : 1));
     ctx.translate(-cx - this.step2PanX, -cy - this.step2PanY);
-    ctx.drawImage(bmp, 0, 0);
+    if (bmp.width > 0 && bmp.height > 0) {
+      ctx.drawImage(bmp, 0, 0);
+    }
     ctx.restore();
 
     if (!this.maskCanvas || this.maskCanvas.width !== this.targetW || this.maskCanvas.height !== this.targetH) {
@@ -743,8 +753,8 @@ export class ManualEditor {
 
   open(sourceCanvas, targetW, targetH, initialCrop = null, preset = null, options = {}) {
     this.sourceCanvas = sourceCanvas;
-    this.targetW = targetW;
-    this.targetH = targetH;
+    this.targetW = Math.max(1, targetW || 300);
+    this.targetH = Math.max(1, targetH || 300);
     this.preset = preset;
     this.bgColor = options.bgColor || '#ffffff';
     this.transparent = options.transparent || false;
@@ -799,9 +809,9 @@ export class ManualEditor {
     this.updateZoomInputDisplay();
     this.updateBrushSizeInputDisplay();
     this.updateBrushHardnessInputDisplay();
-    this.overlayEl.querySelector('#editorDimText').textContent = `${targetW}×${targetH} px`;
+    this.overlayEl.querySelector('#editorDimText').textContent = `${this.targetW}×${this.targetH} px`;
 
-    if (initialCrop) {
+    if (initialCrop && initialCrop.w > 0 && initialCrop.h > 0) {
       this.crop = { ...initialCrop };
       this.autoDetectedCrop = { ...initialCrop };
     } else {

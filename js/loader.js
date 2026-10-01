@@ -127,26 +127,36 @@ async function loadUTIF() {
  * Step-down halving downscale to avoid aliasing artifacts
  */
 export function stepDownDownscale(sourceCanvas, targetW, targetH) {
+  const safeTargetW = Math.max(1, Math.round(targetW || 1));
+  const safeTargetH = Math.max(1, Math.round(targetH || 1));
+  if (!sourceCanvas || !sourceCanvas.width || !sourceCanvas.height || sourceCanvas.width <= 0 || sourceCanvas.height <= 0) {
+    return createCanvas(safeTargetW, safeTargetH);
+  }
   let curW = sourceCanvas.width;
   let curH = sourceCanvas.height;
   let curCanvas = sourceCanvas;
 
-  while (curW / 2 >= targetW && curH / 2 >= targetH) {
-    curW = Math.floor(curW / 2);
-    curH = Math.floor(curH / 2);
-    const stepCanvas = createCanvas(curW, curH);
+  while (curW / 2 >= safeTargetW && curH / 2 >= safeTargetH) {
+    const nextW = Math.max(1, Math.floor(curW / 2));
+    const nextH = Math.max(1, Math.floor(curH / 2));
+    if (nextW <= 0 || nextH <= 0) break;
+    const stepCanvas = createCanvas(nextW, nextH);
     const ctx = stepCanvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(curCanvas, 0, 0, curW, curH);
+    ctx.drawImage(curCanvas, 0, 0, nextW, nextH);
     curCanvas = stepCanvas;
+    curW = nextW;
+    curH = nextH;
   }
 
-  const finalCanvas = createCanvas(targetW, targetH);
+  const finalCanvas = createCanvas(safeTargetW, safeTargetH);
   const finalCtx = finalCanvas.getContext('2d');
   finalCtx.imageSmoothingEnabled = true;
   finalCtx.imageSmoothingQuality = 'high';
-  finalCtx.drawImage(curCanvas, 0, 0, targetW, targetH);
+  if (curCanvas && curCanvas.width > 0 && curCanvas.height > 0) {
+    finalCtx.drawImage(curCanvas, 0, 0, safeTargetW, safeTargetH);
+  }
   return finalCanvas;
 }
 
