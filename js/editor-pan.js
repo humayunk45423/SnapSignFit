@@ -33,7 +33,12 @@ export function resetEditorPan() { ox = oy = 0; apply(); }
 export function setHandTool(on) {       // call from a "Hand" button on touch devices
   handTool = !!on; paintCursor();
 }
-window.__editorPan = { reset: resetEditorPan, setHandTool };
+window.__editorPan = {
+  reset: resetEditorPan,
+  setHandTool,
+  isActive:  () => space || handTool,
+  isPanning: () => panning
+};
 
 function paintCursor() {
   const c = canvas(); if (!c) return;

@@ -499,7 +499,8 @@ export class ManualEditor {
       this.requestRender();
     });
 
-    // Keyboard Shortcuts (Ctrl+Z, Ctrl+Shift+Z, Esc, Enter, Space pan)
+    // Keyboard Shortcuts (Ctrl+Z, Ctrl+Shift+Z, Esc, Enter)
+    // NOTE: Space pan is handled exclusively by editor-pan.js — do NOT re-add Space handling here.
     window.addEventListener('keydown', (e) => {
       if (this.overlayEl.classList.contains('hidden')) return;
       if (e.target.tagName === 'INPUT') return;
@@ -512,18 +513,6 @@ export class ManualEditor {
         this.close();
       } else if (e.key === 'Enter') {
         this.apply();
-      } else if (e.code === 'Space') {
-        if (!e.repeat) {
-          this.isSpaceHeld = true;
-          this.editorCanvas?.classList.add('is-space-held');
-        }
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space') {
-        this.isSpaceHeld = false;
-        this.editorCanvas?.classList.remove('is-space-held');
       }
     });
 
@@ -1404,25 +1393,13 @@ export class ManualEditor {
 
   // Pointer interactions
   onPointerDown(e) {
+    // editor-pan.js owns Space+drag and Hand-tool panning exclusively.
+    // If it is active, do NOT start any crop/brush/pan interaction here.
+    if (window.__editorPan?.isActive()) return;
+
     const rect = this.editorCanvas.getBoundingClientRect();
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
-
-    if (this.isSpaceHeld || e.button === 1) {
-      this.isSpacePanning = true;
-      this.dragStart = { x: px, y: py };
-      this.spacePanStart = {
-        offsetX: this.displayOffsetX,
-        offsetY: this.displayOffsetY,
-        step2PanX: this.step2PanX,
-        step2PanY: this.step2PanY
-      };
-      this.editorCanvas.classList.add('is-panning');
-      try {
-        this.editorCanvas.setPointerCapture(e.pointerId);
-      } catch (err) {}
-      return;
-    }
 
     if (this.currentStep === 1) {
       const scale = this.displayScale;
@@ -1495,23 +1472,12 @@ export class ManualEditor {
   }
 
   onPointerMove(e) {
+    // editor-pan.js handles all movement while panning — skip our own move logic.
+    if (window.__editorPan?.isPanning()) return;
+
     const rect = this.editorCanvas.getBoundingClientRect();
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
-
-    if (this.isSpacePanning) {
-      const dx = px - this.dragStart.x;
-      const dy = py - this.dragStart.y;
-      if (this.currentStep === 1 || this.currentStep === 3) {
-        this.displayOffsetX = this.spacePanStart.offsetX + dx;
-        this.displayOffsetY = this.spacePanStart.offsetY + dy;
-      } else if (this.currentStep === 2) {
-        this.step2PanX = this.spacePanStart.step2PanX + Math.round(dx / this.displayScale);
-        this.step2PanY = this.spacePanStart.step2PanY + Math.round(dy / this.displayScale);
-      }
-      this.requestRender();
-      return;
-    }
 
     if (this.currentStep === 1) {
       if (!this.isDragging && !this.isResizing) {
@@ -1611,17 +1577,6 @@ export class ManualEditor {
   }
 
   onPointerUp(e) {
-    if (this.isSpacePanning) {
-      this.isSpacePanning = false;
-      this.editorCanvas.classList.remove('is-panning');
-      if (this.isSpaceHeld) {
-        this.editorCanvas.classList.add('is-space-held');
-      }
-      try {
-        this.editorCanvas.releasePointerCapture(e.pointerId);
-      } catch (err) {}
-      return;
-    }
 
     if (this.currentStep === 2 && this.straightenToolActive && this.straightenLineStart && this.straightenLineEnd) {
       const dx = this.straightenLineEnd.x - this.straightenLineStart.x;
