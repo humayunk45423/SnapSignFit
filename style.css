@@ -1927,25 +1927,49 @@ body.dark .site-footer {
   transform: translateY(-1px);
 }
 
+.hero-ctas #btnViewPresetsHero,
+.hero-ctas .btn-preset-pill,
 .hero-ctas .btn-ghost {
-  padding: 11px 16px;
+  padding: 11px 22px;
   height: 46px;
   border-radius: 999px;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
+  background: transparent;
+  color: var(--text);
+  border: 1.5px solid rgba(99, 102, 241, 0.45);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  gap: 8px;
+  cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
 }
 
+[data-theme="dark"] .hero-ctas #btnViewPresetsHero,
+body.dark .hero-ctas #btnViewPresetsHero,
+[data-theme="dark"] .hero-ctas .btn-preset-pill,
+body.dark .hero-ctas .btn-preset-pill {
+  border-color: rgba(129, 140, 248, 0.45);
+}
+
+.hero-ctas #btnViewPresetsHero:hover,
+.hero-ctas .btn-preset-pill:hover,
 .hero-ctas .btn-ghost:hover {
-  color: var(--text);
-  background: var(--surface-2);
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+
+.hero-ctas #btnViewPresetsHero:hover svg,
+.hero-ctas .btn-preset-pill:hover svg,
+.hero-ctas .btn-ghost:hover svg {
+  stroke: #ffffff;
 }
 
 /* Hero chip row (preset quick-picks) */
@@ -2994,10 +3018,12 @@ body.dark .site-footer {
 .preset-popup-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 12px;
   padding: 20px 24px;
   overflow-y: auto;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
 }
@@ -3020,8 +3046,9 @@ body.dark .site-footer {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: stretch;
   gap: 4px;
-  padding: 13px 15px;
+  padding: 14px 16px;
   border-radius: 12px;
   border: 1.5px solid var(--border);
   background-color: var(--surface);
@@ -3029,8 +3056,8 @@ body.dark .site-footer {
   transition: all 0.18s ease;
   position: relative;
   box-sizing: border-box;
-  height: auto;
-  min-height: 0;
+  min-height: 84px;
+  height: 100%;
   overflow: visible;
   word-break: break-word;
 }
@@ -3070,6 +3097,7 @@ body.dark .site-footer {
   padding: 2px 8px;
   width: fit-content;
   margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 [data-theme="dark"] .ppc-badge,
@@ -3086,6 +3114,7 @@ body.dark .ppc-badge {
   letter-spacing: 0.05em;
   color: var(--muted);
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .ppc-label {
@@ -3119,17 +3148,26 @@ body.dark .ppc-badge {
   margin-top: 2px;
 }
 
+.preset-popup-footer {
+  width: 100%;
+  flex-shrink: 0;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  z-index: 5;
+}
+
 .preset-popup-hint {
   font-size: 12.5px;
   color: var(--muted);
   text-align: center;
-  padding: 14px 24px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-  background: var(--surface-2);
-  width: 100%;
-  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+  width: 100%;
   display: block;
 }
 
@@ -3302,34 +3340,45 @@ body.dark .ppc-badge {
 
   .preset-popup-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: max-content;
+    align-content: start;
     padding: 12px 14px;
     gap: 10px;
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
   .preset-popup-card {
-    padding: 12px 12px;
-    gap: 3px;
-    height: auto;
-    min-height: 0;
+    padding: 12px 14px;
+    gap: 4px;
+    min-height: 76px;
+    height: 100%;
     overflow: visible;
   }
 
-  .preset-popup-hint {
+  .preset-popup-footer {
     padding: 10px 16px 14px;
+  }
+
+  .preset-popup-hint {
     font-size: 11.5px;
-    width: 100%;
-    box-sizing: border-box;
   }
 }
 
 @media (max-width: 480px) {
   .preset-popup-grid {
     grid-template-columns: 1fr;
+    grid-auto-rows: max-content;
+    align-content: start;
     padding: 10px 14px;
-    gap: 8px;
+    gap: 10px;
+  }
+
+  .preset-popup-card {
+    padding: 12px 14px;
+    gap: 4px;
+    min-height: 76px;
   }
 }
