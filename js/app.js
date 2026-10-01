@@ -324,14 +324,8 @@ class SnapSignFitApp {
   attachDOMEvents() {
     const langBtn = document.getElementById('langToggleBtn');
     if (langBtn) {
-      langBtn.addEventListener('click', (e) => {
-        const opt = e.target.closest('.toggle-opt');
-        let newLang;
-        if (opt && opt.dataset.val) {
-          newLang = opt.dataset.val;
-        } else {
-          newLang = getLanguage() === 'en' ? 'bn' : 'en';
-        }
+      langBtn.addEventListener('click', () => {
+        const newLang = getLanguage() === 'en' ? 'bn' : 'en';
         setLanguage(newLang);
         this.renderPresetsGrid();
         this.updateStatusReadout();
@@ -340,18 +334,8 @@ class SnapSignFitApp {
 
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) {
-      themeBtn.addEventListener('click', (e) => {
-        const opt = e.target.closest('.toggle-opt');
-        if (opt && opt.dataset.val) {
-          const targetTheme = opt.dataset.val;
-          document.documentElement.setAttribute('data-theme', targetTheme);
-          try {
-            localStorage.setItem('snapsignfit_theme', targetTheme);
-          } catch (err) {}
-          this.updateThemeButtonIcon(targetTheme);
-        } else {
-          this.toggleTheme();
-        }
+      themeBtn.addEventListener('click', () => {
+        this.toggleTheme();
       });
     }
 
