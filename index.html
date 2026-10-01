@@ -36,10 +36,15 @@
         <span class="nav-badge-offline">100% Offline</span>
       </nav>
       <div class="header-actions">
-        <div class="lang-toggle-group" id="langToggleBtn" role="group" aria-label="Language Selector">
-          <button type="button" class="lang-btn lang-en" id="langBtnEn" data-lang="en">EN</button>
-          <button type="button" class="lang-btn lang-bn active" id="langBtnBn" data-lang="bn">বাংলা</button>
-        </div>
+        <button type="button" class="btn btn-secondary btn-sm" id="langToggleBtn"
+          aria-label="Toggle Language">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+            <path d="M2 12h20"></path>
+          </svg>
+          <span id="langToggleLabel">English</span>
+        </button>
         <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn"
           aria-label="Toggle Dark/Light Mode">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide-moon" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>

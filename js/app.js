@@ -229,23 +229,13 @@ class SnapSignFitApp {
   }
 
   attachDOMEvents() {
-    const switchLang = (targetLang) => {
-      const newLang = targetLang || (getLanguage() === 'en' ? 'bn' : 'en');
-      setLanguage(newLang);
-      this.renderPresetsGrid();
-      this.updateStatusReadout();
-    };
-
-    const btnEn = document.getElementById('langBtnEn');
-    const btnBn = document.getElementById('langBtnBn');
-    if (btnEn) btnEn.addEventListener('click', (e) => { e.stopPropagation(); switchLang('en'); });
-    if (btnBn) btnBn.addEventListener('click', (e) => { e.stopPropagation(); switchLang('bn'); });
-
-    const langContainer = document.getElementById('langToggleBtn');
-    if (langContainer) {
-      langContainer.addEventListener('click', (e) => {
-        if (e.target.id === 'langBtnEn' || e.target.id === 'langBtnBn') return;
-        switchLang();
+    const langBtn = document.getElementById('langToggleBtn');
+    if (langBtn) {
+      langBtn.addEventListener('click', () => {
+        const newLang = getLanguage() === 'en' ? 'bn' : 'en';
+        setLanguage(newLang);
+        this.renderPresetsGrid();
+        this.updateStatusReadout();
       });
     }
 

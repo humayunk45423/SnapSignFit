@@ -446,16 +446,10 @@ export function updateDOMTranslations() {
     el.setAttribute('aria-label', t(key));
   });
   
-  // Update lang toggle active state
-  const langEnBtn = document.getElementById('langBtnEn') || document.querySelector('.lang-en');
-  const langBnBtn = document.getElementById('langBtnBn') || document.querySelector('.lang-bn');
-  if (langEnBtn) {
-    langEnBtn.classList.toggle('active', currentLang === 'en');
-    langEnBtn.setAttribute('aria-pressed', currentLang === 'en' ? 'true' : 'false');
-  }
-  if (langBnBtn) {
-    langBnBtn.classList.toggle('active', currentLang === 'bn');
-    langBnBtn.setAttribute('aria-pressed', currentLang === 'bn' ? 'true' : 'false');
+  // Update lang toggle label on single toggle button
+  const langLabel = document.getElementById('langToggleLabel');
+  if (langLabel) {
+    langLabel.textContent = currentLang === 'bn' ? 'English' : 'বাংলা';
   }
 }
 
