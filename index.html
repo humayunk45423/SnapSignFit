@@ -67,9 +67,36 @@
           <p class="hero-sub" data-i18n="heroSub">Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 60KB)</p>
 
           <div class="hero-ctas">
-            <button type="button" class="btn btn-accent" id="heroUploadPhoto">Upload Photo</button>
-            <button type="button" class="btn btn-secondary" id="heroUploadSig">Upload Signature</button>
-            <a class="btn-ghost" href="#presetChips">View Presets</a>
+            <button type="button" class="btn btn-accent" id="heroUploadPhoto">
+              <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                <circle cx="9" cy="9" r="2"></circle>
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+              </svg>
+              <span>Upload Photo</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="heroUploadSig">
+              <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                <path d="M2 2l7.586 7.586"></path>
+              </svg>
+              <span>Upload Signature</span>
+            </button>
+            <a class="btn-ghost" href="#presetChips">
+              <svg class="lucide-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="4" x2="4" y1="21" y2="14"></line>
+                <line x1="4" x2="4" y1="10" y2="3"></line>
+                <line x1="12" x2="12" y1="21" y2="12"></line>
+                <line x1="12" x2="12" y1="8" y2="3"></line>
+                <line x1="20" x2="20" y1="21" y2="16"></line>
+                <line x1="20" x2="20" y1="12" y2="3"></line>
+                <line x1="1" x2="7" y1="14" y2="14"></line>
+                <line x1="9" x2="15" y1="8" y2="8"></line>
+                <line x1="17" x2="23" y1="16" y2="16"></line>
+              </svg>
+              <span>View Presets</span>
+            </a>
           </div>
 
           <div class="chip-row" id="presetChips">
@@ -99,7 +126,12 @@
             <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or take a photo</div>
 
             <div class="dropzone-actions">
-              <button type="button" class="btn btn-primary" id="btnChooseFile" data-i18n="chooseFile">Choose File</button>
+              <button type="button" class="btn btn-primary" id="btnChooseFile" data-i18n="chooseFile">
+                <svg class="lucide-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                </svg>
+                <span>Choose File</span>
+              </button>
               <button type="button" class="btn btn-secondary" id="btnTakePhoto" data-i18n="takePhoto">Take Photo</button>
             </div>
 
