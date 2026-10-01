@@ -193,7 +193,7 @@ class SnapSignFitApp {
         card.setAttribute('tabindex', '0');
         const kindLabel = t(`kind${preset.kind.charAt(0).toUpperCase() + preset.kind.slice(1)}`) || preset.kind;
         const badgeHtml = preset.locked
-          ? `<span class="ppc-badge"><i class="fa-solid fa-star" style="color: #f59e0b; margin-right: 4px;"></i> ${t('govOfficialBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`
+          ? `<span class="ppc-badge"><i class="fa-solid fa-star" style="color: #818cf8; margin-right: 4px;"></i> ${t('govOfficialBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`
           : '';
         card.innerHTML = `
           ${badgeHtml}

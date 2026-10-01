@@ -9,7 +9,10 @@ $('heroUploadSig')?.addEventListener('click', () => { setKind('signature'); file
 $('heroTabPhoto')?.addEventListener('click', () => setKind('photo'));
 $('heroTabSig')?.addEventListener('click', () => setKind('signature'));
 
+let currentKind = 'photo';
+
 export function setKind(kind) {
+  currentKind = kind;
   const photo = kind === 'photo';
   $('heroTabPhoto')?.classList.toggle('active', photo);
   $('heroTabPhoto')?.setAttribute('aria-selected', photo);
@@ -17,13 +20,24 @@ export function setKind(kind) {
   $('heroTabSig')?.setAttribute('aria-selected', !photo);
   const specName = $('heroSpecName');
   const specValue = $('heroSpecValue');
-  if (specName) specName.textContent = photo ? 'BCS Photo Spec' : 'Teletalk Signature Spec';
-  if (specValue) specValue.textContent = photo ? '300×300 px (≤ 100 KB)' : '300×80 px (≤ 60 KB)';
+  const isBn = document.documentElement.lang === 'bn';
+  if (specName) {
+    specName.setAttribute('data-i18n', photo ? 'specBcsPhoto' : 'specTeletalkSig');
+    specName.textContent = isBn ? (photo ? 'বিসিএস ছবির স্পেক' : 'টেলিটক স্বাক্ষরের স্পেক') : (photo ? 'BCS Photo Spec' : 'Teletalk Signature Spec');
+  }
+  if (specValue) {
+    specValue.setAttribute('data-i18n', photo ? 'specBcsPhotoVal' : 'specTeletalkSigVal');
+    specValue.textContent = isBn ? (photo ? '৩০০×৩০০ px (≤ ১০০ KB)' : '৩০০×৮০ px (≤ ৬০ KB)') : (photo ? '300×300 px (≤ 100 KB)' : '300×80 px (≤ 60 KB)');
+  }
   // Tell app.js which preset to preselect for the next upload:
   document.dispatchEvent(new CustomEvent('snapsignfit:preset', {
     detail: photo ? { w: 300, h: 300, maxKB: 99, kind: 'photo' } : { w: 300, h: 80, maxKB: 60, kind: 'signature' }
   }));
 }
+
+window.addEventListener('snapsignfit:lang', () => {
+  setKind(currentKind);
+});
 
 // Preset chips behave the same way
 document.querySelectorAll('#presetChips .chip').forEach(c => c.addEventListener('click', () => {

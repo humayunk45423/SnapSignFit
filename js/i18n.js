@@ -54,6 +54,18 @@ export const translations = {
     heroTitle: 'Resize your photo & signature to Bangladesh Government form presets.',
     heroSub: 'Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 50KB)',
     heroPrivacy: '100% private · runs in your browser · works offline',
+    heroBtnUploadPhoto: 'Upload Photo',
+    heroBtnUploadSig: 'Upload Signature',
+    heroBtnViewPresets: 'View Presets',
+    chipBcsPhoto: 'BCS 300×300',
+    chipTeletalkSig: 'Teletalk Sign 300×80',
+    chipPassport: 'E-Passport 45×55mm',
+    tabPhoto300: 'Photo (300×300)',
+    tabSig300: 'Signature (300×80)',
+    specBcsPhoto: 'BCS Photo Spec',
+    specTeletalkSig: 'Teletalk Signature Spec',
+    specBcsPhotoVal: '300×300 px (≤ 100 KB)',
+    specTeletalkSigVal: '300×80 px (≤ 60 KB)',
     dropzoneTitle: 'Drop your photo or signature here',
     dropzoneSubtitle: 'or click to browse from device, paste (Ctrl+V), or take a photo',
     chooseFile: 'Choose File',
@@ -246,6 +258,18 @@ export const translations = {
     heroTitle: 'সরকারি ফর্মের সাইজে ছবি ও স্বাক্ষর কনভার্ট করুন',
     heroSub: 'ছবি ৩০০×৩০০ (≤১০০KB) · ছবি ২৫০×২৫০ (≤১০০KB) · স্বাক্ষর ৩০০×৮০ (≤৬০KB) · স্বাক্ষর ২৫০×৫০ (≤৫০KB)',
     heroPrivacy: '১০০% নিরাপদ · ব্রাউজারে প্রসেস · অফলাইন',
+    heroBtnUploadPhoto: 'ছবি আপলোড',
+    heroBtnUploadSig: 'স্বাক্ষর আপলোড',
+    heroBtnViewPresets: 'প্রিসেট দেখুন',
+    chipBcsPhoto: 'বিসিএস ৩০০×৩০০',
+    chipTeletalkSig: 'টেলিটক স্বাক্ষর ৩০০×৮০',
+    chipPassport: 'ই-পাসপোর্ট ৪৫×৫৫ মিমি',
+    tabPhoto300: 'ছবি (৩০০×৩০০)',
+    tabSig300: 'স্বাক্ষর (৩০০×৮০)',
+    specBcsPhoto: 'বিসিএস ছবির স্পেক',
+    specTeletalkSig: 'টেলিটক স্বাক্ষরের স্পেক',
+    specBcsPhotoVal: '৩০০×৩০০ px (≤ ১০০ KB)',
+    specTeletalkSigVal: '৩০০×৮০ px (≤ ৬০ KB)',
     dropzoneTitle: 'ছবি বা স্বাক্ষর এখানে ড্রপ করুন',
     dropzoneSubtitle: 'বা ফাইল নির্বাচন / ক্যামেরা দিয়ে তুলুন',
     chooseFile: 'ফাইল নির্বাচন',
@@ -417,6 +441,7 @@ export function setLanguage(lang) {
       // localStorage may be disabled
     }
     updateDOMTranslations();
+    window.dispatchEvent(new CustomEvent('snapsignfit:lang', { detail: { lang } }));
   }
 }
 
@@ -428,6 +453,7 @@ export function initLanguage() {
     }
   } catch (e) {}
   updateDOMTranslations();
+  window.dispatchEvent(new CustomEvent('snapsignfit:lang', { detail: { lang: currentLang } }));
 }
 
 export function t(key, params = {}) {
