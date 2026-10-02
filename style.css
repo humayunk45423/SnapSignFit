@@ -2763,16 +2763,50 @@ body.dark .chip-row .chip {
 
 /* Segmented control */
 .seg {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   background-color: var(--surface-2);
   border-radius: 999px;
   padding: 4px;
   border: 1px solid var(--border);
-  gap: 4px;
+  gap: 0;
+  box-sizing: border-box;
+}
+
+/* Sliding pill indicator for Photo / Signature */
+.seg-slider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 2);
+  height: calc(100% - 8px);
+  border-radius: 999px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.25s ease,
+              box-shadow 0.25s ease;
+  will-change: transform;
+  z-index: 1;
+}
+
+[data-theme="dark"] .seg-slider,
+body.dark .seg-slider {
+  background-color: #27272f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45), 0 0 12px rgba(255, 255, 255, 0.05);
+}
+
+.seg[data-state="right"] .seg-slider {
+  transform: translateX(100%);
 }
 
 .seg-btn {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2783,22 +2817,23 @@ body.dark .chip-row .chip {
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
-  transition: all 0.2s ease;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: color 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .seg-btn.active {
-  background-color: var(--surface);
   color: var(--text);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+  font-weight: 700;
 }
 
 [data-theme="dark"] .seg-btn.active,
 body.dark .seg-btn.active {
-  background-color: #27272f;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .seg-btn:not(.active):hover {
@@ -3432,18 +3467,27 @@ body.dark .feature-strip-dot {
   }
 
   .seg {
-    display: flex;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
     box-sizing: border-box;
     border-radius: 999px;
     padding: 3px;
     background-color: var(--surface-2);
     border: 1px solid var(--border);
-    gap: 4px;
+    gap: 0;
+  }
+
+  .seg-slider {
+    top: 3px;
+    left: 3px;
+    width: calc((100% - 6px) / 2);
+    height: calc(100% - 6px);
   }
 
   .seg-btn {
-    flex: 1 1 0;
+    flex: none;
     min-width: 0;
     border-radius: 999px;
     padding: 6px 4px;
@@ -3454,11 +3498,16 @@ body.dark .feature-strip-dot {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .seg-btn.active {
-    background-color: var(--surface);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--text);
+    font-weight: 700;
   }
 
   .dropzone {

@@ -28,6 +28,10 @@ let currentKind = 'photo';
 export function setKind(kind) {
   currentKind = kind;
   const photo = kind === 'photo';
+  const seg = $('heroSegTabs') || $('heroTabPhoto')?.closest('.seg');
+  if (seg) {
+    seg.setAttribute('data-state', photo ? 'left' : 'right');
+  }
   $('heroTabPhoto')?.classList.toggle('active', photo);
   $('heroTabPhoto')?.setAttribute('aria-selected', photo);
   $('heroTabSig')?.classList.toggle('active', !photo);
@@ -59,12 +63,14 @@ window.addEventListener('snapsignfit:lang', () => {
 document.querySelectorAll('#presetChips .chip').forEach(c => c.addEventListener('click', () => {
   const { w, h, kb, preset } = c.dataset;
   navigator.vibrate?.(15);
+  const kind = +h <= 100 ? 'signature' : 'photo';
+  setKind(kind);
   document.dispatchEvent(new CustomEvent('snapsignfit:preset', {
     detail: {
       w: +w,
       h: +h,
       maxKB: +kb,
-      kind: +h <= 100 ? 'signature' : 'photo',
+      kind,
       preset: preset || undefined
     }
   }));
