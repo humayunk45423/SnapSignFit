@@ -185,6 +185,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
   overflow-wrap: anywhere;
   overflow-x: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Font Awesome protection from language font-family overrides */
@@ -207,6 +212,28 @@ body {
   flex-direction: column;
   overflow-x: hidden;
   background-color: var(--bg);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Prevent ghost dragging on images and canvases */
+img, svg, canvas {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* Maintain text selection for form inputs and editable controls */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
 }
 
 /* Ensure flex children don't overflow parent containers */
