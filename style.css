@@ -33,23 +33,6 @@
   --t: 140ms;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0B0B0C;
-    --surface: #141416;
-    --surface-2: #1B1B1E;
-    --border: #26262A;
-    --border-strong: #334155;
-    --text: #F8FAFC;
-    --muted: #94A3B8;
-    --accent: #6366F1;
-    --accent-hover: #818CF8;
-    --accent-fg: #0B0B0C;
-    --ok: #4ADE80;
-    --warn: #FBBF24;
-    --danger: #F87171;
-  }
-}
 
 :root[data-theme="dark"] {
   --bg: #0B0B0C;
@@ -991,8 +974,7 @@ body.dark .card-gov:hover {
 }
 
 [data-theme="dark"] .preset-card-badge,
-body.dark .preset-card-badge,
-:root:not([data-theme="light"]) .preset-card-badge {
+body.dark .preset-card-badge {
   color: #e0e7ff;
   background: rgba(99, 102, 241, 0.22);
   border-color: rgba(165, 180, 252, 0.45);
@@ -1168,8 +1150,7 @@ i.fa-star.star-gradient,
 }
 
 [data-theme="dark"] .active-preset-pill,
-body.dark .active-preset-pill,
-:root:not([data-theme="light"]) .active-preset-pill {
+body.dark .active-preset-pill {
   color: #e0e7ff;
   background: rgba(99, 102, 241, 0.22);
   border-color: rgba(165, 180, 252, 0.45);
@@ -1179,9 +1160,7 @@ body.dark .active-preset-pill,
 [data-theme="dark"] .active-preset-pill:hover,
 [data-theme="dark"] .active-preset-pill.open,
 body.dark .active-preset-pill:hover,
-body.dark .active-preset-pill.open,
-:root:not([data-theme="light"]) .active-preset-pill:hover,
-:root:not([data-theme="light"]) .active-preset-pill.open {
+body.dark .active-preset-pill.open {
   background: rgba(99, 102, 241, 0.32);
   border-color: #a5b4fc;
   box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
@@ -1401,8 +1380,7 @@ body.dark .active-preset-pill.open,
 }
 
 [data-theme="dark"] .preview-pane-dims-sub,
-body.dark .preview-pane-dims-sub,
-:root:not([data-theme="light"]) .preview-pane-dims-sub {
+body.dark .preview-pane-dims-sub {
   color: #c7d2fe;
   background: rgba(99, 102, 241, 0.16);
   border-color: rgba(165, 180, 252, 0.3);
@@ -2561,10 +2539,8 @@ body.dark .site-footer {
   font-size: 0.9em;
 }
 
-:root[data-theme="dark"] .hero-badge,
 [data-theme="dark"] .hero-badge,
-body.dark .hero-badge,
-:root:not([data-theme="light"]) .hero-badge {
+body.dark .hero-badge {
   color: #ffffff !important;
   background-color: rgba(99, 102, 241, 0.22) !important;
   border-color: rgba(165, 180, 252, 0.55) !important;
@@ -2573,8 +2549,7 @@ body.dark .hero-badge,
 
 :root[data-theme="dark"] .hero-badge i,
 [data-theme="dark"] .hero-badge i,
-body.dark .hero-badge i,
-:root:not([data-theme="light"]) .hero-badge i {
+body.dark .hero-badge i {
   color: #a5b4fc !important;
 }
 
@@ -2799,8 +2774,7 @@ body.dark .hero-ctas .btn-preset-pill {
 }
 
 [data-theme="dark"] .seg-btn.active,
-body.dark .seg-btn.active,
-:root:not([data-theme="light"]) .seg-btn.active {
+body.dark .seg-btn.active {
   background-color: #27272f;
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -2998,10 +2972,8 @@ body.dark .seg-btn.active,
   transition: all 0.3s ease;
 }
 
-:root[data-theme="dark"] .feature-strip-title,
 [data-theme="dark"] .feature-strip-title,
-body.dark .feature-strip-title,
-:root:not([data-theme="light"]) .feature-strip-title {
+body.dark .feature-strip-title {
   color: #ffffff !important;
   background: rgba(99, 102, 241, 0.22) !important;
   border-color: rgba(165, 180, 252, 0.55) !important;
@@ -3017,10 +2989,8 @@ body.dark .feature-strip-title,
   flex-shrink: 0;
 }
 
-:root[data-theme="dark"] .feature-strip-dot,
 [data-theme="dark"] .feature-strip-dot,
-body.dark .feature-strip-dot,
-:root:not([data-theme="light"]) .feature-strip-dot {
+body.dark .feature-strip-dot {
   background: #a5b4fc !important;
   box-shadow: 0 0 10px #a5b4fc !important;
 }
@@ -3924,15 +3894,13 @@ body.dark .feature-strip-dot,
 }
 
 [data-theme="dark"] .preset-popup-card.gov-card,
-body.dark .preset-popup-card.gov-card,
-:root:not([data-theme="light"]) .preset-popup-card.gov-card {
+body.dark .preset-popup-card.gov-card {
   border-color: rgba(129, 140, 248, 0.38);
   background: #141416;
 }
 
 [data-theme="dark"] .preset-popup-card.gov-card:hover,
-body.dark .preset-popup-card.gov-card:hover,
-:root:not([data-theme="light"]) .preset-popup-card.gov-card:hover {
+body.dark .preset-popup-card.gov-card:hover {
   border-color: #818cf8;
   background: #1c1c22;
   box-shadow: 0 0 20px rgba(99, 102, 241, 0.28);
@@ -3957,8 +3925,7 @@ body.dark .preset-popup-card.gov-card:hover,
 }
 
 [data-theme="dark"] .ppc-badge,
-body.dark .ppc-badge,
-:root:not([data-theme="light"]) .ppc-badge {
+body.dark .ppc-badge {
   color: #e0e7ff;
   background: rgba(99, 102, 241, 0.22);
   border-color: rgba(165, 180, 252, 0.45);
