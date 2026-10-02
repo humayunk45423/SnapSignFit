@@ -69,6 +69,7 @@ class SnapSignFitApp {
     this.populateActivePresetQuickSelect();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
+    window.addEventListener('resize', () => this.fitActivePresetPillText());
 
     // Safety net & space-pan support for preview viewports
     let isPreviewPanning = false;
@@ -721,14 +722,18 @@ class SnapSignFitApp {
     let html = `<optgroup label="★ ${govLabel}">`;
     govPresets.forEach(p => {
       const kbStr = p.maxKB ? ` (≤${p.maxKB}KB)` : '';
-      html += `<option value="${p.id}">${p.label}${kbStr} — ${p.w}×${p.h}</option>`;
+      let optText = `${p.label}${kbStr}`;
+      if (!p.label.includes('×') && !p.label.includes('mm') && !p.label.includes('in')) {
+        optText = `${p.label} (${p.w}×${p.h}${kbStr})`;
+      }
+      html += `<option value="${p.id}">${optText}</option>`;
     });
     html += `</optgroup>`;
 
     html += `<optgroup label="🌐 ${socialLabel}">`;
     socialPresets.forEach(p => {
-      const kbStr = p.maxKB ? ` (≤${p.maxKB}KB)` : '';
-      html += `<option value="${p.id}">${p.label}${kbStr} — ${p.w}×${p.h}</option>`;
+      let optText = `${p.label} (${p.w}×${p.h})`;
+      html += `<option value="${p.id}">${optText}</option>`;
     });
     html += `</optgroup>`;
 
@@ -745,6 +750,35 @@ class SnapSignFitApp {
         select.value = 'custom';
       } else {
         select.value = this.currentPreset.id;
+      }
+    }
+  }
+
+  fitActivePresetPillText() {
+    const pill = document.getElementById('activePresetPill');
+    const label = document.getElementById('activePresetLabel');
+    if (!pill || !label) return;
+
+    if (window.innerWidth > 640) {
+      label.style.fontSize = '';
+      return;
+    }
+
+    // On mobile devices: dynamically adjust font size so text covers exactly 1 line without wrapping or clipping
+    label.style.fontSize = '';
+    const star = pill.querySelector('.fa-star');
+    const chevron = pill.querySelector('.active-preset-chevron');
+    const starW = star ? star.getBoundingClientRect().width : 16;
+    const chevronW = chevron ? chevron.getBoundingClientRect().width : 12;
+    const pillW = pill.clientWidth;
+    const availableW = pillW - starW - chevronW - 32;
+
+    if (availableW > 60) {
+      let size = 12.5;
+      label.style.fontSize = `${size}px`;
+      while (label.scrollWidth > availableW && size > 9.5) {
+        size -= 0.5;
+        label.style.fontSize = `${size}px`;
       }
     }
   }
@@ -788,6 +822,8 @@ class SnapSignFitApp {
         select.value = preset.id;
       }
     }
+
+    this.fitActivePresetPillText();
   }
 
   selectPresetBySpec(spec) {

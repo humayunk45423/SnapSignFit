@@ -326,7 +326,10 @@
           <div class="preview-pane">
             <div class="preview-pane-header">
               <div class="preview-pane-heading-group">
-                <span class="preview-pane-title" data-i18n="before">Original &amp; Detection</span>
+                <div class="preview-pane-title-row">
+                  <span class="preview-pane-title" data-i18n="before">Original &amp; Detection</span>
+                  <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
+                </div>
                 <div class="active-preset-badge-wrap">
                   <div class="active-preset-pill" id="activePresetPill" title="Select or change preset">
                     <i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>
@@ -336,7 +339,6 @@
                   </div>
                 </div>
               </div>
-              <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
             </div>
             <div class="preview-viewport" id="beforeViewport">
               <canvas id="beforeCanvas"></canvas>
@@ -347,10 +349,14 @@
           <div class="preview-pane">
             <div class="preview-pane-header">
               <div class="preview-pane-heading-group">
-                <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
-                <span class="preview-pane-dims-sub" id="afterDimensionsReadout">300 × 300 px</span>
+                <div class="preview-pane-title-row">
+                  <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
+                </div>
+                <div class="preview-pane-dims-wrap">
+                  <span class="preview-pane-dims-sub" id="afterDimensionsReadout">300 × 300 px</span>
+                </div>
               </div>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
             </div>
             <div class="preview-viewport" id="afterViewport">
               <canvas id="afterCanvas"></canvas>
@@ -388,7 +394,7 @@
         <div class="settings-bar">
           <!-- Format -->
           <div class="settings-item">
-            <label class="form-label" data-i18n="format">Format:</label>
+            <label class="form-label" for="exportFormatSelect" data-i18n="format">Format</label>
             <select id="exportFormatSelect" class="form-select">
               <option value="jpg">JPG</option>
               <option value="png">PNG</option>
@@ -398,11 +404,11 @@
 
           <!-- Max Size Limit -->
           <div class="settings-item">
-            <label class="form-label" data-i18n="maxSize">Max size:</label>
+            <label class="form-label" for="exportMaxSizeSelect" data-i18n="maxSize">Max File Size</label>
             <select id="exportMaxSizeSelect" class="form-select">
               <option value="50">50 KB</option>
               <option value="60">60 KB</option>
-              <option value="99" selected>100 KB (Gov limit)</option>
+              <option value="99" selected>100 KB (Gov locked)</option>
               <option value="200">200 KB</option>
               <option value="500">500 KB</option>
               <option value="1000">1 MB</option>
@@ -413,7 +419,7 @@
 
           <!-- Fit Mode -->
           <div class="settings-item" id="fitModeGroup">
-            <label class="form-label" data-i18n="fitMode">Fit:</label>
+            <label class="form-label" for="exportFitSelect" data-i18n="fitMode">Fit Mode</label>
             <select id="exportFitSelect" class="form-select">
               <option value="cover" data-i18n="cover">Cover (Smart Crop)</option>
               <option value="contain" data-i18n="contain">Contain</option>
@@ -423,8 +429,8 @@
 
           <!-- Background Mode (Keep / Solid White / Light Blue / Light Gray / Solid Red / Custom / Remove AI / Transparent) -->
           <div class="settings-item" id="bgModeGroup">
-            <label class="form-label" data-i18n="bgMode">Background:</label>
-            <div class="bg-mode-select-wrap" style="display: inline-flex; align-items: center; gap: 6px;">
+            <label class="form-label" for="exportBgModeSelect" data-i18n="bgMode">Background Mode</label>
+            <div class="bg-mode-select-wrap">
               <select id="exportBgModeSelect" class="form-select">
                 <option value="keep" data-i18n="bgKeep">Keep Original</option>
                 <option value="white" data-i18n="bgWhite">Solid White</option>
@@ -435,30 +441,33 @@
                 <option value="remove" data-i18n="bgRemove">Remove AI</option>
                 <option value="transparent" data-i18n="bgTransparent">Transparent</option>
               </select>
-              <input type="color" id="exportCustomBgColor" value="#3b82f6" class="color-picker-input hidden" title="Pick custom background color" aria-label="Pick custom background color" style="width: 28px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
+              <input type="color" id="exportCustomBgColor" value="#3b82f6" class="color-picker-input hidden" title="Pick custom background color" aria-label="Pick custom background color" style="width: 28px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; flex-shrink: 0;">
             </div>
           </div>
 
-          <!-- Signature: Thicken Strokes -->
-          <div class="settings-item hidden" id="sigThickenGroup">
-            <label class="form-label" data-i18n="thickenStrokes">Thicken ink:</label>
-            <input type="range" id="sigThickenSlider" min="0" max="2" step="1" value="0" style="width: 80px;">
-          </div>
+          <!-- Secondary/Conditional Settings Row -->
+          <div class="settings-bar-footer">
+            <!-- Signature: Thicken Strokes -->
+            <div class="settings-item-inline hidden" id="sigThickenGroup">
+              <label class="form-label-inline" data-i18n="thickenStrokes">Thicken ink:</label>
+              <input type="range" id="sigThickenSlider" min="0" max="2" step="1" value="0" style="width: 80px;">
+            </div>
 
-          <!-- Signature: Keep Ink Color -->
-          <div class="settings-item hidden" id="sigKeepColorGroup">
-            <label class="editor-checkbox-label">
-              <input type="checkbox" id="sigKeepColorCheck">
-              <span data-i18n="keepInkColor">Keep ink color</span>
-            </label>
-          </div>
+            <!-- Signature: Keep Ink Color -->
+            <div class="settings-item-inline hidden" id="sigKeepColorGroup">
+              <label class="editor-checkbox-label">
+                <input type="checkbox" id="sigKeepColorCheck">
+                <span data-i18n="keepInkColor">Keep ink color</span>
+              </label>
+            </div>
 
-          <!-- Auto-Detect Toggle -->
-          <div class="settings-item">
-            <label class="editor-checkbox-label">
-              <input type="checkbox" id="autoDetectCheck" checked>
-              <span data-i18n="autoDetectToggle">Auto-detect</span>
-            </label>
+            <!-- Auto-Detect Toggle -->
+            <div class="settings-item-inline" id="autoDetectGroup">
+              <label class="editor-checkbox-label">
+                <input type="checkbox" id="autoDetectCheck" checked>
+                <span data-i18n="autoDetectToggle">Auto-detect crop</span>
+              </label>
+            </div>
           </div>
         </div>
 
