@@ -66,6 +66,7 @@ class SnapSignFitApp {
     this.initTheme();
     this.setupGlobalErrors();
     this.renderPresetsGrid();
+    this.populateActivePresetQuickSelect();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
 
@@ -193,7 +194,7 @@ class SnapSignFitApp {
         card.setAttribute('tabindex', '0');
         const kindLabel = t(`kind${preset.kind.charAt(0).toUpperCase() + preset.kind.slice(1)}`) || preset.kind;
         const badgeHtml = preset.locked
-          ? `<span class="ppc-badge"><i class="fa-solid fa-star" style="color: #818cf8; margin-right: 4px;"></i> ${t('govOfficialBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`
+          ? `<span class="ppc-badge"><i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 4px;"></i>${t('govOfficialBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`
           : '';
         card.innerHTML = `
           ${badgeHtml}
@@ -376,6 +377,8 @@ class SnapSignFitApp {
       langBtn.addEventListener('click', () => {
         const newLang = getLanguage() === 'en' ? 'bn' : 'en';
         setLanguage(newLang);
+        this.populateActivePresetQuickSelect();
+        this.updateActivePresetPill(this.currentPreset);
         this.renderPresetsGrid();
         this.updateStatusReadout();
       });
@@ -471,6 +474,7 @@ class SnapSignFitApp {
       };
 
       this.resetUserTransforms();
+      this.updateActivePresetPill(this.currentPreset);
       this.runProcessingPipeline();
     };
 
@@ -626,6 +630,25 @@ class SnapSignFitApp {
     document.getElementById('btnOpenEditor').addEventListener('click', () => this.openManualEditor());
     document.getElementById('btnDownload').addEventListener('click', () => this.triggerDownload());
     document.getElementById('btnCopyClipboard').addEventListener('click', () => this.copyToClipboard());
+
+    const activePresetSelect = document.getElementById('activePresetQuickSelect');
+    if (activePresetSelect) {
+      activePresetSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'custom') {
+          this.selectCategory('custom');
+          this.updateActivePresetPill(this.currentPreset);
+        } else {
+          const match = PRESETS.find(p => p.id === val);
+          if (match) {
+            if (this.currentCategory !== match.category) {
+              this.selectCategory(match.category);
+            }
+            this.applyPreset(match);
+          }
+        }
+      });
+    }
   }
 
   selectCategory(cat) {
@@ -672,7 +695,7 @@ class SnapSignFitApp {
         <div>
           <div class="preset-card-header">
             <span class="preset-card-kind">${kindLabel}</span>
-            ${preset.locked ? `<span class="preset-card-badge">${t('lockedGovBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>` : ''}
+            ${preset.locked ? `<span class="preset-card-badge"><i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 4px;"></i>${t('lockedGovBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>` : ''}
           </div>
           <div class="preset-card-title">${preset.label}</div>
           <div class="preset-card-dims">${preset.w} × ${preset.h} px</div>
@@ -682,6 +705,89 @@ class SnapSignFitApp {
       card.addEventListener('click', () => this.applyPreset(preset));
       grid.appendChild(card);
     });
+  }
+
+  populateActivePresetQuickSelect() {
+    const select = document.getElementById('activePresetQuickSelect');
+    if (!select) return;
+
+    const govPresets = PRESETS.filter(p => p.category === 'gov');
+    const socialPresets = PRESETS.filter(p => p.category === 'social');
+
+    const govLabel = t('catGov') || 'Government & Exam';
+    const socialLabel = t('catSocial') || 'Social & Web';
+    const customLabel = t('catCustom') || 'Custom Size';
+
+    let html = `<optgroup label="★ ${govLabel}">`;
+    govPresets.forEach(p => {
+      const kbStr = p.maxKB ? ` (≤${p.maxKB}KB)` : '';
+      html += `<option value="${p.id}">${p.label}${kbStr} — ${p.w}×${p.h}</option>`;
+    });
+    html += `</optgroup>`;
+
+    html += `<optgroup label="🌐 ${socialLabel}">`;
+    socialPresets.forEach(p => {
+      const kbStr = p.maxKB ? ` (≤${p.maxKB}KB)` : '';
+      html += `<option value="${p.id}">${p.label}${kbStr} — ${p.w}×${p.h}</option>`;
+    });
+    html += `</optgroup>`;
+
+    html += `<optgroup label="⚙️ ${customLabel}">`;
+    const curW = document.getElementById('customW')?.value || (this.currentPreset?.w || 300);
+    const curH = document.getElementById('customH')?.value || (this.currentPreset?.h || 300);
+    html += `<option value="custom">${customLabel} (${curW}×${curH})</option>`;
+    html += `</optgroup>`;
+
+    select.innerHTML = html;
+
+    if (this.currentPreset) {
+      if (this.currentPreset.category === 'custom' || this.currentPreset.id?.startsWith('custom')) {
+        select.value = 'custom';
+      } else {
+        select.value = this.currentPreset.id;
+      }
+    }
+  }
+
+  updateActivePresetPill(preset) {
+    if (!preset) return;
+    const pill = document.getElementById('activePresetPill');
+    const label = document.getElementById('activePresetLabel');
+    const select = document.getElementById('activePresetQuickSelect');
+    const afterDims = document.getElementById('afterDimensionsReadout');
+
+    if (afterDims) {
+      afterDims.textContent = `${preset.w} × ${preset.h} px`;
+    }
+
+    if (!label) return;
+
+    const kbStr = preset.maxKB ? ` (≤${preset.maxKB}KB)` : '';
+    let display = `${preset.label}${kbStr}`;
+    if (preset.category === 'custom' || preset.id?.startsWith('custom')) {
+      display = `${t('catCustom') || 'Custom'} (${preset.w}×${preset.h})`;
+    }
+    label.textContent = display;
+
+    if (pill) {
+      pill.title = `${display} — ${preset.w}×${preset.h} px (Tap/Click to choose preset)`;
+    }
+
+    if (select) {
+      if (preset.category === 'custom' || preset.id?.startsWith('custom')) {
+        let opt = select.querySelector('option[value="custom"]');
+        if (!opt) {
+          const optgroup = select.querySelector('optgroup:last-child') || select;
+          opt = document.createElement('option');
+          opt.value = 'custom';
+          optgroup.appendChild(opt);
+        }
+        opt.textContent = `${t('catCustom') || 'Custom'} (${preset.w}×${preset.h})`;
+        select.value = 'custom';
+      } else {
+        select.value = preset.id;
+      }
+    }
   }
 
   selectPresetBySpec(spec) {
@@ -754,6 +860,7 @@ class SnapSignFitApp {
 
     this.renderPresetsGrid();
     this.resetUserTransforms();
+    this.updateActivePresetPill(preset);
 
     if (this.sourceData) {
       this.runProcessingPipeline();
