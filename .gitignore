@@ -1,10 +1,14 @@
 node_modules/
+tests/
 test-results/
-tests/downloads/
-tests/screenshots/
 playwright-report/
 .playwright/
 .system_generated/
 npm-debug.log*
 .DS_Store
 Thumbs.db
+report.md
+audit-report*
+fix-requests*
+*.spec.js
+

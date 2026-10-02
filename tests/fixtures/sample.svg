@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
-    <rect width="400" height="400" fill="#f43f5e"/>
-    <circle cx="200" cy="200" r="100" fill="#ffffff"/>
-    <text x="200" y="210" font-size="28" text-anchor="middle" fill="#000000">SVG Sample</text>
-  </svg>
