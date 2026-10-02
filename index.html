@@ -553,20 +553,7 @@
   <script type="module" src="./js/editor-pan.js"></script>
   <script type="module" src="./js/hero.js"></script>
   <script type="module" src="./js/app.js"></script>
-  <script>
-    if (new URLSearchParams(window.location.search).has('test')) {
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          fetch('./tests/fixtures/face_centered.jpg')
-            .then(r => r.blob())
-            .then(b => {
-              const file = new File([b], 'face_centered.jpg', { type: 'image/jpeg' });
-              if (window.app) window.app.handleFileUpload(file);
-            }).catch(console.error);
-        }, 600);
-      });
-    }
-  </script>
+
 
   <!-- PWA Service Worker Registration -->
   <script src="./js/register-sw.js"></script>
