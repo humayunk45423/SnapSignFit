@@ -340,6 +340,17 @@ class SnapSignFitApp {
     }
   }
 
+  /**
+   * Tactile micro-haptic feedback for mobile and supported devices
+   */
+  haptic(pattern = 10) {
+    try {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(pattern);
+      }
+    } catch (_) {}
+  }
+
   initTheme() {
     let savedTheme = null;
     try {
@@ -363,6 +374,7 @@ class SnapSignFitApp {
   }
 
   toggleTheme() {
+    this.haptic(15);
     const cur = document.documentElement.getAttribute('data-theme');
     const newTheme = cur === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
@@ -376,6 +388,7 @@ class SnapSignFitApp {
     const langBtn = document.getElementById('langToggleBtn');
     if (langBtn) {
       langBtn.addEventListener('click', () => {
+        this.haptic(15);
         const newLang = getLanguage() === 'en' ? 'bn' : 'en';
         setLanguage(newLang);
         this.populateActivePresetDropdown();
@@ -391,6 +404,9 @@ class SnapSignFitApp {
         this.toggleTheme();
       });
     }
+
+    this.setupGlobalDragAndDrop();
+    this.setupHoldToCompare();
 
     // File Upload & Camera
     const fileInput = document.getElementById('fileInput');
@@ -659,7 +675,150 @@ class SnapSignFitApp {
     }
   }
 
+  setupGlobalDragAndDrop() {
+    const overlay = document.getElementById('globalDragOverlay');
+    let dragCounter = 0;
+
+    const hasFiles = (e) => {
+      if (!e.dataTransfer) return false;
+      const types = Array.from(e.dataTransfer.types || []);
+      return types.includes('Files');
+    };
+
+    window.addEventListener('dragenter', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      dragCounter++;
+      if (overlay && dragCounter === 1) {
+        overlay.classList.remove('hidden');
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+    });
+
+    window.addEventListener('dragover', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter <= 0) {
+        dragCounter = 0;
+        if (overlay) {
+          overlay.classList.add('hidden');
+          overlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+    });
+
+    window.addEventListener('drop', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      dragCounter = 0;
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        if (file && (file.type.startsWith('image/') || /\.(jpe?g|png|webp|avif|bmp|tiff?)$/i.test(file.name))) {
+          this.haptic([20, 40, 20]);
+          this.handleFileUpload(file);
+        }
+      }
+    });
+  }
+
+  setupHoldToCompare() {
+    const btn = document.getElementById('btnHoldCompare');
+    const badge = document.getElementById('comparingBadge');
+    const afterCvs = document.getElementById('afterCanvas');
+    if (!btn || !afterCvs) return;
+
+    btn.disabled = true;
+    let isComparing = false;
+
+    const startComparing = (e) => {
+      if (e) {
+        if (e.type === 'pointerdown' || e.type === 'touchstart') {
+          e.preventDefault();
+        }
+      }
+      if (isComparing || !this.sourceData || !this.exactCanvas) return;
+      isComparing = true;
+      btn.classList.add('is-comparing');
+      if (badge) badge.classList.remove('hidden');
+      this.haptic(12);
+
+      const ctx = afterCvs.getContext('2d');
+      const targetW = this.exactCanvas.width;
+      const targetH = this.exactCanvas.height;
+      afterCvs.width = targetW;
+      afterCvs.height = targetH;
+
+      const raw = this.sourceData.fullCanvas || this.sourceData.workingCanvas;
+      if (raw) {
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, targetW, targetH);
+        const scale = Math.min(targetW / raw.width, targetH / raw.height);
+        const dw = raw.width * scale;
+        const dh = raw.height * scale;
+        const dx = (targetW - dw) / 2;
+        const dy = (targetH - dh) / 2;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(raw, dx, dy, dw, dh);
+        ctx.restore();
+      }
+    };
+
+    const stopComparing = () => {
+      if (!isComparing) return;
+      isComparing = false;
+      btn.classList.remove('is-comparing');
+      if (badge) badge.classList.add('hidden');
+      this.haptic(8);
+
+      if (this.exactCanvas) {
+        this.drawAfterCanvas(this.exactCanvas);
+      }
+    };
+
+    btn.addEventListener('pointerdown', startComparing);
+    btn.addEventListener('pointerup', stopComparing);
+    btn.addEventListener('pointercancel', stopComparing);
+    btn.addEventListener('pointerleave', () => {
+      if (isComparing) stopComparing();
+    });
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Keyboard shortcut 'C' to compare
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'c' || e.key === 'C') {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
+        if (!e.repeat) {
+          startComparing();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'c' || e.key === 'C') {
+        stopComparing();
+      }
+    });
+
+    window.addEventListener('blur', stopComparing);
+  }
+
   selectCategory(cat) {
+    this.haptic(12);
     this.currentCategory = cat;
     ['tabGov', 'tabSocial', 'tabCustom'].forEach(id => {
       document.getElementById(id).classList.remove('active');
@@ -907,7 +1066,8 @@ class SnapSignFitApp {
   }
 
   selectPresetBySpec(spec) {
-    const match = PRESETS.find(p => p.w === spec.w && p.h === spec.h) || {
+    const match = (spec.preset && PRESETS.find(p => p.id === spec.preset)) ||
+                  PRESETS.find(p => p.w === spec.w && p.h === spec.h) || {
       id: `custom_${spec.w}x${spec.h}`,
       label: `${spec.w}×${spec.h}`,
       category: 'custom',
@@ -923,6 +1083,7 @@ class SnapSignFitApp {
   }
 
   applyPreset(preset) {
+    this.haptic(15);
     this.currentPreset = preset;
     this.hasDownloadedCurrentWork = false;
     this.customOptions.format = preset.format || 'jpg';
@@ -1474,12 +1635,16 @@ class SnapSignFitApp {
       this.updateStatusReadout();
       document.getElementById('btnDownload').disabled = false;
       document.getElementById('btnCopyClipboard').disabled = false;
+      const btnHold = document.getElementById('btnHoldCompare');
+      if (btnHold) btnHold.disabled = false;
       this.saveSession();
     } catch (err) {
       console.error('Export guarantee failed:', err);
       this.updateStatusReadout(false, err.message);
       document.getElementById('btnDownload').disabled = true;
       document.getElementById('btnCopyClipboard').disabled = true;
+      const btnHold = document.getElementById('btnHoldCompare');
+      if (btnHold) btnHold.disabled = true;
     }
   }
 
@@ -1533,6 +1698,7 @@ class SnapSignFitApp {
   }
 
   onManualEditorApply(state) {
+    this.haptic(20);
     this.userTransforms = {
       crop: state.crop,
       rotation: state.rotation,
@@ -1668,6 +1834,7 @@ class SnapSignFitApp {
 
   triggerDownload() {
     if (!this.currentExport) return;
+    this.haptic([25, 40, 25]);
     triggerDownload(this.currentExport.url, this.currentExport.filename);
     this.hasDownloadedCurrentWork = true;
   }
@@ -1698,6 +1865,11 @@ class SnapSignFitApp {
     this.lastBeforeState = null;
     this.hasDownloadedCurrentWork = false;
     this.resetUserTransforms();
+
+    const btnHold = document.getElementById('btnHoldCompare');
+    if (btnHold) btnHold.disabled = true;
+    const comparingBadge = document.getElementById('comparingBadge');
+    if (comparingBadge) comparingBadge.classList.add('hidden');
 
     document.body.classList.remove('has-image');
     document.querySelector('.main-content')?.classList.remove('has-image');

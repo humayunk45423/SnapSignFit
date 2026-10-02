@@ -35,6 +35,22 @@
 
 <body>
 
+  <!-- Global Drag-and-Drop Overlay (Phase 3) -->
+  <div id="globalDragOverlay" class="global-drag-overlay hidden" aria-hidden="true">
+    <div class="global-drag-box">
+      <div class="global-drag-icon-glow">
+        <i class="fa-solid fa-cloud-arrow-up global-drag-icon" aria-hidden="true"></i>
+      </div>
+      <h2 class="global-drag-title" data-i18n="dropAnywhereTitle">Drop image anywhere to format</h2>
+      <p class="global-drag-sub" data-i18n="dropAnywhereSub">Release to instantly auto-detect and crop · 100% offline &amp; client-side</p>
+      <div class="global-drag-badges">
+        <span class="global-drag-badge"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 100% Private</span>
+        <span class="global-drag-badge"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Instant Smart Fit</span>
+        <span class="global-drag-badge"><i class="fa-solid fa-check" aria-hidden="true"></i> Exact Size Lock</span>
+      </div>
+    </div>
+  </div>
+
   <!-- File Protocol Warning Banner (Rendered immediately without ES modules) -->
   <div id="fileProtocolBanner" class="file-protocol-banner" style="display: none;" role="alert">
     <div class="banner-inner">
@@ -163,9 +179,9 @@
           </div>
 
           <div class="chip-row" id="presetChips">
-            <button type="button" class="chip" data-w="300" data-h="300" data-kb="100"><span data-i18n="chipBcsPhoto">BCS 300×300</span> <small>(≤ 100KB)</small></button>
-            <button type="button" class="chip" data-w="300" data-h="80"  data-kb="60"><span data-i18n="chipTeletalkSig">Teletalk Sign 300×80</span> <small>(≤ 60KB)</small></button>
-            <button type="button" class="chip" data-w="531" data-h="650" data-kb="300"><span data-i18n="chipPassport">E-Passport 45×55mm</span></button>
+            <button type="button" class="chip" data-w="300" data-h="300" data-kb="99" data-preset="gov_photo_300x300"><i class="fa-solid fa-star star-gradient" aria-hidden="true"></i> <span data-i18n="chipBcsPhoto">BCS Photo 300×300</span> <small>(≤99KB)</small></button>
+            <button type="button" class="chip" data-w="300" data-h="80"  data-kb="60" data-preset="gov_sig_300x80"><i class="fa-solid fa-star star-gradient" aria-hidden="true"></i> <span data-i18n="chipTeletalkSig">Teletalk Sign 300×80</span> <small>(≤60KB)</small></button>
+            <button type="button" class="chip" data-w="320" data-h="320" data-kb="100" data-preset="social_ig_profile"><i class="fa-solid fa-globe" style="color: #38bdf8;" aria-hidden="true"></i> <span data-i18n="chipIgProfile">Instagram Profile</span> <small>(320×320)</small></button>
           </div>
         </div>
 
@@ -363,7 +379,13 @@
               <div class="preview-pane-heading-group">
                 <div class="preview-pane-title-row">
                   <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
-                  <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
+                  <div class="preview-pane-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnHoldCompare" data-i18n="holdCompare" title="Press &amp; hold to compare with raw original image">
+                      <i class="fa-solid fa-code-compare" aria-hidden="true" style="margin-right: 4px;"></i>
+                      <span data-i18n="holdCompareText">Hold to Compare</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
+                  </div>
                 </div>
                 <div class="preview-pane-dims-wrap">
                   <span class="preview-pane-dims-sub" id="afterDimensionsReadout">300 × 300 px</span>
@@ -372,6 +394,7 @@
             </div>
             <div class="preview-viewport" id="afterViewport">
               <canvas id="afterCanvas"></canvas>
+              <div class="comparing-badge hidden" id="comparingBadge" data-i18n="comparingBadge">ORIGINAL RAW</div>
               <div class="spinner-overlay hidden" id="processingOverlay">
                 <div class="spinner"></div>
                 <span id="processingText" data-i18n="processing">Processing image...</span>
