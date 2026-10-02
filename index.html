@@ -378,13 +378,17 @@
             <div class="preview-pane-header">
               <div class="preview-pane-heading-group">
                 <div class="preview-pane-title-row">
-                  <span class="preview-pane-title" data-i18n="after">Exact Output Preview</span>
+                  <span class="preview-pane-title" data-i18n="after">Output Preview</span>
                   <div class="preview-pane-actions">
-                    <button type="button" class="btn btn-secondary btn-sm" id="btnHoldCompare" data-i18n="holdCompare" title="Press &amp; hold to compare with raw original image">
-                      <i class="fa-solid fa-code-compare" aria-hidden="true" style="margin-right: 4px;"></i>
-                      <span data-i18n="holdCompareText">Hold to Compare</span>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnHoldCompare" data-i18n-title="holdCompareTitle" title="Press &amp; hold to compare with raw original image (Shortcut: C)">
+                      <i class="fa-solid fa-code-compare" aria-hidden="true"></i>
+                      <span class="btn-text-full" data-i18n="holdCompareText">Hold to Compare</span>
+                      <span class="btn-text-short" data-i18n="holdCompareShort">Compare</span>
                     </button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n="zoomReal">1x Real Pixels</button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n-title="zoomRealTitle" title="Toggle 1x Real Pixels / 2x Zoom">
+                      <span class="btn-text-full" data-i18n="zoomReal">1× Real Pixels</span>
+                      <span class="btn-text-short" data-i18n="zoomRealShort">1× Real</span>
+                    </button>
                   </div>
                 </div>
                 <div class="preview-pane-dims-wrap">

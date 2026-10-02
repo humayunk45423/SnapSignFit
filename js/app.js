@@ -395,8 +395,13 @@ class SnapSignFitApp {
         this.updateActivePresetPill(this.currentPreset);
         this.renderPresetsGrid();
         this.updateStatusReadout();
+        this.updateZoomBtnText(this.customOptions.zoom2x);
       });
     }
+
+    window.addEventListener('snapsignfit:lang', () => {
+      this.updateZoomBtnText(this.customOptions.zoom2x);
+    });
 
     const themeBtn = document.getElementById('themeToggleBtn');
     if (themeBtn) {
@@ -591,11 +596,13 @@ class SnapSignFitApp {
     const zoomToggleBtn = document.getElementById('btnToggleZoom');
     if (zoomToggleBtn) {
       zoomToggleBtn.addEventListener('click', () => {
+        this.haptic(10);
         this.customOptions.zoom2x = !this.customOptions.zoom2x;
         const vp = document.getElementById('afterViewport');
         if (vp) {
           const is2x = vp.classList.toggle('zoom-2x', this.customOptions.zoom2x);
-          zoomToggleBtn.textContent = is2x ? '2× Zoomed' : '1× Real Pixels';
+          zoomToggleBtn.classList.toggle('active', is2x);
+          this.updateZoomBtnText(is2x);
         }
       });
     }
@@ -815,6 +822,21 @@ class SnapSignFitApp {
     });
 
     window.addEventListener('blur', stopComparing);
+  }
+
+  updateZoomBtnText(is2x = false) {
+    const btn = document.getElementById('btnToggleZoom');
+    if (!btn) return;
+    const fullSpan = btn.querySelector('.btn-text-full');
+    const shortSpan = btn.querySelector('.btn-text-short');
+    const fullText = is2x ? (t('zoom2x') || '2× Zoomed') : (t('zoomReal') || '1× Real Pixels');
+    const shortText = is2x ? (t('zoom2xShort') || '2× Zoom') : (t('zoomRealShort') || '1× Real');
+    if (fullSpan && shortSpan) {
+      fullSpan.textContent = fullText;
+      shortSpan.textContent = shortText;
+    } else {
+      btn.textContent = fullText;
+    }
   }
 
   selectCategory(cat) {
@@ -1870,6 +1892,15 @@ class SnapSignFitApp {
     if (btnHold) btnHold.disabled = true;
     const comparingBadge = document.getElementById('comparingBadge');
     if (comparingBadge) comparingBadge.classList.add('hidden');
+
+    this.customOptions.zoom2x = false;
+    const zoomToggleBtn = document.getElementById('btnToggleZoom');
+    if (zoomToggleBtn) {
+      zoomToggleBtn.classList.remove('active');
+      this.updateZoomBtnText(false);
+    }
+    const afterVp = document.getElementById('afterViewport');
+    if (afterVp) afterVp.classList.remove('zoom-2x');
 
     document.body.classList.remove('has-image');
     document.querySelector('.main-content')?.classList.remove('has-image');

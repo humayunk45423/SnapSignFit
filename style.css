@@ -1072,6 +1072,8 @@ i.fa-star.star-gradient,
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  container-type: inline-size;
+  container-name: previewPane;
 }
 
 .preview-pane-header {
@@ -1096,15 +1098,22 @@ i.fa-star.star-gradient,
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  gap: 10px;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .preview-pane-title {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
+  font-weight: 700;
+  color: var(--text);
   line-height: 1.2;
   white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 }
 
 .active-preset-badge-wrap {
@@ -4376,18 +4385,27 @@ body:not(.dark) .global-drag-badge {
 .preview-pane-actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap !important;
+  flex-shrink: 0;
+}
+
+.preview-pane-actions .btn {
+  height: 28px;
+  padding: 0 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 #btnHoldCompare {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 8px;
   border: 1px solid rgba(99, 102, 241, 0.35);
   background: rgba(99, 102, 241, 0.1);
   color: var(--text);
@@ -4398,9 +4416,16 @@ body:not(.dark) .global-drag-badge {
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#btnHoldCompare:hover {
-  background: rgba(99, 102, 241, 0.2);
-  border-color: rgba(99, 102, 241, 0.6);
+[data-theme="dark"] #btnHoldCompare,
+body.dark #btnHoldCompare {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #e2e8f0;
+}
+
+#btnHoldCompare:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.65);
   color: #818cf8;
 }
 
@@ -4411,6 +4436,118 @@ body:not(.dark) .global-drag-badge {
   border-color: transparent !important;
   transform: scale(0.96);
   box-shadow: 0 0 16px rgba(99, 102, 241, 0.6);
+}
+
+#btnHoldCompare:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+#btnToggleZoom {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] #btnToggleZoom,
+body.dark #btnToggleZoom {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #e2e8f0;
+}
+
+#btnToggleZoom:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--accent);
+}
+
+#btnToggleZoom.active,
+#btnToggleZoom:active {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #818cf8;
+}
+
+#btnToggleZoom:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Adaptive Labels: Show full text by default */
+.preview-pane-actions .btn-text-short {
+  display: none !important;
+}
+
+.preview-pane-actions .btn-text-full {
+  display: inline !important;
+}
+
+/* Container Query: Whenever preview pane is narrow (<= 380px), switch to short labels so everything sits on 1 line */
+@container previewPane (max-width: 380px) {
+  .preview-pane-title-row {
+    gap: 6px;
+  }
+
+  .preview-pane-title {
+    font-size: 12.5px;
+  }
+
+  .preview-pane-actions {
+    gap: 5px;
+  }
+
+  .preview-pane-actions .btn {
+    height: 27px;
+    padding: 0 7px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .preview-pane-actions .btn-text-full {
+    display: none !important;
+  }
+
+  .preview-pane-actions .btn-text-short {
+    display: inline !important;
+  }
+}
+
+/* Media Query fallback for narrow mobile screens */
+@media (max-width: 480px) {
+  .preview-pane-title-row {
+    gap: 6px;
+  }
+
+  .preview-pane-title {
+    font-size: 12px;
+  }
+
+  .preview-pane-actions {
+    gap: 4px;
+  }
+
+  .preview-pane-actions .btn {
+    height: 26px;
+    padding: 0 6px;
+    font-size: 10.5px;
+    gap: 3px;
+  }
+
+  .preview-pane-actions .btn-text-full {
+    display: none !important;
+  }
+
+  .preview-pane-actions .btn-text-short {
+    display: inline !important;
+  }
 }
 
 .comparing-badge {
@@ -4436,16 +4573,5 @@ body:not(.dark) .global-drag-badge {
 @keyframes comparingBadgePulse {
   0% { transform: scale(0.97); opacity: 0.9; }
   100% { transform: scale(1.03); opacity: 1; }
-}
-
-@media (max-width: 640px) {
-  .preview-pane-actions {
-    gap: 6px;
-  }
-
-  #btnHoldCompare {
-    padding: 4px 10px;
-    font-size: 11px;
-  }
 }
 
