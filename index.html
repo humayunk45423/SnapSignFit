@@ -330,13 +330,13 @@
                   <span class="preview-pane-title" data-i18n="before">Original &amp; Detection</span>
                   <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
                 </div>
-                <div class="active-preset-badge-wrap">
-                  <div class="active-preset-pill" id="activePresetPill" title="Select or change preset">
+                <div class="active-preset-badge-wrap" id="activePresetBadgeWrap">
+                  <button type="button" class="active-preset-pill" id="activePresetPill" aria-haspopup="listbox" aria-expanded="false" aria-controls="activePresetDropdownMenu" title="Select or change preset">
                     <i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>
                     <span class="active-preset-label" id="activePresetLabel">Photo 300×300 (≤ 99KB)</span>
                     <svg class="active-preset-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    <select class="active-preset-select" id="activePresetQuickSelect" aria-label="Choose Preset"></select>
-                  </div>
+                  </button>
+                  <div class="active-preset-dropdown-menu hidden" id="activePresetDropdownMenu" role="listbox" aria-label="Choose Preset"></div>
                 </div>
               </div>
             </div>

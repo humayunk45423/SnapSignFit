@@ -66,7 +66,7 @@ class SnapSignFitApp {
     this.initTheme();
     this.setupGlobalErrors();
     this.renderPresetsGrid();
-    this.populateActivePresetQuickSelect();
+    this.populateActivePresetDropdown();
     this.attachDOMEvents();
     this.applyPreset(PRESETS[0]);
     window.addEventListener('resize', () => this.fitActivePresetPillText());
@@ -378,7 +378,7 @@ class SnapSignFitApp {
       langBtn.addEventListener('click', () => {
         const newLang = getLanguage() === 'en' ? 'bn' : 'en';
         setLanguage(newLang);
-        this.populateActivePresetQuickSelect();
+        this.populateActivePresetDropdown();
         this.updateActivePresetPill(this.currentPreset);
         this.renderPresetsGrid();
         this.updateStatusReadout();
@@ -632,21 +632,28 @@ class SnapSignFitApp {
     document.getElementById('btnDownload').addEventListener('click', () => this.triggerDownload());
     document.getElementById('btnCopyClipboard').addEventListener('click', () => this.copyToClipboard());
 
-    const activePresetSelect = document.getElementById('activePresetQuickSelect');
-    if (activePresetSelect) {
-      activePresetSelect.addEventListener('change', (e) => {
-        const val = e.target.value;
-        if (val === 'custom') {
-          this.selectCategory('custom');
-          this.updateActivePresetPill(this.currentPreset);
-        } else {
-          const match = PRESETS.find(p => p.id === val);
-          if (match) {
-            if (this.currentCategory !== match.category) {
-              this.selectCategory(match.category);
-            }
-            this.applyPreset(match);
-          }
+    const activePresetPill = document.getElementById('activePresetPill');
+    const activePresetMenu = document.getElementById('activePresetDropdownMenu');
+
+    if (activePresetPill && activePresetMenu) {
+      activePresetPill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleActivePresetDropdown();
+      });
+
+      // Close custom dropdown when clicking outside
+      document.addEventListener('pointerdown', (e) => {
+        if (!activePresetMenu.classList.contains('hidden') &&
+            !activePresetMenu.contains(e.target) &&
+            !activePresetPill.contains(e.target)) {
+          this.closeActivePresetDropdown();
+        }
+      });
+
+      // Close custom dropdown on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !activePresetMenu.classList.contains('hidden')) {
+          this.closeActivePresetDropdown();
         }
       });
     }
@@ -708,9 +715,51 @@ class SnapSignFitApp {
     });
   }
 
-  populateActivePresetQuickSelect() {
-    const select = document.getElementById('activePresetQuickSelect');
-    if (!select) return;
+  toggleActivePresetDropdown() {
+    const menu = document.getElementById('activePresetDropdownMenu');
+    const pill = document.getElementById('activePresetPill');
+    if (!menu || !pill) return;
+
+    const isHidden = menu.classList.contains('hidden');
+    if (isHidden) {
+      this.populateActivePresetDropdown();
+      menu.classList.remove('hidden');
+      pill.classList.add('open');
+      pill.setAttribute('aria-expanded', 'true');
+    } else {
+      this.closeActivePresetDropdown();
+    }
+  }
+
+  closeActivePresetDropdown() {
+    const menu = document.getElementById('activePresetDropdownMenu');
+    const pill = document.getElementById('activePresetPill');
+    if (menu) menu.classList.add('hidden');
+    if (pill) {
+      pill.classList.remove('open');
+      pill.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  selectPresetFromDropdown(presetId) {
+    if (presetId === 'custom') {
+      this.selectCategory('custom');
+      this.updateActivePresetPill(this.currentPreset);
+    } else {
+      const match = PRESETS.find(p => p.id === presetId);
+      if (match) {
+        if (this.currentCategory !== match.category) {
+          this.selectCategory(match.category);
+        }
+        this.applyPreset(match);
+      }
+    }
+    this.closeActivePresetDropdown();
+  }
+
+  populateActivePresetDropdown() {
+    const menu = document.getElementById('activePresetDropdownMenu');
+    if (!menu) return;
 
     const govPresets = PRESETS.filter(p => p.category === 'gov');
     const socialPresets = PRESETS.filter(p => p.category === 'social');
@@ -719,39 +768,82 @@ class SnapSignFitApp {
     const socialLabel = t('catSocial') || 'Social & Web';
     const customLabel = t('catCustom') || 'Custom Size';
 
-    let html = `<optgroup label="★ ${govLabel}">`;
+    let html = '';
+
+    // 1. Govt & Exam Group
+    html += `<div class="active-preset-menu-group">
+      <div class="active-preset-menu-group-header">
+        <i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>
+        <span>${govLabel}</span>
+      </div>
+      <div class="active-preset-menu-group-items">`;
     govPresets.forEach(p => {
-      const kbStr = p.maxKB ? ` (≤${p.maxKB}KB)` : '';
-      let optText = `${p.label}${kbStr}`;
-      if (!p.label.includes('×') && !p.label.includes('mm') && !p.label.includes('in')) {
-        optText = `${p.label} (${p.w}×${p.h}${kbStr})`;
-      }
-      html += `<option value="${p.id}">${optText}</option>`;
+      const isSelected = this.currentPreset && this.currentPreset.id === p.id;
+      const kbStr = p.maxKB ? `≤${p.maxKB}KB` : '';
+      html += `
+        <div class="active-preset-menu-item ${isSelected ? 'selected' : ''}" role="option" aria-selected="${isSelected}" data-preset-id="${p.id}">
+          <div class="active-preset-item-main">
+            <span class="active-preset-item-name">${p.label}</span>
+            ${kbStr ? `<span class="active-preset-item-badge">${kbStr}</span>` : ''}
+          </div>
+          <span class="active-preset-item-dims">${p.w}×${p.h}</span>
+          ${isSelected ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+        </div>`;
     });
-    html += `</optgroup>`;
+    html += `</div></div>`;
 
-    html += `<optgroup label="🌐 ${socialLabel}">`;
+    // 2. Social & Web Group
+    html += `<div class="active-preset-menu-group">
+      <div class="active-preset-menu-group-header">
+        <i class="fa-solid fa-globe" style="color: #38bdf8;" aria-hidden="true"></i>
+        <span>${socialLabel}</span>
+      </div>
+      <div class="active-preset-menu-group-items">`;
     socialPresets.forEach(p => {
-      let optText = `${p.label} (${p.w}×${p.h})`;
-      html += `<option value="${p.id}">${optText}</option>`;
+      const isSelected = this.currentPreset && this.currentPreset.id === p.id;
+      const kbStr = p.maxKB ? `≤${p.maxKB}KB` : '';
+      html += `
+        <div class="active-preset-menu-item ${isSelected ? 'selected' : ''}" role="option" aria-selected="${isSelected}" data-preset-id="${p.id}">
+          <div class="active-preset-item-main">
+            <span class="active-preset-item-name">${p.label}</span>
+            ${kbStr ? `<span class="active-preset-item-badge">${kbStr}</span>` : ''}
+          </div>
+          <span class="active-preset-item-dims">${p.w}×${p.h}</span>
+          ${isSelected ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+        </div>`;
     });
-    html += `</optgroup>`;
+    html += `</div></div>`;
 
-    html += `<optgroup label="⚙️ ${customLabel}">`;
+    // 3. Custom Size Group
+    const isCustom = this.currentPreset && (this.currentPreset.category === 'custom' || this.currentPreset.id?.startsWith('custom'));
     const curW = document.getElementById('customW')?.value || (this.currentPreset?.w || 300);
     const curH = document.getElementById('customH')?.value || (this.currentPreset?.h || 300);
-    html += `<option value="custom">${customLabel} (${curW}×${curH})</option>`;
-    html += `</optgroup>`;
+    html += `<div class="active-preset-menu-group">
+      <div class="active-preset-menu-group-header">
+        <i class="fa-solid fa-sliders" style="color: #c084fc;" aria-hidden="true"></i>
+        <span>${customLabel}</span>
+      </div>
+      <div class="active-preset-menu-group-items">
+        <div class="active-preset-menu-item ${isCustom ? 'selected' : ''}" role="option" aria-selected="${isCustom}" data-preset-id="custom">
+          <div class="active-preset-item-main">
+            <span class="active-preset-item-name">${customLabel}</span>
+          </div>
+          <span class="active-preset-item-dims">${curW}×${curH}</span>
+          ${isCustom ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+        </div>
+      </div>
+    </div>`;
 
-    select.innerHTML = html;
+    menu.innerHTML = html;
 
-    if (this.currentPreset) {
-      if (this.currentPreset.category === 'custom' || this.currentPreset.id?.startsWith('custom')) {
-        select.value = 'custom';
-      } else {
-        select.value = this.currentPreset.id;
-      }
-    }
+    // Attach click listeners to each menu item
+    menu.querySelectorAll('.active-preset-menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const presetId = item.getAttribute('data-preset-id');
+        this.selectPresetFromDropdown(presetId);
+      });
+    });
   }
 
   fitActivePresetPillText() {
@@ -787,7 +879,7 @@ class SnapSignFitApp {
     if (!preset) return;
     const pill = document.getElementById('activePresetPill');
     const label = document.getElementById('activePresetLabel');
-    const select = document.getElementById('activePresetQuickSelect');
+    const menu = document.getElementById('activePresetDropdownMenu');
     const afterDims = document.getElementById('afterDimensionsReadout');
 
     if (afterDims) {
@@ -807,20 +899,8 @@ class SnapSignFitApp {
       pill.title = `${display} — ${preset.w}×${preset.h} px (Tap/Click to choose preset)`;
     }
 
-    if (select) {
-      if (preset.category === 'custom' || preset.id?.startsWith('custom')) {
-        let opt = select.querySelector('option[value="custom"]');
-        if (!opt) {
-          const optgroup = select.querySelector('optgroup:last-child') || select;
-          opt = document.createElement('option');
-          opt.value = 'custom';
-          optgroup.appendChild(opt);
-        }
-        opt.textContent = `${t('catCustom') || 'Custom'} (${preset.w}×${preset.h})`;
-        select.value = 'custom';
-      } else {
-        select.value = preset.id;
-      }
+    if (menu && !menu.classList.contains('hidden')) {
+      this.populateActivePresetDropdown();
     }
 
     this.fitActivePresetPillText();
