@@ -167,6 +167,18 @@ select:focus:not(:focus-visible) {
   transform: scale(1.1);
 }
 
+/* Prevent transition flash / bounce animation on initial page load */
+.preload,
+.preload *,
+.preload *::before,
+.preload *::after {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
 /* 2. Reset */
 *, *::before, *::after {
   box-sizing: border-box;

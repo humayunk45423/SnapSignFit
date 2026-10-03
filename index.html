@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" class="preload">
 
 <head>
   <meta charset="UTF-8">
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem('snapsignfit_theme');
-        if (saved === 'dark') {
+        var savedTheme = localStorage.getItem('snapsignfit_theme');
+        if (savedTheme === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark');
         } else {
           document.documentElement.setAttribute('data-theme', 'light');
         }
+        var savedLang = localStorage.getItem('snapsignfit_lang') || 'en';
+        document.documentElement.lang = savedLang;
+        document.documentElement.setAttribute('data-lang', savedLang);
       } catch (e) {}
     })();
   </script>
@@ -126,6 +129,18 @@
       </div>
     </div>
   </header>
+  <script>
+    (function () {
+      try {
+        var lang = localStorage.getItem('snapsignfit_lang') || 'en';
+        var theme = localStorage.getItem('snapsignfit_theme') || 'light';
+        var langBtn = document.getElementById('langToggleBtn');
+        if (langBtn) langBtn.setAttribute('data-state', lang === 'en' ? 'right' : 'left');
+        var themeBtn = document.getElementById('themeToggleBtn');
+        if (themeBtn) themeBtn.setAttribute('data-state', theme === 'dark' ? 'right' : 'left');
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Global Error Banner -->
   <div id="globalBanner" class="global-banner hidden" role="alert" aria-live="assertive">

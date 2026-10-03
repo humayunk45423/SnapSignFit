@@ -170,6 +170,13 @@ class SnapSignFitApp {
         ro.observe(beforeVp);
       }
     }
+
+    // Enable smooth user-triggered transitions after initial paint completes
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove('preload');
+      });
+    });
   }
 
   initPresetPopup() {

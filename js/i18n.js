@@ -458,7 +458,13 @@ export const translations = {
   }
 };
 
-let currentLang = 'bn';
+let currentLang = (() => {
+  try {
+    const saved = localStorage.getItem('snapsignfit_lang');
+    if (saved && translations[saved]) return saved;
+  } catch (e) {}
+  return 'en';
+})();
 
 export function getLanguage() {
   return currentLang;
