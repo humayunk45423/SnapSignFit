@@ -136,14 +136,14 @@ export class ManualEditor {
 
                   <!-- 2. Three tool buttons: Eraser, Restore, Move (equal width) -->
                   <div class="editor-fs-row-tools">
-                    <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser">
-                      ${icon('eraser', { size: 14 })} <span data-i18n="brushErase">Eraser</span>
+                    <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser" aria-label="Eraser Tool">
+                      ${icon('eraser', { size: 14 })} <span class="btn-fs-tool-label" data-i18n="brushErase">Eraser</span>
                     </button>
-                    <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore">
-                      ${icon('brush', { size: 14 })} <span data-i18n="brushRestore">Restore</span>
+                    <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore" aria-label="Restore Tool">
+                      ${icon('brush', { size: 14 })} <span class="btn-fs-tool-label" data-i18n="brushRestore">Restore</span>
                     </button>
-                    <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas">
-                      ${icon('hand', { size: 14 })} <span data-i18n="moveTool">Move</span>
+                    <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas" aria-label="Move Canvas">
+                      ${icon('hand', { size: 14 })} <span class="btn-fs-tool-label" data-i18n="moveTool">Move</span>
                     </button>
                   </div>
 
@@ -1465,14 +1465,14 @@ export class ManualEditor {
   openEnlargedPreview() {
     const overlay = this.overlayEl.querySelector('#editorPreviewModalOverlay');
     const content = this.overlayEl.querySelector('#editorPreviewModalContent');
-    const trigger = this.overlayEl.querySelector('#editorFsPreviewWrap');
+    const trigger = this.overlayEl.querySelector('#editorFsLivePreviewCanvas') || this.overlayEl.querySelector('#editorFsPreviewWrap');
     if (!overlay || !content) return;
 
     this.renderEnlargedPreview();
     overlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
-    // Shared-element FLIP animation
+    // Shared-element FLIP animation originating precisely from the preview thumbnail window
     if (trigger) {
       const startRect = trigger.getBoundingClientRect();
       const endRect = content.getBoundingClientRect();
@@ -1481,12 +1481,16 @@ export class ManualEditor {
       const translateX = (startRect.left + startRect.width / 2) - (endRect.left + endRect.width / 2);
       const translateY = (startRect.top + startRect.height / 2) - (endRect.top + endRect.height / 2);
 
+      content.style.transformOrigin = 'center center';
       content.style.transition = 'none';
       content.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
-      content.style.opacity = '0.4';
+      content.style.opacity = '0';
+
+      // Force synchronous reflow so browser commits the starting transform at the preview window
+      void content.offsetHeight;
 
       requestAnimationFrame(() => {
-        content.style.transition = 'transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease';
+        content.style.transition = 'transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease';
         content.style.transform = 'translate(0px, 0px) scale(1, 1)';
         content.style.opacity = '1';
       });
@@ -1496,10 +1500,10 @@ export class ManualEditor {
   closeEnlargedPreview(instant = false) {
     const overlay = this.overlayEl.querySelector('#editorPreviewModalOverlay');
     const content = this.overlayEl.querySelector('#editorPreviewModalContent');
-    const trigger = this.overlayEl.querySelector('#editorFsPreviewWrap');
+    const trigger = this.overlayEl.querySelector('#editorFsLivePreviewCanvas') || this.overlayEl.querySelector('#editorFsPreviewWrap');
     if (!overlay || overlay.classList.contains('hidden')) return;
 
-    if (instant) {
+    if (instant || !trigger || !content) {
       overlay.classList.add('hidden');
       if (content) {
         content.style.transform = '';
@@ -1509,28 +1513,24 @@ export class ManualEditor {
       return;
     }
 
-    if (trigger && content) {
-      const startRect = content.getBoundingClientRect();
-      const endRect = trigger.getBoundingClientRect();
-      const scaleX = Math.max(0.05, endRect.width / Math.max(1, startRect.width));
-      const scaleY = Math.max(0.05, endRect.height / Math.max(1, startRect.height));
-      const translateX = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
-      const translateY = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+    const startRect = content.getBoundingClientRect();
+    const endRect = trigger.getBoundingClientRect();
+    const scaleX = Math.max(0.05, endRect.width / Math.max(1, startRect.width));
+    const scaleY = Math.max(0.05, endRect.height / Math.max(1, startRect.height));
+    const translateX = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+    const translateY = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
 
-      content.style.transition = 'transform 0.24s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease';
-      content.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
-      content.style.opacity = '0';
+    content.style.transformOrigin = 'center center';
+    content.style.transition = 'transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease';
+    content.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+    content.style.opacity = '0';
 
-      setTimeout(() => {
-        overlay.classList.add('hidden');
-        content.style.transform = '';
-        content.style.opacity = '';
-        document.body.style.overflow = '';
-      }, 240);
-    } else {
+    setTimeout(() => {
       overlay.classList.add('hidden');
+      content.style.transform = '';
+      content.style.opacity = '';
       document.body.style.overflow = '';
-    }
+    }, 250);
   }
 
   renderEnlargedPreview() {
@@ -1562,17 +1562,33 @@ export class ManualEditor {
     const mCtx = this.maskCanvas.getContext('2d');
     const radius = this.brushSize / 2;
     const hardness = Math.max(0, Math.min(100, this.brushHardness)) / 100;
-    const innerRadius = radius * hardness;
 
     mCtx.save();
-    const grad = mCtx.createRadialGradient(imgX, imgY, innerRadius, imgX, imgY, radius);
-
     if (this.brushMode === 'erase') {
       mCtx.globalCompositeOperation = 'destination-out';
+      mCtx.fillStyle = '#000000';
+    } else {
+      mCtx.globalCompositeOperation = 'source-over';
+      mCtx.fillStyle = '#ffffff';
+    }
+
+    // Fix for 100% (or >= 99%) hardness: HTML5 Canvas spec creates degenerate zero-pixel gradient when r0 === r1
+    if (hardness >= 0.99) {
+      mCtx.beginPath();
+      mCtx.arc(imgX, imgY, radius, 0, Math.PI * 2);
+      mCtx.fill();
+      mCtx.restore();
+      return;
+    }
+
+    const innerRadius = radius * hardness;
+    const safeInnerRadius = Math.min(radius - 0.05, innerRadius);
+    const grad = mCtx.createRadialGradient(imgX, imgY, safeInnerRadius, imgX, imgY, radius);
+
+    if (this.brushMode === 'erase') {
       grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
       grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     } else {
-      mCtx.globalCompositeOperation = 'source-over';
       grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
       grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     }
