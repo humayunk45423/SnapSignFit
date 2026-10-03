@@ -120,72 +120,94 @@ export class ManualEditor {
           <div class="editor-viewport-wrapper">
             <!-- Fullscreen Topbar for Step 3 (Mobile) -->
             <div class="editor-fs-topbar" id="editorFsTopbar">
-              <!-- ROW 1: Mode Selection & Exit (4 Symmetrical Columns) -->
-              <div class="editor-fs-row editor-fs-row-modes">
-                <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser">
-                  ${icon('eraser', { size: 14 })} <span data-i18n="brushErase">Eraser</span>
-                </button>
-                <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore">
-                  ${icon('brush', { size: 14 })} <span data-i18n="brushRestore">Restore</span>
-                </button>
-                <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas">
-                  ${icon('hand', { size: 14 })} <span data-i18n="moveTool">Move</span>
-                </button>
-                <button type="button" class="btn-fs-tool btn-fs-exit" id="fsBtnExit" title="Exit Full Screen">
-                  ${icon('x', { size: 14 })} <span data-i18n="btnExitFullscreen">Exit</span>
-                </button>
-              </div>
-
-              <!-- ROW 2: Actions & History (4 Symmetrical Columns) -->
-              <div class="editor-fs-row editor-fs-row-actions">
-                <button type="button" class="btn-fs-action" id="fsBtnBrushUndo" title="Undo (Ctrl+Z)" disabled>
-                  ${icon('rotate-ccw', { size: 13 })} <span data-i18n="undo">Undo</span>
-                </button>
-                <button type="button" class="btn-fs-action" id="fsBtnBrushRedo" title="Redo (Ctrl+Shift+Z)" disabled>
-                  ${icon('rotate-cw', { size: 13 })} <span data-i18n="redo">Redo</span>
-                </button>
-                <button type="button" class="btn-fs-action btn-fs-ai" id="fsBtnBrushAutoAi" title="Auto AI Remove Background">
-                  ${icon('sparkles', { size: 13 })} <span data-i18n="btnAutoAiBg">Auto AI</span>
-                </button>
-                <button type="button" class="btn-fs-action" id="fsBtnBrushResetMask" title="Reset Background to Original">
-                  ${icon('refresh-ccw', { size: 13 })} <span data-i18n="btnResetBg">Reset</span>
-                </button>
-              </div>
-
-              <!-- ROW 3: Symmetrical Brush Sliders (Size & Hardness) -->
-              <div class="editor-fs-row editor-fs-row-sliders">
-                <div class="editor-fs-slider-col">
-                  <div class="editor-fs-slider-header">
-                    <span class="editor-fs-slider-title" data-i18n="brushSize">Size</span>
-                    <strong class="editor-fs-slider-val" id="fsBrushSizeVal">30px</strong>
+              <!-- TOP SECTION: Two halves side-by-side -->
+              <div class="editor-fs-top-section">
+                <!-- LEFT HALF: 1. Undo/Redo, 2. Tools, 3. Size, 4. Hardness -->
+                <div class="editor-fs-left-col">
+                  <!-- 1. Undo and Redo buttons (one row) -->
+                  <div class="editor-fs-row-history">
+                    <button type="button" class="btn-fs-action" id="fsBtnBrushUndo" title="Undo (Ctrl+Z)" disabled>
+                      ${icon('rotate-ccw', { size: 14 })} <span data-i18n="undo">Undo</span>
+                    </button>
+                    <button type="button" class="btn-fs-action" id="fsBtnBrushRedo" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>
+                      ${icon('rotate-cw', { size: 14 })} <span data-i18n="redo">Redo</span>
+                    </button>
                   </div>
-                  <input type="range" id="fsBrushSizeSlider" min="5" max="150" step="1" value="30" class="editor-fs-range" aria-label="Brush Size Slider">
+
+                  <!-- 2. Three tool buttons: Eraser, Restore, Move (equal width) -->
+                  <div class="editor-fs-row-tools">
+                    <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser">
+                      ${icon('eraser', { size: 14 })} <span data-i18n="brushErase">Eraser</span>
+                    </button>
+                    <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore">
+                      ${icon('brush', { size: 14 })} <span data-i18n="brushRestore">Restore</span>
+                    </button>
+                    <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas">
+                      ${icon('hand', { size: 14 })} <span data-i18n="moveTool">Move</span>
+                    </button>
+                  </div>
+
+                  <!-- 3. Brush Size slider with value -->
+                  <div class="editor-fs-slider-card">
+                    <div class="editor-fs-slider-hdr">
+                      <span class="editor-fs-slider-name" data-i18n="brushSize">Size</span>
+                      <strong class="editor-fs-slider-val" id="fsBrushSizeVal">30px</strong>
+                    </div>
+                    <input type="range" id="fsBrushSizeSlider" min="5" max="150" step="1" value="30" class="editor-fs-range" aria-label="Brush Size Slider">
+                  </div>
+
+                  <!-- 4. Hardness slider with value -->
+                  <div class="editor-fs-slider-card">
+                    <div class="editor-fs-slider-hdr">
+                      <span class="editor-fs-slider-name" data-i18n="brushHardness">Hardness</span>
+                      <strong class="editor-fs-slider-val" id="fsBrushHardnessVal">80%</strong>
+                    </div>
+                    <input type="range" id="fsBrushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-fs-range" aria-label="Brush Hardness Slider">
+                  </div>
                 </div>
 
-                <div class="editor-fs-slider-col">
-                  <div class="editor-fs-slider-header">
-                    <span class="editor-fs-slider-title" data-i18n="brushHardness">Hardness</span>
-                    <strong class="editor-fs-slider-val" id="fsBrushHardnessVal">80%</strong>
+                <!-- RIGHT HALF: 1. Exit button, 2. Live Preview window -->
+                <div class="editor-fs-right-col">
+                  <button type="button" class="btn-fs-exit" id="fsBtnExit" title="Exit Full Screen">
+                    ${icon('x', { size: 14 })} <span data-i18n="btnExitFullscreen">Exit</span>
+                  </button>
+
+                  <div class="editor-fs-preview-wrap" id="editorFsPreviewWrap" role="button" tabindex="0" title="Click to enlarge live preview" aria-label="Click to enlarge live preview">
+                    <div class="editor-fs-preview-hdr">
+                      <span class="editor-fs-preview-tag" id="fsPreviewRatioTag">Preview</span>
+                      <span class="editor-fs-preview-hint">${icon('maximize', { size: 11 })}</span>
+                    </div>
+                    <div class="editor-fs-preview-box">
+                      <canvas id="editorFsLivePreviewCanvas" class="editor-fs-preview-canvas"></canvas>
+                    </div>
                   </div>
-                  <input type="range" id="fsBrushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-fs-range" aria-label="Brush Hardness Slider">
                 </div>
               </div>
 
-              <!-- ROW 4: Background Colors -->
-              <div class="editor-fs-row editor-fs-row-palette">
-                <div class="editor-fs-palette-label">
-                  <span data-i18n="bgColor">Background</span>:
+              <!-- BOTTOM SECTION: Auto AI, Reset Background, Background Color Swatches -->
+              <div class="editor-fs-bottom-section">
+                <div class="editor-fs-actions-subrow">
+                  <button type="button" class="btn-fs-action btn-fs-ai" id="fsBtnBrushAutoAi" title="Auto AI Remove Background">
+                    ${icon('sparkles', { size: 14 })} <span data-i18n="btnAutoAiBg">Auto AI Remove</span>
+                  </button>
+                  <button type="button" class="btn-fs-action" id="fsBtnBrushResetMask" title="Reset Background to Original">
+                    ${icon('refresh-ccw', { size: 14 })} <span data-i18n="btnResetBg">Reset Background</span>
+                  </button>
                 </div>
-                <div class="editor-fs-palette-swatches">
-                  <button type="button" class="fs-swatch active" data-color="#ffffff" title="Solid White" style="background: #ffffff; border: 1px solid #cbd5e1;"></button>
-                  <button type="button" class="fs-swatch" data-color="#dbeafe" title="Light Blue" style="background: #dbeafe; border: 1px solid #93c5fd;"></button>
-                  <button type="button" class="fs-swatch" data-color="#f1f5f9" title="Light Gray" style="background: #f1f5f9; border: 1px solid #cbd5e1;"></button>
-                  <button type="button" class="fs-swatch" data-color="#dc2626" title="Solid Red" style="background: #dc2626; border: 1px solid #b91c1c;"></button>
-                  <button type="button" class="fs-swatch" data-color="#2563eb" title="Royal Blue" style="background: #2563eb; border: 1px solid #1d4ed8;"></button>
-                  <label class="fs-swatch-picker" title="Custom Color">
-                    <input type="color" id="fsCustomBgColor" value="#3b82f6" class="color-picker-mini">
-                    <i class="fa fa-palette" style="font-size: 11px; color: var(--text);"></i>
-                  </label>
+
+                <div class="editor-fs-palette-subrow">
+                  <span class="editor-fs-palette-label"><span data-i18n="bgColor">Background</span>:</span>
+                  <div class="editor-fs-palette-swatches">
+                    <button type="button" class="fs-swatch active" data-color="#ffffff" title="Solid White" style="background: #ffffff;"></button>
+                    <button type="button" class="fs-swatch" data-color="#dbeafe" title="Light Blue" style="background: #dbeafe;"></button>
+                    <button type="button" class="fs-swatch" data-color="#f1f5f9" title="Light Gray" style="background: #f1f5f9;"></button>
+                    <button type="button" class="fs-swatch" data-color="#dc2626" title="Solid Red" style="background: #dc2626;"></button>
+                    <button type="button" class="fs-swatch" data-color="#2563eb" title="Royal Blue" style="background: #2563eb;"></button>
+                    <label class="fs-swatch-picker" title="Custom Color">
+                      <input type="color" id="fsCustomBgColor" value="#3b82f6" class="color-picker-mini">
+                      <i class="fa fa-palette" style="font-size: 11px; color: var(--text);"></i>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -378,6 +400,25 @@ export class ManualEditor {
             <div class="editor-actions-row">
               <button type="button" class="btn btn-outline" id="btnResetAuto" data-i18n="resetCrop">Reset to Auto</button>
               <button type="button" class="btn btn-primary" id="btnApplyEditor" data-i18n="applyChanges">Apply & Close</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-screen Enlarged Live Preview Overlay -->
+        <div class="editor-preview-modal-overlay hidden" id="editorPreviewModalOverlay" aria-modal="true" role="dialog">
+          <div class="editor-preview-modal-backdrop" id="editorPreviewModalBackdrop"></div>
+          <div class="editor-preview-modal-content" id="editorPreviewModalContent">
+            <div class="editor-preview-modal-header">
+              <div class="editor-preview-modal-title">
+                <span data-i18n="after">Exact Output Preview</span>
+                <span class="editor-preview-modal-dims" id="editorPreviewModalDims">300×300 px</span>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnExitEnlargedPreview" title="Exit Preview">
+                ${icon('x', { size: 14 })} <span data-i18n="exitPreview">Exit Preview</span>
+              </button>
+            </div>
+            <div class="editor-preview-modal-canvas-wrap" id="editorPreviewModalCanvasWrap">
+              <canvas id="editorEnlargedPreviewCanvas" class="editor-enlarged-preview-canvas"></canvas>
             </div>
           </div>
         </div>
@@ -609,20 +650,49 @@ export class ManualEditor {
       btnExitFs.addEventListener('click', () => this.toggleStep3Fullscreen(false));
     }
 
+    // Step 3 Live Preview Click to Enlarge
+    const fsPreviewWrap = el.querySelector('#editorFsPreviewWrap');
+    if (fsPreviewWrap) {
+      fsPreviewWrap.addEventListener('click', () => this.openEnlargedPreview());
+      fsPreviewWrap.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.openEnlargedPreview();
+        }
+      });
+    }
+
+    const btnExitEnlarged = el.querySelector('#btnExitEnlargedPreview');
+    if (btnExitEnlarged) {
+      btnExitEnlarged.addEventListener('click', () => this.closeEnlargedPreview());
+    }
+
+    const backdropEnlarged = el.querySelector('#editorPreviewModalBackdrop');
+    if (backdropEnlarged) {
+      backdropEnlarged.addEventListener('click', () => this.closeEnlargedPreview());
+    }
+
     // Step 3 Background Color Swatches & Two-Way Sync
     const swatches = el.querySelectorAll('.bg-swatch');
     const fsSwatches = el.querySelectorAll('.fs-swatch');
     const customBgInput = el.querySelector('#editorCustomBgColor');
     const fsCustomBg = el.querySelector('#fsCustomBgColor');
 
-    const syncSwatches = (color) => {
-      this.bgColor = color;
+    const syncSwatches = (color, pushHistoryState = true) => {
+      if (this.bgColor !== color) {
+        if (pushHistoryState && this.currentStep === 3) {
+          this.pushMaskHistory();
+        }
+        this.bgColor = color;
+      }
       swatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
       fsSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
       if (customBgInput && customBgInput.value !== color) customBgInput.value = color;
       if (fsCustomBg && fsCustomBg.value !== color) fsCustomBg.value = color;
       this.requestRender();
     };
+
+    this.syncSwatchesFromBgColor = (color) => syncSwatches(color, false);
 
     swatches.forEach(swatch => {
       swatch.addEventListener('click', () => syncSwatches(swatch.dataset.color));
@@ -712,19 +782,15 @@ export class ManualEditor {
     // Step 3 Undo / Redo Buttons
     el.querySelector('#btnBrushUndo')?.addEventListener('click', () => {
       this.undoMask();
-      this.updateBrushUndoRedoState();
     });
     el.querySelector('#btnBrushRedo')?.addEventListener('click', () => {
       this.redoMask();
-      this.updateBrushUndoRedoState();
     });
     el.querySelector('#fsBtnBrushUndo')?.addEventListener('click', () => {
       this.undoMask();
-      this.updateBrushUndoRedoState();
     });
     el.querySelector('#fsBtnBrushRedo')?.addEventListener('click', () => {
       this.redoMask();
-      this.updateBrushUndoRedoState();
     });
 
     // Straighten Line Tool Toggle
@@ -744,17 +810,26 @@ export class ManualEditor {
       this.requestRender();
     });
 
-    // Keyboard Shortcuts (Ctrl+Z, Ctrl+Shift+Z, Esc, Enter)
+    // Keyboard Shortcuts (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, Ctrl/Cmd+Y, Esc, Enter)
     // NOTE: Space pan is handled exclusively by editor-pan.js — do NOT re-add Space handling here.
     window.addEventListener('keydown', (e) => {
       if (this.overlayEl.classList.contains('hidden')) return;
       if (e.target.tagName === 'INPUT') return;
 
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
         e.preventDefault();
-        if (e.shiftKey) this.redo();
-        else this.undo();
+        if (this.isBrushing) return; // Never fire mid-stroke
+        if (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey)) {
+          this.redo();
+        } else {
+          this.undo();
+        }
       } else if (e.key === 'Escape') {
+        const enlarged = this.overlayEl.querySelector('#editorPreviewModalOverlay');
+        if (enlarged && !enlarged.classList.contains('hidden')) {
+          this.closeEnlargedPreview();
+          return;
+        }
         const dialog = this.overlayEl.querySelector('.editor-modal-dialog');
         if (dialog && dialog.classList.contains('step3-fullscreen-active')) {
           this.toggleStep3Fullscreen(false);
@@ -1258,12 +1333,24 @@ export class ManualEditor {
     this.redoStack = [];
   }
 
-  pushMaskHistory() {
-    if (!this.maskCanvas) return;
+  createMaskSnapshot() {
+    if (!this.maskCanvas) return null;
     const copy = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
     copy.getContext('2d').drawImage(this.maskCanvas, 0, 0);
-    this.maskUndoStack.push(copy);
-    if (this.maskUndoStack.length > 25) this.maskUndoStack.shift();
+    return {
+      mask: copy,
+      bgColor: this.bgColor
+    };
+  }
+
+  pushMaskHistory(snapshot) {
+    if (!this.maskCanvas) return;
+    const state = snapshot || this.createMaskSnapshot();
+    if (!state) return;
+    this.maskUndoStack.push(state);
+    if (this.maskUndoStack.length > 40) {
+      this.maskUndoStack.shift();
+    }
     this.maskRedoStack = [];
     this.updateBrushUndoRedoState();
   }
@@ -1289,14 +1376,19 @@ export class ManualEditor {
 
   undoMask() {
     if (this.maskUndoStack.length === 0 || !this.maskCanvas) return;
-    const current = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
-    current.getContext('2d').drawImage(this.maskCanvas, 0, 0);
-    this.maskRedoStack.push(current);
+    const current = this.createMaskSnapshot();
+    if (current) this.maskRedoStack.push(current);
 
     const prev = this.maskUndoStack.pop();
-    const mCtx = this.maskCanvas.getContext('2d');
-    mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-    mCtx.drawImage(prev, 0, 0);
+    if (prev && prev.mask) {
+      const mCtx = this.maskCanvas.getContext('2d');
+      mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+      mCtx.drawImage(prev.mask, 0, 0);
+      if (prev.bgColor && prev.bgColor !== this.bgColor) {
+        this.bgColor = prev.bgColor;
+        if (this.syncSwatchesFromBgColor) this.syncSwatchesFromBgColor(this.bgColor);
+      }
+    }
     this.updateBrushUndoRedoState();
     this.requestRender();
   }
@@ -1322,14 +1414,19 @@ export class ManualEditor {
 
   redoMask() {
     if (this.maskRedoStack.length === 0 || !this.maskCanvas) return;
-    const current = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
-    current.getContext('2d').drawImage(this.maskCanvas, 0, 0);
-    this.maskUndoStack.push(current);
+    const current = this.createMaskSnapshot();
+    if (current) this.maskUndoStack.push(current);
 
     const next = this.maskRedoStack.pop();
-    const mCtx = this.maskCanvas.getContext('2d');
-    mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-    mCtx.drawImage(next, 0, 0);
+    if (next && next.mask) {
+      const mCtx = this.maskCanvas.getContext('2d');
+      mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+      mCtx.drawImage(next.mask, 0, 0);
+      if (next.bgColor && next.bgColor !== this.bgColor) {
+        this.bgColor = next.bgColor;
+        if (this.syncSwatchesFromBgColor) this.syncSwatchesFromBgColor(this.bgColor);
+      }
+    }
     this.updateBrushUndoRedoState();
     this.requestRender();
   }
@@ -1351,10 +1448,113 @@ export class ManualEditor {
   }
 
   updateBrushUndoRedoState() {
+    const canUndo = this.maskUndoStack.length > 0;
+    const canRedo = this.maskRedoStack.length > 0;
+
     const undoBtn = this.overlayEl.querySelector('#btnBrushUndo');
     const redoBtn = this.overlayEl.querySelector('#btnBrushRedo');
-    if (undoBtn) undoBtn.disabled = this.maskUndoStack.length === 0;
-    if (redoBtn) redoBtn.disabled = this.maskRedoStack.length === 0;
+    if (undoBtn) undoBtn.disabled = !canUndo;
+    if (redoBtn) redoBtn.disabled = !canRedo;
+
+    const fsUndoBtn = this.overlayEl.querySelector('#fsBtnBrushUndo');
+    const fsRedoBtn = this.overlayEl.querySelector('#fsBtnBrushRedo');
+    if (fsUndoBtn) fsUndoBtn.disabled = !canUndo;
+    if (fsRedoBtn) fsRedoBtn.disabled = !canRedo;
+  }
+
+  openEnlargedPreview() {
+    const overlay = this.overlayEl.querySelector('#editorPreviewModalOverlay');
+    const content = this.overlayEl.querySelector('#editorPreviewModalContent');
+    const trigger = this.overlayEl.querySelector('#editorFsPreviewWrap');
+    if (!overlay || !content) return;
+
+    this.renderEnlargedPreview();
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    // Shared-element FLIP animation
+    if (trigger) {
+      const startRect = trigger.getBoundingClientRect();
+      const endRect = content.getBoundingClientRect();
+      const scaleX = Math.max(0.05, startRect.width / Math.max(1, endRect.width));
+      const scaleY = Math.max(0.05, startRect.height / Math.max(1, endRect.height));
+      const translateX = (startRect.left + startRect.width / 2) - (endRect.left + endRect.width / 2);
+      const translateY = (startRect.top + startRect.height / 2) - (endRect.top + endRect.height / 2);
+
+      content.style.transition = 'none';
+      content.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+      content.style.opacity = '0.4';
+
+      requestAnimationFrame(() => {
+        content.style.transition = 'transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease';
+        content.style.transform = 'translate(0px, 0px) scale(1, 1)';
+        content.style.opacity = '1';
+      });
+    }
+  }
+
+  closeEnlargedPreview(instant = false) {
+    const overlay = this.overlayEl.querySelector('#editorPreviewModalOverlay');
+    const content = this.overlayEl.querySelector('#editorPreviewModalContent');
+    const trigger = this.overlayEl.querySelector('#editorFsPreviewWrap');
+    if (!overlay || overlay.classList.contains('hidden')) return;
+
+    if (instant) {
+      overlay.classList.add('hidden');
+      if (content) {
+        content.style.transform = '';
+        content.style.opacity = '';
+      }
+      document.body.style.overflow = '';
+      return;
+    }
+
+    if (trigger && content) {
+      const startRect = content.getBoundingClientRect();
+      const endRect = trigger.getBoundingClientRect();
+      const scaleX = Math.max(0.05, endRect.width / Math.max(1, startRect.width));
+      const scaleY = Math.max(0.05, endRect.height / Math.max(1, startRect.height));
+      const translateX = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+      const translateY = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+
+      content.style.transition = 'transform 0.24s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease';
+      content.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
+      content.style.opacity = '0';
+
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        content.style.transform = '';
+        content.style.opacity = '';
+        document.body.style.overflow = '';
+      }, 240);
+    } else {
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  renderEnlargedPreview() {
+    const canvas = this.overlayEl.querySelector('#editorEnlargedPreviewCanvas');
+    if (!canvas) return;
+
+    canvas.width = this.targetW;
+    canvas.height = this.targetH;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    if (!this.transparent) {
+      ctx.fillStyle = this.bgColor;
+      ctx.fillRect(0, 0, this.targetW, this.targetH);
+    } else {
+      ctx.clearRect(0, 0, this.targetW, this.targetH);
+    }
+
+    const comp = this.getCompositedStep3Canvas();
+    if (comp) ctx.drawImage(comp, 0, 0, this.targetW, this.targetH);
+
+    const dimsEl = this.overlayEl.querySelector('#editorPreviewModalDims');
+    if (dimsEl) dimsEl.textContent = `${this.targetW}×${this.targetH} px`;
   }
 
   applyBrushStamp(imgX, imgY) {
@@ -1673,41 +1873,72 @@ export class ManualEditor {
   }
 
   renderLivePreview() {
-    if (!this.previewCanvas) return;
-    this.previewCanvas.width = this.targetW;
-    this.previewCanvas.height = this.targetH;
-    const pCtx = this.previewCanvas.getContext('2d');
-    pCtx.imageSmoothingEnabled = true;
-    pCtx.imageSmoothingQuality = 'medium';
+    // 1. Sidebar live preview
+    if (this.previewCanvas) {
+      this.previewCanvas.width = this.targetW;
+      this.previewCanvas.height = this.targetH;
+      const pCtx = this.previewCanvas.getContext('2d');
+      pCtx.imageSmoothingEnabled = true;
+      pCtx.imageSmoothingQuality = 'medium';
 
-    if (!this.transparent) {
-      pCtx.fillStyle = this.bgColor;
-      pCtx.fillRect(0, 0, this.targetW, this.targetH);
-    } else {
-      pCtx.clearRect(0, 0, this.targetW, this.targetH);
+      if (!this.transparent) {
+        pCtx.fillStyle = this.bgColor;
+        pCtx.fillRect(0, 0, this.targetW, this.targetH);
+      } else {
+        pCtx.clearRect(0, 0, this.targetW, this.targetH);
+      }
+
+      if (this.currentStep === 1) {
+        const { x, y, w, h } = this.crop;
+        pCtx.drawImage(this.sourceCanvas, x, y, w, h, 0, 0, this.targetW, this.targetH);
+      } else if (this.currentStep === 2) {
+        if (!this.croppedCanvas) this.commitCropToBitmap();
+        const bmp = this.croppedCanvas;
+        const totalDeg = this.rotation + this.straightenDeg;
+        const cx = bmp.width / 2;
+        const cy = bmp.height / 2;
+        const scale = Math.min(this.targetW / bmp.width, this.targetH / bmp.height) * this.step2Zoom;
+
+        pCtx.save();
+        pCtx.translate(this.targetW / 2, this.targetH / 2);
+        pCtx.rotate((totalDeg * Math.PI) / 180);
+        pCtx.scale(scale * (this.flipH ? -1 : 1), scale * (this.flipV ? -1 : 1));
+        pCtx.translate(-cx - this.step2PanX, -cy - this.step2PanY);
+        pCtx.drawImage(bmp, 0, 0);
+        pCtx.restore();
+      } else {
+        const comp = this.getCompositedStep3Canvas();
+        pCtx.drawImage(comp, 0, 0, this.targetW, this.targetH);
+      }
     }
 
-    if (this.currentStep === 1) {
-      const { x, y, w, h } = this.crop;
-      pCtx.drawImage(this.sourceCanvas, x, y, w, h, 0, 0, this.targetW, this.targetH);
-    } else if (this.currentStep === 2) {
-      if (!this.croppedCanvas) this.commitCropToBitmap();
-      const bmp = this.croppedCanvas;
-      const totalDeg = this.rotation + this.straightenDeg;
-      const cx = bmp.width / 2;
-      const cy = bmp.height / 2;
-      const scale = Math.min(this.targetW / bmp.width, this.targetH / bmp.height) * this.step2Zoom;
+    // 2. Fullscreen topbar live preview thumbnail
+    const fsPreview = this.overlayEl?.querySelector('#editorFsLivePreviewCanvas');
+    if (fsPreview && this.currentStep === 3) {
+      fsPreview.width = this.targetW;
+      fsPreview.height = this.targetH;
+      const fCtx = fsPreview.getContext('2d');
+      fCtx.imageSmoothingEnabled = true;
+      fCtx.imageSmoothingQuality = 'medium';
 
-      pCtx.save();
-      pCtx.translate(this.targetW / 2, this.targetH / 2);
-      pCtx.rotate((totalDeg * Math.PI) / 180);
-      pCtx.scale(scale * (this.flipH ? -1 : 1), scale * (this.flipV ? -1 : 1));
-      pCtx.translate(-cx - this.step2PanX, -cy - this.step2PanY);
-      pCtx.drawImage(bmp, 0, 0);
-      pCtx.restore();
-    } else {
+      if (!this.transparent) {
+        fCtx.fillStyle = this.bgColor;
+        fCtx.fillRect(0, 0, this.targetW, this.targetH);
+      } else {
+        fCtx.clearRect(0, 0, this.targetW, this.targetH);
+      }
+
       const comp = this.getCompositedStep3Canvas();
-      pCtx.drawImage(comp, 0, 0, this.targetW, this.targetH);
+      if (comp) fCtx.drawImage(comp, 0, 0, this.targetW, this.targetH);
+
+      const ratioTag = this.overlayEl.querySelector('#fsPreviewRatioTag');
+      if (ratioTag) ratioTag.textContent = `${this.targetW}×${this.targetH}`;
+    }
+
+    // 3. Enlarged preview modal if active
+    const overlay = this.overlayEl?.querySelector('#editorPreviewModalOverlay');
+    if (overlay && !overlay.classList.contains('hidden') && this.currentStep === 3) {
+      this.renderEnlargedPreview();
     }
   }
 
@@ -1783,14 +2014,10 @@ export class ManualEditor {
     if (this.activePointers.size >= 2) {
       // 1. Instantly rollback any accidental brush stamp created by finger 1
       if (this.currentStep === 3 && this.hadSinglePointerStamp) {
-        if (this.maskSnapshotBeforeStroke && this.maskCanvas) {
+        if (this.maskSnapshotBeforeStroke && this.maskCanvas && this.maskSnapshotBeforeStroke.mask) {
           const mCtx = this.maskCanvas.getContext('2d');
           mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
-          mCtx.drawImage(this.maskSnapshotBeforeStroke, 0, 0);
-          if (this.maskUndoStack.length > 0) {
-            this.maskUndoStack.pop();
-            this.updateBrushUndoRedoState();
-          }
+          mCtx.drawImage(this.maskSnapshotBeforeStroke.mask, 0, 0);
         }
       }
 
@@ -1901,12 +2128,10 @@ export class ManualEditor {
         try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
       }
     } else if (this.currentStep === 3) {
-      // Snapshot mask before applying stroke so if a 2nd finger lands shortly, we can rollback
       if (this.maskCanvas) {
-        this.maskSnapshotBeforeStroke = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
-        this.maskSnapshotBeforeStroke.getContext('2d').drawImage(this.maskCanvas, 0, 0);
+        this.maskSnapshotBeforeStroke = this.createMaskSnapshot();
       }
-      this.pushMaskHistory();
+      this.strokeHasModified = false;
       this.isBrushing = true;
       this.hadSinglePointerStamp = true;
       this.brushCursor.x = px;
@@ -1923,6 +2148,7 @@ export class ManualEditor {
 
       this.lastBrushPoint = { x: imgX, y: imgY };
       this.applyBrushStamp(imgX, imgY);
+      this.strokeHasModified = true;
       try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
       this.requestRender();
     }
@@ -2115,6 +2341,7 @@ export class ManualEditor {
         const imgY = (py - screenY) / this.displayScale;
 
         this.applyBrushStroke(this.lastBrushPoint.x, this.lastBrushPoint.y, imgX, imgY);
+        this.strokeHasModified = true;
         this.lastBrushPoint = { x: imgX, y: imgY };
       }
       this.requestRender();
@@ -2134,6 +2361,7 @@ export class ManualEditor {
         this.lastPinchEndTime = Date.now();
         this.pinchStart = null;
         this.isBrushing = false;
+        this.strokeHasModified = false;
         this.lastBrushPoint = null;
         this.hadSinglePointerStamp = false;
         this.maskSnapshotBeforeStroke = null;
@@ -2149,6 +2377,7 @@ export class ManualEditor {
 
     if (Date.now() - this.lastPinchEndTime < this.cooldownDuration) {
       this.isBrushing = false;
+      this.strokeHasModified = false;
       this.lastBrushPoint = null;
       this.hadSinglePointerStamp = false;
       this.maskSnapshotBeforeStroke = null;
@@ -2179,7 +2408,11 @@ export class ManualEditor {
       }
       this.requestRender();
     } else if (this.currentStep === 3) {
+      if (this.isBrushing && this.strokeHasModified && this.maskSnapshotBeforeStroke) {
+        this.pushMaskHistory(this.maskSnapshotBeforeStroke);
+      }
       this.isBrushing = false;
+      this.strokeHasModified = false;
       this.lastBrushPoint = null;
       this.hadSinglePointerStamp = false;
       this.maskSnapshotBeforeStroke = null;

@@ -2568,6 +2568,9 @@ body.dark .site-footer {
   flex-shrink: 0;
   z-index: 20;
   width: 100%;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  gap: 6px;
 }
 
 .step3-fullscreen-active .editor-fs-topbar {
@@ -2575,17 +2578,207 @@ body.dark .site-footer {
   flex-direction: column;
 }
 
-/* Fullscreen Topbar Symmetrical Grid Rows: NO horizontal scroll, all controls visible at once */
-.editor-fs-row {
+/* TOP SECTION: Two halves side-by-side */
+.editor-fs-top-section {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: stretch;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Row 1: Mode Selection & Exit (4 Symmetrical Columns) */
-.editor-fs-row-modes {
+/* LEFT HALF: 1. Undo/Redo, 2. Tools, 3. Size slider, 4. Hardness slider */
+.editor-fs-left-col {
+  flex: 1 1 58%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.editor-fs-row-history {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
+  width: 100%;
+}
+
+.editor-fs-row-tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  width: 100%;
+}
+
+.editor-fs-slider-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 3px 6px 4px;
+  box-sizing: border-box;
+}
+
+.editor-fs-slider-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.editor-fs-slider-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.editor-fs-slider-val {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+}
+
+.editor-fs-range {
+  width: 100%;
+  height: 6px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  margin: 2px 0 0 0;
+  padding: 0;
+}
+
+/* RIGHT HALF: 1. Exit button, 2. Live Preview window */
+.editor-fs-right-col {
+  flex: 1 1 42%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.editor-fs-right-col .btn-fs-exit {
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.editor-fs-preview-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), transform 0.15s ease;
+  min-height: 96px;
+}
+
+.editor-fs-preview-wrap:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.editor-fs-preview-wrap:active {
+  transform: scale(0.98);
+}
+
+.editor-fs-preview-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.editor-fs-preview-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.editor-fs-preview-hint {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+}
+
+.editor-fs-preview-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(45deg, rgba(0, 0, 0, 0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.06) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.06) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.06) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+}
+
+.editor-fs-preview-canvas {
+  max-width: 100%;
+  max-height: 90px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  display: block;
+}
+
+/* BOTTOM SECTION: Auto AI, Reset Background, Background Color Swatches */
+.editor-fs-bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.editor-fs-actions-subrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+}
+
+.editor-fs-palette-subrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  box-sizing: border-box;
+  min-height: 38px;
 }
 
 .btn-fs-tool {
@@ -2593,7 +2786,8 @@ body.dark .site-footer {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 38px;
+  height: 36px;
+  min-height: 36px;
   padding: 0 4px;
   border: 1px solid var(--border);
   background: var(--surface-2);
@@ -2623,32 +2817,14 @@ body.dark .site-footer {
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
 }
 
-.btn-fs-exit {
-  background: rgba(239, 68, 68, 0.08);
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.25);
-}
-
-.btn-fs-exit:hover, .btn-fs-exit:active {
-  background: #ef4444;
-  color: #ffffff;
-  border-color: #ef4444;
-}
-
-/* Row 2: Actions & History (4 Symmetrical Columns) */
-.editor-fs-row-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
 .btn-fs-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 36px;
-  padding: 0 4px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 6px;
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
@@ -2689,64 +2865,16 @@ body.dark .site-footer {
   color: #a855f7;
 }
 
-/* Row 3: Brush Sliders (2 Symmetrical Columns: Size & Hardness) */
-.editor-fs-row-sliders {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.btn-fs-exit {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
-.editor-fs-slider-col {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 5px 8px 6px 8px;
-  box-sizing: border-box;
-}
-
-.editor-fs-slider-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.editor-fs-slider-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.editor-fs-slider-val {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: var(--mono);
-  color: var(--primary);
-}
-
-.editor-fs-range {
-  width: 100%;
-  height: 6px;
-  accent-color: var(--primary);
-  cursor: pointer;
-  margin: 1px 0 0 0;
-  padding: 0;
-}
-
-/* Row 4: Background Colors */
-.editor-fs-row-palette {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 5px 10px;
-  box-sizing: border-box;
-  min-height: 40px;
+.btn-fs-exit:hover, .btn-fs-exit:active {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
 }
 
 .editor-fs-palette-label {
@@ -2811,6 +2939,119 @@ body.dark .site-footer {
   height: 100%;
   cursor: pointer;
   inset: 0;
+}
+
+/* Full-screen Enlarged Live Preview Modal Overlay */
+.editor-preview-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editor-preview-modal-overlay.hidden {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.editor-preview-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.editor-preview-modal-content {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  width: 90vw;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform-origin: top right;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+}
+
+.editor-preview-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.editor-preview-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-preview-modal-dims {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--border);
+}
+
+.editor-preview-modal-canvas-wrap {
+  flex: 1;
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--surface-2);
+  position: relative;
+  overflow: hidden;
+  background-image:
+    linear-gradient(45deg, rgba(0, 0, 0, 0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.06) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.06) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.06) 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 0 7px, 7px -7px, -7px 0px;
+}
+
+.editor-enlarged-preview-canvas {
+  max-width: 100%;
+  max-height: 55vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--r-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  display: block;
+}
+
+body.dark .editor-fs-preview-box,
+body.dark .editor-preview-modal-canvas-wrap {
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%);
 }
 
 body.dark .btn-fs-exit {
