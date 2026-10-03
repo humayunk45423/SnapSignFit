@@ -120,54 +120,63 @@ export class ManualEditor {
           <div class="editor-viewport-wrapper">
             <!-- Fullscreen Topbar for Step 3 (Mobile) -->
             <div class="editor-fs-topbar" id="editorFsTopbar">
-              <div class="editor-fs-row editor-fs-row-1">
-                <div class="editor-fs-mode-group">
-                  <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser">
-                    ${icon('eraser')} <span data-i18n="brushErase">Erase</span>
-                  </button>
-                  <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore">
-                    ${icon('brush')} <span data-i18n="brushRestore">Restore</span>
-                  </button>
-                  <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas">
-                    ${icon('hand')} <span data-i18n="moveTool">Move</span>
-                  </button>
-                </div>
-
-                <div class="editor-fs-history-group">
-                  <button type="button" class="btn-fs-icon" id="fsBtnBrushUndo" title="Undo (Ctrl+Z)" disabled>
-                    ${icon('rotate-ccw')}
-                  </button>
-                  <button type="button" class="btn-fs-icon" id="fsBtnBrushRedo" title="Redo (Ctrl+Shift+Z)" disabled>
-                    ${icon('rotate-cw')}
-                  </button>
-                </div>
-
-                <div class="editor-fs-action-group">
-                  <button type="button" class="btn-fs-action" id="fsBtnBrushAutoAi" title="Auto AI Remove Background">
-                    ${icon('sparkles')} <span data-i18n="btnAutoAiBg">AI</span>
-                  </button>
-                  <button type="button" class="btn-fs-action" id="fsBtnBrushResetMask" title="Reset Background">
-                    ${icon('refresh-ccw')} <span data-i18n="btnResetBg">Reset</span>
-                  </button>
-                </div>
-
-                <button type="button" class="btn-fs-exit" id="fsBtnExit" title="Exit Full Screen">
-                  <i class="fa-solid fa-compress"></i> <span data-i18n="btnExitFullscreen">Exit</span>
+              <!-- ROW 1: Mode Selection & Exit (4 Symmetrical Columns) -->
+              <div class="editor-fs-row editor-fs-row-modes">
+                <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser">
+                  ${icon('eraser', { size: 14 })} <span data-i18n="brushErase">Eraser</span>
+                </button>
+                <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore">
+                  ${icon('brush', { size: 14 })} <span data-i18n="brushRestore">Restore</span>
+                </button>
+                <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas">
+                  ${icon('hand', { size: 14 })} <span data-i18n="moveTool">Move</span>
+                </button>
+                <button type="button" class="btn-fs-tool btn-fs-exit" id="fsBtnExit" title="Exit Full Screen">
+                  ${icon('x', { size: 14 })} <span data-i18n="btnExitFullscreen">Exit</span>
                 </button>
               </div>
 
-              <div class="editor-fs-row editor-fs-row-2">
-                <div class="editor-fs-slider-wrap">
-                  <span class="editor-fs-slider-label"><span data-i18n="brushSize">Size</span>: <strong id="fsBrushSizeVal">30px</strong></span>
-                  <input type="range" id="fsBrushSizeSlider" min="5" max="150" step="1" value="30" class="editor-fs-slider" aria-label="Brush Size Slider">
+              <!-- ROW 2: Actions & History (4 Symmetrical Columns) -->
+              <div class="editor-fs-row editor-fs-row-actions">
+                <button type="button" class="btn-fs-action" id="fsBtnBrushUndo" title="Undo (Ctrl+Z)" disabled>
+                  ${icon('rotate-ccw', { size: 13 })} <span data-i18n="undo">Undo</span>
+                </button>
+                <button type="button" class="btn-fs-action" id="fsBtnBrushRedo" title="Redo (Ctrl+Shift+Z)" disabled>
+                  ${icon('rotate-cw', { size: 13 })} <span data-i18n="redo">Redo</span>
+                </button>
+                <button type="button" class="btn-fs-action btn-fs-ai" id="fsBtnBrushAutoAi" title="Auto AI Remove Background">
+                  ${icon('sparkles', { size: 13 })} <span data-i18n="btnAutoAiBg">Auto AI</span>
+                </button>
+                <button type="button" class="btn-fs-action" id="fsBtnBrushResetMask" title="Reset Background to Original">
+                  ${icon('refresh-ccw', { size: 13 })} <span data-i18n="btnResetBg">Reset</span>
+                </button>
+              </div>
+
+              <!-- ROW 3: Symmetrical Brush Sliders (Size & Hardness) -->
+              <div class="editor-fs-row editor-fs-row-sliders">
+                <div class="editor-fs-slider-col">
+                  <div class="editor-fs-slider-header">
+                    <span class="editor-fs-slider-title" data-i18n="brushSize">Size</span>
+                    <strong class="editor-fs-slider-val" id="fsBrushSizeVal">30px</strong>
+                  </div>
+                  <input type="range" id="fsBrushSizeSlider" min="5" max="150" step="1" value="30" class="editor-fs-range" aria-label="Brush Size Slider">
                 </div>
 
-                <div class="editor-fs-slider-wrap">
-                  <span class="editor-fs-slider-label"><span data-i18n="brushHardness">Hard</span>: <strong id="fsBrushHardnessVal">80%</strong></span>
-                  <input type="range" id="fsBrushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-fs-slider" aria-label="Brush Hardness Slider">
+                <div class="editor-fs-slider-col">
+                  <div class="editor-fs-slider-header">
+                    <span class="editor-fs-slider-title" data-i18n="brushHardness">Hardness</span>
+                    <strong class="editor-fs-slider-val" id="fsBrushHardnessVal">80%</strong>
+                  </div>
+                  <input type="range" id="fsBrushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-fs-range" aria-label="Brush Hardness Slider">
                 </div>
+              </div>
 
-                <div class="editor-fs-palette">
+              <!-- ROW 4: Background Colors -->
+              <div class="editor-fs-row editor-fs-row-palette">
+                <div class="editor-fs-palette-label">
+                  <span data-i18n="bgColor">Background</span>:
+                </div>
+                <div class="editor-fs-palette-swatches">
                   <button type="button" class="fs-swatch active" data-color="#ffffff" title="Solid White" style="background: #ffffff; border: 1px solid #cbd5e1;"></button>
                   <button type="button" class="fs-swatch" data-color="#dbeafe" title="Light Blue" style="background: #dbeafe; border: 1px solid #93c5fd;"></button>
                   <button type="button" class="fs-swatch" data-color="#f1f5f9" title="Light Gray" style="background: #f1f5f9; border: 1px solid #cbd5e1;"></button>
@@ -175,7 +184,7 @@ export class ManualEditor {
                   <button type="button" class="fs-swatch" data-color="#2563eb" title="Royal Blue" style="background: #2563eb; border: 1px solid #1d4ed8;"></button>
                   <label class="fs-swatch-picker" title="Custom Color">
                     <input type="color" id="fsCustomBgColor" value="#3b82f6" class="color-picker-mini">
-                    <i class="fa fa-palette" style="font-size: 10px; color: var(--text);"></i>
+                    <i class="fa fa-palette" style="font-size: 11px; color: var(--text);"></i>
                   </label>
                 </div>
               </div>
