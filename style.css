@@ -2493,25 +2493,337 @@ body.dark .site-footer {
   cursor: crosshair;
 }
 
-/* Helper / Caption text below canvas (M1 Fix: normal flow, never narrow or letter-stacked) */
-.editor-help-text {
+/* Helper bar below canvas (wraps caption and fullscreen button) */
+.editor-help-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 6px var(--s-3);
+  flex-shrink: 0;
+  min-height: 38px;
+}
+
+.editor-help-bar .editor-help-text {
   position: static !important;
-  width: 100% !important;
+  width: auto !important;
   max-width: 100% !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
   color: var(--muted);
-  font-size: 13px !important;
-  background-color: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: var(--s-2) var(--s-4) !important;
-  text-align: center;
+  font-size: 12px !important;
+  background-color: transparent !important;
+  border-top: none !important;
+  padding: 0 !important;
+  text-align: left;
   white-space: normal !important;
   overflow-wrap: normal !important;
   word-break: normal !important;
-  line-height: 1.4 !important;
+  line-height: 1.35 !important;
   margin: 0 !important;
+  flex: 1 1 auto;
+}
+
+.btn-editor-fs {
+  display: none; /* Shown on mobile when Step 3 is active */
+  align-items: center;
+  gap: 5px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
   flex-shrink: 0;
+  transition: all var(--t) var(--ease);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.btn-editor-fs:hover {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.btn-editor-fs i {
+  font-size: 11px;
+}
+
+/* Fullscreen Topbar for Background & Brush (Step 3 on Mobile) */
+.editor-fs-topbar {
+  display: none;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  z-index: 20;
+  width: 100%;
+}
+
+.step3-fullscreen-active .editor-fs-topbar {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.editor-fs-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.editor-fs-row::-webkit-scrollbar {
+  display: none;
+}
+
+.editor-fs-row-1 {
+  padding: 4px 6px;
+  gap: 4px;
+  height: 36px;
+  background-color: var(--surface);
+  justify-content: space-between;
+}
+
+.editor-fs-row-2 {
+  padding: 3px 6px 4px 6px;
+  gap: 6px;
+  height: 32px;
+  background-color: var(--surface-2);
+  border-top: 1px solid var(--border);
+}
+
+/* Row 1 Components */
+.editor-fs-mode-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  background: var(--surface-2);
+  padding: 1px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.btn-fs-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 25px;
+  padding: 0 5px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: calc(var(--r-sm) - 2px);
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+  white-space: nowrap;
+}
+
+.btn-fs-tool svg, .btn-fs-tool i {
+  width: 11px;
+  height: 11px;
+}
+
+.btn-fs-tool:hover {
+  color: var(--text);
+}
+
+.btn-fs-tool.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.35);
+}
+
+.editor-fs-history-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.btn-fs-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+  flex-shrink: 0;
+}
+
+.btn-fs-icon svg, .btn-fs-icon i {
+  width: 11px;
+  height: 11px;
+}
+
+.btn-fs-icon:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: var(--primary);
+}
+
+.btn-fs-icon:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.editor-fs-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.btn-fs-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 25px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-fs-action svg, .btn-fs-action i {
+  width: 10px;
+  height: 10px;
+}
+
+.btn-fs-action:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-fs-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 25px;
+  padding: 0 6px;
+  border: 1px solid var(--primary);
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary);
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-fs-exit:hover, .btn-fs-exit:active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* Row 2 Sliders & Palette */
+.editor-fs-slider-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 105px;
+}
+
+.editor-fs-slider-label {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+.editor-fs-slider-label strong {
+  color: var(--text);
+}
+
+.editor-fs-slider {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--primary);
+  min-width: 45px;
+  cursor: pointer;
+}
+
+.editor-fs-palette {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.fs-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: transform 0.15s ease;
+}
+
+.fs-swatch:active {
+  transform: scale(0.9);
+}
+
+.fs-swatch.active {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.fs-swatch-picker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px dashed var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.fs-swatch-picker input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  inset: 0;
 }
 
 .editor-sidebar {
@@ -2526,6 +2838,27 @@ body.dark .site-footer {
   overflow-y: auto;
   overflow-x: hidden;
   flex-shrink: 0;
+}
+
+/* Desktop: Tools on the LEFT (Photoshop style) */
+@media (min-width: 861px) {
+  .editor-sidebar {
+    order: -1;
+    border-left: none;
+    border-right: 1px solid var(--border);
+  }
+
+  .editor-viewport-wrapper {
+    order: 1;
+  }
+
+  .btn-editor-fs {
+    display: none !important;
+  }
+
+  .editor-fs-topbar {
+    display: none !important;
+  }
 }
 
 .editor-preview-box {
@@ -3539,6 +3872,7 @@ body.dark .feature-strip-dot {
   .editor-viewport-wrapper {
     flex: none;
     width: 100%;
+    order: 1;
   }
 
   .editor-viewport-container {
@@ -3555,6 +3889,68 @@ body.dark .feature-strip-dot {
     padding: var(--s-4);
     overflow-y: visible;
     flex: none;
+    order: 2;
+  }
+
+  .btn-editor-fs:not(.hidden) {
+    display: inline-flex !important;
+  }
+
+  /* Full Screen Mode for Background & Brush on Mobile */
+  .editor-modal-dialog.step3-fullscreen-active {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    z-index: 1200 !important;
+  }
+
+  .editor-modal-dialog.step3-fullscreen-active .editor-header {
+    display: none !important;
+  }
+
+  .editor-modal-dialog.step3-fullscreen-active .editor-sidebar {
+    display: none !important;
+  }
+
+  .editor-modal-dialog.step3-fullscreen-active .editor-help-bar {
+    display: none !important;
+  }
+
+  .editor-modal-dialog.step3-fullscreen-active .editor-body {
+    flex: 1 1 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .editor-modal-dialog.step3-fullscreen-active .editor-viewport-wrapper {
+    flex: 1 1 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .editor-modal-dialog.step3-fullscreen-active .editor-viewport-container {
+    flex: 1 1 0 !important;
+    height: calc(100dvh - 76px) !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
   }
 
   .editor-actions-row {

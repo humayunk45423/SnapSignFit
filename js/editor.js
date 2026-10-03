@@ -118,11 +118,79 @@ export class ManualEditor {
 
         <div class="editor-body">
           <div class="editor-viewport-wrapper">
+            <!-- Fullscreen Topbar for Step 3 (Mobile) -->
+            <div class="editor-fs-topbar" id="editorFsTopbar">
+              <div class="editor-fs-row editor-fs-row-1">
+                <div class="editor-fs-mode-group">
+                  <button type="button" class="btn-fs-tool active" id="fsBtnBrushErase" title="Eraser">
+                    ${icon('eraser')} <span data-i18n="brushErase">Erase</span>
+                  </button>
+                  <button type="button" class="btn-fs-tool" id="fsBtnBrushRestore" title="Restore">
+                    ${icon('brush')} <span data-i18n="brushRestore">Restore</span>
+                  </button>
+                  <button type="button" class="btn-fs-tool" id="fsBtnHandTool" aria-pressed="false" title="Move Canvas">
+                    ${icon('hand')} <span data-i18n="moveTool">Move</span>
+                  </button>
+                </div>
+
+                <div class="editor-fs-history-group">
+                  <button type="button" class="btn-fs-icon" id="fsBtnBrushUndo" title="Undo (Ctrl+Z)" disabled>
+                    ${icon('rotate-ccw')}
+                  </button>
+                  <button type="button" class="btn-fs-icon" id="fsBtnBrushRedo" title="Redo (Ctrl+Shift+Z)" disabled>
+                    ${icon('rotate-cw')}
+                  </button>
+                </div>
+
+                <div class="editor-fs-action-group">
+                  <button type="button" class="btn-fs-action" id="fsBtnBrushAutoAi" title="Auto AI Remove Background">
+                    ${icon('sparkles')} <span data-i18n="btnAutoAiBg">AI</span>
+                  </button>
+                  <button type="button" class="btn-fs-action" id="fsBtnBrushResetMask" title="Reset Background">
+                    ${icon('refresh-ccw')} <span data-i18n="btnResetBg">Reset</span>
+                  </button>
+                </div>
+
+                <button type="button" class="btn-fs-exit" id="fsBtnExit" title="Exit Full Screen">
+                  <i class="fa-solid fa-compress"></i> <span data-i18n="btnExitFullscreen">Exit</span>
+                </button>
+              </div>
+
+              <div class="editor-fs-row editor-fs-row-2">
+                <div class="editor-fs-slider-wrap">
+                  <span class="editor-fs-slider-label"><span data-i18n="brushSize">Size</span>: <strong id="fsBrushSizeVal">30px</strong></span>
+                  <input type="range" id="fsBrushSizeSlider" min="5" max="150" step="1" value="30" class="editor-fs-slider" aria-label="Brush Size Slider">
+                </div>
+
+                <div class="editor-fs-slider-wrap">
+                  <span class="editor-fs-slider-label"><span data-i18n="brushHardness">Hard</span>: <strong id="fsBrushHardnessVal">80%</strong></span>
+                  <input type="range" id="fsBrushHardnessSlider" min="0" max="100" step="1" value="80" class="editor-fs-slider" aria-label="Brush Hardness Slider">
+                </div>
+
+                <div class="editor-fs-palette">
+                  <button type="button" class="fs-swatch active" data-color="#ffffff" title="Solid White" style="background: #ffffff; border: 1px solid #cbd5e1;"></button>
+                  <button type="button" class="fs-swatch" data-color="#dbeafe" title="Light Blue" style="background: #dbeafe; border: 1px solid #93c5fd;"></button>
+                  <button type="button" class="fs-swatch" data-color="#f1f5f9" title="Light Gray" style="background: #f1f5f9; border: 1px solid #cbd5e1;"></button>
+                  <button type="button" class="fs-swatch" data-color="#dc2626" title="Solid Red" style="background: #dc2626; border: 1px solid #b91c1c;"></button>
+                  <button type="button" class="fs-swatch" data-color="#2563eb" title="Royal Blue" style="background: #2563eb; border: 1px solid #1d4ed8;"></button>
+                  <label class="fs-swatch-picker" title="Custom Color">
+                    <input type="color" id="fsCustomBgColor" value="#3b82f6" class="color-picker-mini">
+                    <i class="fa fa-palette" style="font-size: 10px; color: var(--text);"></i>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <div class="editor-viewport-container">
               <canvas id="editorInteractiveCanvas" class="editor-interactive-canvas"></canvas>
             </div>
-            <div class="editor-help-text" id="editorHelpText" data-i18n="cropHint">
-              Drag frame to move · Drag corners to resize
+            <div class="editor-help-bar" id="editorHelpBar">
+              <div class="editor-help-text" id="editorHelpText" data-i18n="cropHint">
+                Drag frame to move · Drag corners to resize
+              </div>
+              <button type="button" class="btn-editor-fs hidden" id="btnStep3Fullscreen" title="Full Screen Edit Mode" aria-label="Full Screen Edit Mode">
+                <i class="fa-solid fa-expand"></i> <span data-i18n="btnFullscreen">Full Screen</span>
+              </button>
             </div>
           </div>
 
@@ -440,11 +508,26 @@ export class ManualEditor {
       }
     };
 
+    const fsBtnErase = el.querySelector('#fsBtnBrushErase');
+    const fsBtnRestore = el.querySelector('#fsBtnBrushRestore');
+    const fsBtnHand = el.querySelector('#fsBtnHandTool');
+
+    const syncFsModeButtons = () => {
+      const isHand = (btnHandTool ? (btnHandTool.classList.contains('active') || btnHandTool.getAttribute('aria-pressed') === 'true') : false) || (window.__editorPan?.isActive() || false);
+      if (fsBtnHand) {
+        fsBtnHand.classList.toggle('active', isHand);
+        fsBtnHand.setAttribute('aria-pressed', String(isHand));
+      }
+      if (fsBtnErase) fsBtnErase.classList.toggle('active', !isHand && this.brushMode === 'erase');
+      if (fsBtnRestore) fsBtnRestore.classList.toggle('active', !isHand && this.brushMode === 'restore');
+    };
+
     btnErase.addEventListener('click', () => {
       this.brushMode = 'erase';
       btnErase.classList.add('active');
       btnRestore.classList.remove('active');
       deactivateHandTool();
+      syncFsModeButtons();
       this.requestRender();
     });
 
@@ -453,6 +536,7 @@ export class ManualEditor {
       btnRestore.classList.add('active');
       btnErase.classList.remove('active');
       deactivateHandTool();
+      syncFsModeButtons();
       this.requestRender();
     });
 
@@ -480,37 +564,90 @@ export class ManualEditor {
             btnRestore.classList.remove('active');
           }
         }
+        syncFsModeButtons();
       });
     }
 
-    // Step 3 Background Color Swatches
+    // Fullscreen Mode Tool Bindings
+    if (fsBtnErase) {
+      fsBtnErase.addEventListener('click', () => {
+        btnErase.click();
+        syncFsModeButtons();
+      });
+    }
+
+    if (fsBtnRestore) {
+      fsBtnRestore.addEventListener('click', () => {
+        btnRestore.click();
+        syncFsModeButtons();
+      });
+    }
+
+    if (fsBtnHand) {
+      fsBtnHand.addEventListener('click', () => {
+        if (btnHandTool) btnHandTool.click();
+        syncFsModeButtons();
+      });
+    }
+
+    // Step 3 Fullscreen Enter & Exit Buttons
+    const btnFs = el.querySelector('#btnStep3Fullscreen');
+    if (btnFs) {
+      btnFs.addEventListener('click', () => this.toggleStep3Fullscreen(true));
+    }
+    const btnExitFs = el.querySelector('#fsBtnExit');
+    if (btnExitFs) {
+      btnExitFs.addEventListener('click', () => this.toggleStep3Fullscreen(false));
+    }
+
+    // Step 3 Background Color Swatches & Two-Way Sync
     const swatches = el.querySelectorAll('.bg-swatch');
+    const fsSwatches = el.querySelectorAll('.fs-swatch');
     const customBgInput = el.querySelector('#editorCustomBgColor');
+    const fsCustomBg = el.querySelector('#fsCustomBgColor');
+
+    const syncSwatches = (color) => {
+      this.bgColor = color;
+      swatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
+      fsSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === color));
+      if (customBgInput && customBgInput.value !== color) customBgInput.value = color;
+      if (fsCustomBg && fsCustomBg.value !== color) fsCustomBg.value = color;
+      this.requestRender();
+    };
+
     swatches.forEach(swatch => {
-      swatch.addEventListener('click', () => {
-        swatches.forEach(s => s.classList.remove('active'));
-        swatch.classList.add('active');
-        this.bgColor = swatch.dataset.color;
-        this.requestRender();
-      });
+      swatch.addEventListener('click', () => syncSwatches(swatch.dataset.color));
     });
+    fsSwatches.forEach(swatch => {
+      swatch.addEventListener('click', () => syncSwatches(swatch.dataset.color));
+    });
+
     if (customBgInput) {
-      customBgInput.addEventListener('input', (e) => {
-        swatches.forEach(s => s.classList.remove('active'));
-        this.bgColor = e.target.value;
-        this.requestRender();
-      });
+      customBgInput.addEventListener('input', (e) => syncSwatches(e.target.value));
+    }
+    if (fsCustomBg) {
+      fsCustomBg.addEventListener('input', (e) => syncSwatches(e.target.value));
     }
 
     // Step 3 Brush Size Slider & Input
     const brushSizeSlider = el.querySelector('#brushSizeSlider');
     const brushSizeInput = el.querySelector('#brushSizeInput');
+    const fsBrushSizeSlider = el.querySelector('#fsBrushSizeSlider');
 
     brushSizeSlider.addEventListener('input', (e) => {
       this.brushSize = parseInt(e.target.value, 10) || 30;
       this.updateBrushSizeInputDisplay();
       this.requestRender();
     });
+
+    if (fsBrushSizeSlider) {
+      fsBrushSizeSlider.addEventListener('input', (e) => {
+        this.brushSize = parseInt(e.target.value, 10) || 30;
+        brushSizeSlider.value = this.brushSize;
+        this.updateBrushSizeInputDisplay();
+        this.requestRender();
+      });
+    }
 
     this.bindNumericInput(brushSizeInput, {
       getVal: () => this.brushSize,
@@ -529,11 +666,20 @@ export class ManualEditor {
     // Step 3 Brush Hardness Slider & Input
     const brushHardnessSlider = el.querySelector('#brushHardnessSlider');
     const brushHardnessInput = el.querySelector('#brushHardnessInput');
+    const fsBrushHardnessSlider = el.querySelector('#fsBrushHardnessSlider');
 
     brushHardnessSlider.addEventListener('input', (e) => {
       this.brushHardness = parseInt(e.target.value, 10) || 80;
       this.updateBrushHardnessInputDisplay();
     });
+
+    if (fsBrushHardnessSlider) {
+      fsBrushHardnessSlider.addEventListener('input', (e) => {
+        this.brushHardness = parseInt(e.target.value, 10) || 80;
+        brushHardnessSlider.value = this.brushHardness;
+        this.updateBrushHardnessInputDisplay();
+      });
+    }
 
     this.bindNumericInput(brushHardnessInput, {
       getVal: () => this.brushHardness,
@@ -551,6 +697,8 @@ export class ManualEditor {
     // Step 3 Quick Action Buttons
     el.querySelector('#btnBrushAutoAi')?.addEventListener('click', () => this.autoAiRemoveBg());
     el.querySelector('#btnBrushResetMask')?.addEventListener('click', () => this.resetMask());
+    el.querySelector('#fsBtnBrushAutoAi')?.addEventListener('click', () => this.autoAiRemoveBg());
+    el.querySelector('#fsBtnBrushResetMask')?.addEventListener('click', () => this.resetMask());
 
     // Step 3 Undo / Redo Buttons
     el.querySelector('#btnBrushUndo')?.addEventListener('click', () => {
@@ -558,6 +706,14 @@ export class ManualEditor {
       this.updateBrushUndoRedoState();
     });
     el.querySelector('#btnBrushRedo')?.addEventListener('click', () => {
+      this.redoMask();
+      this.updateBrushUndoRedoState();
+    });
+    el.querySelector('#fsBtnBrushUndo')?.addEventListener('click', () => {
+      this.undoMask();
+      this.updateBrushUndoRedoState();
+    });
+    el.querySelector('#fsBtnBrushRedo')?.addEventListener('click', () => {
       this.redoMask();
       this.updateBrushUndoRedoState();
     });
@@ -590,6 +746,11 @@ export class ManualEditor {
         if (e.shiftKey) this.redo();
         else this.undo();
       } else if (e.key === 'Escape') {
+        const dialog = this.overlayEl.querySelector('.editor-modal-dialog');
+        if (dialog && dialog.classList.contains('step3-fullscreen-active')) {
+          this.toggleStep3Fullscreen(false);
+          return;
+        }
         this.close();
       } else if (e.key === 'Enter') {
         this.apply();
@@ -676,12 +837,20 @@ export class ManualEditor {
     const formatted = `${Math.round(this.brushSize)}px`;
     const inp = this.overlayEl.querySelector('#brushSizeInput');
     if (inp && document.activeElement !== inp) inp.value = formatted;
+    const fsSlider = this.overlayEl.querySelector('#fsBrushSizeSlider');
+    if (fsSlider && document.activeElement !== fsSlider) fsSlider.value = this.brushSize;
+    const fsVal = this.overlayEl.querySelector('#fsBrushSizeVal');
+    if (fsVal) fsVal.textContent = formatted;
   }
 
   updateBrushHardnessInputDisplay() {
     const formatted = `${Math.round(this.brushHardness)}%`;
     const inp = this.overlayEl.querySelector('#brushHardnessInput');
     if (inp && document.activeElement !== inp) inp.value = formatted;
+    const fsSlider = this.overlayEl.querySelector('#fsBrushHardnessSlider');
+    if (fsSlider && document.activeElement !== fsSlider) fsSlider.value = this.brushHardness;
+    const fsVal = this.overlayEl.querySelector('#fsBrushHardnessVal');
+    if (fsVal) fsVal.textContent = formatted;
   }
 
   setStep(stepNumber) {
@@ -719,6 +888,7 @@ export class ManualEditor {
     const p2 = this.overlayEl.querySelector('#step2Controls');
     const p3 = this.overlayEl.querySelector('#step3Controls');
     const help = this.overlayEl.querySelector('#editorHelpText');
+    const btnFs = this.overlayEl.querySelector('#btnStep3Fullscreen');
 
     tab1?.classList.toggle('active', stepNumber === 1);
     tab1?.setAttribute('aria-selected', stepNumber === 1 ? 'true' : 'false');
@@ -734,6 +904,14 @@ export class ManualEditor {
     if (p2) p2.classList.toggle('hidden', stepNumber === 3);
     // p3 (brush controls) is only shown in step 3
     if (p3) p3.classList.toggle('hidden', stepNumber !== 3);
+
+    // Full Screen Button: visible only in Step 3 (mobile view)
+    if (btnFs) {
+      btnFs.classList.toggle('hidden', stepNumber !== 3);
+    }
+    if (stepNumber !== 3) {
+      this.toggleStep3Fullscreen(false);
+    }
 
     // Ensure hand/move tool is deactivated when switching steps
     if (stepNumber !== 3) {
@@ -891,6 +1069,7 @@ export class ManualEditor {
       this.autoDetectedCrop = { ...this.crop };
     }
 
+    this.toggleStep3Fullscreen(false);
     this.commitCropToBitmap();
     this.setStep(1);
 
@@ -899,7 +1078,46 @@ export class ManualEditor {
     this.redraw();
   }
 
+  toggleStep3Fullscreen(enable) {
+    const dialog = this.overlayEl.querySelector('.editor-modal-dialog');
+    if (!dialog) return;
+
+    const isFs = (enable !== undefined) ? !!enable : !dialog.classList.contains('step3-fullscreen-active');
+    dialog.classList.toggle('step3-fullscreen-active', isFs);
+
+    const btnFs = this.overlayEl.querySelector('#btnStep3Fullscreen');
+    if (btnFs) {
+      btnFs.classList.toggle('active', isFs);
+      btnFs.setAttribute('aria-pressed', String(isFs));
+    }
+
+    if (isFs) {
+      this.updateBrushSizeInputDisplay();
+      this.updateBrushHardnessInputDisplay();
+      this.updateBrushUndoRedoState();
+
+      const fsBtnErase = this.overlayEl.querySelector('#fsBtnBrushErase');
+      const fsBtnRestore = this.overlayEl.querySelector('#fsBtnBrushRestore');
+      const fsBtnHand = this.overlayEl.querySelector('#fsBtnHandTool');
+      const btnHandTool = this.overlayEl.querySelector('#btnHandTool');
+      const isHand = (btnHandTool ? (btnHandTool.classList.contains('active') || btnHandTool.getAttribute('aria-pressed') === 'true') : false) || (window.__editorPan?.isActive() || false);
+      if (fsBtnHand) {
+        fsBtnHand.classList.toggle('active', isHand);
+        fsBtnHand.setAttribute('aria-pressed', String(isHand));
+      }
+      if (fsBtnErase) fsBtnErase.classList.toggle('active', !isHand && this.brushMode === 'erase');
+      if (fsBtnRestore) fsBtnRestore.classList.toggle('active', !isHand && this.brushMode === 'restore');
+
+      const fsSwatches = this.overlayEl.querySelectorAll('.fs-swatch');
+      fsSwatches.forEach(s => s.classList.toggle('active', s.dataset.color === this.bgColor));
+    }
+
+    this.resizeEditorCanvas();
+    this.redraw();
+  }
+
   close() {
+    this.toggleStep3Fullscreen(false);
     this.activePointers.clear();
     this.isPinching = false;
     this.pinchStart = null;
