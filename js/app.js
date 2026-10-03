@@ -312,6 +312,29 @@ class SnapSignFitApp {
 
 
 
+  showToast(message, type = 'info', duration = 3500) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    let iconHtml = '';
+    if (type === 'success') iconHtml = icon('circle-check', { size: 16, className: 'toast-icon' });
+    else if (type === 'error') iconHtml = icon('circle-alert', { size: 16, className: 'toast-icon' });
+    else if (type === 'warn') iconHtml = icon('triangle-alert', { size: 16, className: 'toast-icon' });
+    else iconHtml = icon('info', { size: 16, className: 'toast-icon' });
+
+    toast.innerHTML = `${iconHtml}<div class="toast-message">${message}</div>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('toast-hiding');
+      setTimeout(() => {
+        if (toast.parentElement) toast.parentElement.removeChild(toast);
+      }, 260);
+    }, duration);
+  }
+
   setupGlobalErrors() {
     const banner = document.getElementById('globalBanner');
     const bannerText = document.getElementById('globalBannerText');
@@ -320,9 +343,10 @@ class SnapSignFitApp {
     const showError = (msg) => {
       console.error('Handled application error:', msg);
       if (banner && bannerText) {
-        bannerText.textContent = msg || 'An unexpected issue occurred. Try manual editing mode.';
+        bannerText.textContent = msg || t('genericError');
         banner.classList.remove('hidden');
       }
+      this.showToast(msg || t('genericError'), 'error');
     };
 
     window.addEventListener('error', (e) => {
@@ -418,8 +442,14 @@ class SnapSignFitApp {
     const cameraInput = document.getElementById('cameraInput');
     const dropzone = document.getElementById('dropzone');
 
-    document.getElementById('btnChooseFile').addEventListener('click', () => fileInput.click());
-    document.getElementById('btnTakePhoto').addEventListener('click', () => cameraInput.click());
+    document.getElementById('btnChooseFile').addEventListener('click', () => {
+      if (fileInput) fileInput.value = '';
+      fileInput?.click();
+    });
+    document.getElementById('btnTakePhoto').addEventListener('click', () => {
+      if (cameraInput) cameraInput.value = '';
+      cameraInput?.click();
+    });
 
     fileInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
@@ -430,6 +460,40 @@ class SnapSignFitApp {
     cameraInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         this.handleFileUpload(e.target.files[0]);
+      }
+    });
+
+    // Global Pro Keyboard Shortcuts (Ctrl+S / Cmd+S to Download, Ctrl+Z to Undo)
+    window.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
+
+      // Ctrl+S / Cmd+S -> Download current processed image
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (this.currentExport && !document.getElementById('btnDownload')?.disabled) {
+          this.triggerDownload();
+        }
+      }
+
+      // Ctrl+Z / Cmd+Z -> Undo auto-fix chip if editor is not open
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        if (!window.__manualEditor?.overlayEl || window.__manualEditor.overlayEl.classList.contains('hidden')) {
+          const undoable = this.activeChips.filter(c => c.isUndoable && c.onUndo);
+          if (undoable.length > 0) {
+            e.preventDefault();
+            const last = undoable[undoable.length - 1];
+            last.onUndo();
+          }
+        }
+      }
+    });
+
+    // Warn before leaving if work is unsaved
+    window.addEventListener('beforeunload', (e) => {
+      if (this.sourceData && !this.hasDownloadedCurrentWork) {
+        e.preventDefault();
+        e.returnValue = '';
       }
     });
 
@@ -471,15 +535,18 @@ class SnapSignFitApp {
 
     // Custom Size Form
     const updateCustomPreset = () => {
-      const w = parseInt(document.getElementById('customW').value) || 300;
-      const h = parseInt(document.getElementById('customH').value) || 300;
+      const rawW = parseInt(document.getElementById('customW').value) || 300;
+      const rawH = parseInt(document.getElementById('customH').value) || 300;
+      const w = Math.max(1, Math.min(8000, rawW));
+      const h = Math.max(1, Math.min(8000, rawH));
       const unit = document.getElementById('customUnit').value;
-      const dpi = parseInt(document.getElementById('customDpi').value) || 300;
+      const rawDpi = parseInt(document.getElementById('customDpi').value) || 300;
+      const dpi = Math.max(72, Math.min(1200, rawDpi));
       const kind = document.getElementById('customKind').value;
       const fit = document.getElementById('customFit').value;
 
-      const pxW = unitToPixels(w, unit, dpi);
-      const pxH = unitToPixels(h, unit, dpi);
+      const pxW = Math.max(1, Math.min(8000, unitToPixels(w, unit, dpi)));
+      const pxH = Math.max(1, Math.min(8000, unitToPixels(h, unit, dpi)));
 
       this.currentPreset = {
         id: 'custom_active',
@@ -512,7 +579,7 @@ class SnapSignFitApp {
 
     document.getElementById('btnSaveCustomPreset').addEventListener('click', () => {
       saveCustomPreset(this.currentPreset);
-      alert('Custom preset saved!');
+      this.showToast(t('presetSaved'), 'success');
     });
 
     // Settings Bar Controls
@@ -1224,6 +1291,14 @@ class SnapSignFitApp {
     if (pText && text) pText.textContent = text;
     // Hide badge while busy so assertDownload waits for fresh export
     if (badge) badge.classList.toggle('hidden', isBusy);
+
+    if (isBusy) {
+      document.title = `⟳ (${text || t('processing')}) — ${CONFIG.SITE_NAME}`;
+    } else if (this.currentExport && this.currentPreset) {
+      document.title = `✓ ${CONFIG.SITE_NAME} — ${this.currentPreset.label} (${this.currentPreset.w}×${this.currentPreset.h})`;
+    } else {
+      document.title = `${CONFIG.SITE_NAME} — Photo & Signature Auto-Formatter (100% Free & Client-Side)`;
+    }
   }
 
   /**
@@ -1949,12 +2024,13 @@ class SnapSignFitApp {
       const btn = document.getElementById('btnCopyClipboard');
       const originalText = btn.textContent;
       btn.textContent = t('copied');
+      this.showToast(t('copied'), 'success');
       setTimeout(() => {
         btn.textContent = originalText;
       }, 2000);
     } catch (e) {
       console.warn('Clipboard copy failed:', e);
-      alert('Could not copy to clipboard in this browser.');
+      this.showToast(t('copyFailed'), 'error');
     }
   }
 }

@@ -203,6 +203,9 @@ export function flattenAlpha(sourceCanvas, bgColor = '#ffffff') {
  * }>}
  */
 export async function loadImageFile(file, bgColor = '#ffffff') {
+  if (!file || file.size === 0) {
+    throw new Error('CORRUPT_IMAGE');
+  }
   if (file.size > MAX_FILE_SIZE) {
     throw new Error('FILE_TOO_LARGE');
   }

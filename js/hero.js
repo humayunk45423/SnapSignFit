@@ -5,11 +5,13 @@ const fileInput = $('fileInput');
 $('heroUploadPhoto')?.addEventListener('click', () => {
   navigator.vibrate?.(15);
   setKind('photo');
+  if (fileInput) fileInput.value = '';
   fileInput?.click();
 });
 $('heroUploadSig')?.addEventListener('click', () => {
   navigator.vibrate?.(15);
   setKind('signature');
+  if (fileInput) fileInput.value = '';
   fileInput?.click();
 });
 

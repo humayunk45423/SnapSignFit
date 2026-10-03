@@ -218,6 +218,11 @@ export const translations = {
     bgRemove: 'Remove AI',
     bgSkippedToast: 'Background removal skipped: person area outside 10%-85% safety gate',
     
+    presetSaved: 'Custom preset saved successfully!',
+    copyFailed: 'Could not copy to clipboard in this browser.',
+    genericError: 'An unexpected issue occurred. Try manual editing mode.',
+    downloadStarted: 'Download started!',
+    
     // Error messages
     errTooLarge: 'File is too large (maximum 40 MB allowed).',
     errTooSmall: 'Image resolution is too small (minimum 32×32 px required).',
@@ -432,6 +437,11 @@ export const translations = {
     bgTransparent: 'স্বচ্ছ',
     bgRemove: 'এআই ব্যাকগ্রাউন্ড',
     bgSkippedToast: 'ব্যক্তির পরিধি সীমার বাইরে',
+    
+    presetSaved: 'কাস্টম প্রিসেট সফলভাবে সেভ করা হয়েছে!',
+    copyFailed: 'এই ব্রাউজারে ক্লিপবোর্ডে কপি করা যায়নি।',
+    genericError: 'একটি সমস্যা হয়েছে। ম্যানুয়াল এডিট ব্যবহার করে দেখুন।',
+    downloadStarted: 'ডাউনলোড শুরু হয়েছে!',
     
     // Error messages
     errTooLarge: 'ফাইল অনেক বড় (সর্বোচ্চ ৪০ MB)।',
