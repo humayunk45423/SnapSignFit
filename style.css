@@ -177,6 +177,10 @@ select:focus:not(:focus-visible) {
   -ms-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+  -webkit-animation: none !important;
+  -moz-animation: none !important;
+  -o-animation: none !important;
+  animation: none !important;
 }
 
 /* 2. Reset */

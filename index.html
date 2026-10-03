@@ -96,7 +96,7 @@
       </nav>
       <div class="header-actions">
         <!-- Language Toggle: BN on left, EN on right -->
-        <button type="button" class="segmented-toggle" id="langToggleBtn" data-state="left"
+        <button type="button" class="segmented-toggle" id="langToggleBtn" data-state="right"
           aria-label="Toggle Language (BN / EN)" title="Toggle Language (BN / EN)">
           <div class="toggle-slider" aria-hidden="true"></div>
           <span class="toggle-opt opt-left" data-val="bn">BN</span>
@@ -220,13 +220,14 @@
             <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or take a photo</div>
 
             <div class="dropzone-actions">
-              <button type="button" class="btn btn-primary" id="btnChooseFile" data-i18n="chooseFile">
-                <svg class="lucide-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
-                </svg>
-                <span>Choose File</span>
+              <button type="button" class="btn btn-primary" id="btnChooseFile">
+                <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                <span class="btn-text" data-i18n="chooseFile">Choose File</span>
               </button>
-              <button type="button" class="btn btn-secondary" id="btnTakePhoto" data-i18n="takePhoto">Take Photo</button>
+              <button type="button" class="btn btn-secondary" id="btnTakePhoto">
+                <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                <span class="btn-text" data-i18n="takePhoto">Take Photo</span>
+              </button>
             </div>
 
             <div class="dropzone-hint" data-i18n="dropzoneHint">Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up to 40 MB)</div>

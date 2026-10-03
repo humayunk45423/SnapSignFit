@@ -527,20 +527,23 @@ export function formatLocalizedNumber(num, lang = currentLang) {
 
 export function updateDOMTranslations() {
   document.documentElement.lang = currentLang;
+  document.documentElement.setAttribute('data-lang', currentLang);
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const translated = t(key);
-    // If element contains an <i> icon, preserve the icon and update text node
-    const icon = el.querySelector('i');
-    if (icon) {
+    // If element contains an <i> or <svg> icon, preserve all icons and update text node
+    const icons = Array.from(el.querySelectorAll(':scope > i, :scope > svg, :scope > [class*="fa-"]'));
+    if (icons.length > 0) {
       // Find or create a text span or text node
-      let textSpan = el.querySelector('.btn-text');
-      if (textSpan) {
+      let textSpan = el.querySelector('.btn-text, span[data-i18n]');
+      if (textSpan && textSpan !== el) {
         textSpan.textContent = translated;
       } else {
-        // Keep icon, clear other child nodes, append translated text
+        // Keep icons, clear other child text/nodes, append translated text
         Array.from(el.childNodes).forEach(node => {
-          if (node !== icon) el.removeChild(node);
+          if (!icons.includes(node) && !icons.some(ic => ic.contains(node))) {
+            el.removeChild(node);
+          }
         });
         el.appendChild(document.createTextNode(' ' + translated));
       }
