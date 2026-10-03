@@ -71,6 +71,15 @@ export class ManualEditor {
     this.straightenLineStart = null;
     this.straightenLineEnd = null;
 
+    // Multi-touch Pointer Gesture tracking & Mobile Pinch
+    this.activePointers = new Map();
+    this.isPinching = false;
+    this.pinchStart = null;
+    this.lastPinchEndTime = 0;
+    this.cooldownDuration = 350;
+    this.hadSinglePointerStamp = false;
+    this.maskSnapshotBeforeStroke = null;
+
     // Working & Preview Canvases
     this.editorCanvas = null;
     this.previewCanvas = null;
@@ -592,8 +601,9 @@ export class ManualEditor {
     this.editorCanvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
     window.addEventListener('pointermove', (e) => this.onPointerMove(e));
     window.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    window.addEventListener('pointercancel', (e) => this.onPointerCancel(e));
     this.editorCanvas.addEventListener('pointerleave', () => {
-      if (this.currentStep === 3) {
+      if (this.currentStep === 3 && !this.isPinching) {
         this.brushCursor.visible = false;
         this.requestRender();
       }
@@ -690,6 +700,16 @@ export class ManualEditor {
       this.step3PanY = 0;
       this.step3Zoom = 1.0;
     }
+    this.activePointers.clear();
+    this.isPinching = false;
+    this.pinchStart = null;
+    this.lastPinchEndTime = 0;
+    this.isBrushing = false;
+    this.lastBrushPoint = null;
+    this.hadSinglePointerStamp = false;
+    this.maskSnapshotBeforeStroke = null;
+    this.isDragging = false;
+    this.isResizing = false;
     this.currentStep = stepNumber;
 
     const tab1 = this.overlayEl.querySelector('#tabStep1');
@@ -880,6 +900,16 @@ export class ManualEditor {
   }
 
   close() {
+    this.activePointers.clear();
+    this.isPinching = false;
+    this.pinchStart = null;
+    this.lastPinchEndTime = 0;
+    this.isBrushing = false;
+    this.lastBrushPoint = null;
+    this.hadSinglePointerStamp = false;
+    this.maskSnapshotBeforeStroke = null;
+    this.isDragging = false;
+    this.isResizing = false;
     this.overlayEl.classList.add('hidden');
   }
 
@@ -1508,6 +1538,92 @@ export class ManualEditor {
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
 
+    // Register active pointer
+    this.activePointers.set(e.pointerId, {
+      x: px,
+      y: py,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      pointerType: e.pointerType || 'mouse'
+    });
+
+    // If within cooldown period after a pinch gesture, ignore single-pointer triggers
+    if (Date.now() - this.lastPinchEndTime < this.cooldownDuration) {
+      return;
+    }
+
+    // MULTI-TOUCH DETECTED: 2 or more fingers on screen
+    if (this.activePointers.size >= 2) {
+      // 1. Instantly rollback any accidental brush stamp created by finger 1
+      if (this.currentStep === 3 && this.hadSinglePointerStamp) {
+        if (this.maskSnapshotBeforeStroke && this.maskCanvas) {
+          const mCtx = this.maskCanvas.getContext('2d');
+          mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
+          mCtx.drawImage(this.maskSnapshotBeforeStroke, 0, 0);
+          if (this.maskUndoStack.length > 0) {
+            this.maskUndoStack.pop();
+            this.updateBrushUndoRedoState();
+          }
+        }
+      }
+
+      // 2. Clear all single-pointer edit states
+      this.isBrushing = false;
+      this.lastBrushPoint = null;
+      this.hadSinglePointerStamp = false;
+      this.maskSnapshotBeforeStroke = null;
+      this.brushCursor.visible = false;
+      this.isDragging = false;
+      this.isResizing = false;
+      this.resizeHandle = null;
+      this.straightenToolActive = false;
+      this.straightenLineStart = null;
+      this.straightenLineEnd = null;
+
+      // 3. Activate Pinch Mode
+      this.isPinching = true;
+      const pointers = Array.from(this.activePointers.values());
+      const p1 = pointers[0];
+      const p2 = pointers[1];
+      const dist = Math.hypot(p1.clientX - p2.clientX, p1.clientY - p2.clientY);
+      const mid = {
+        x: (p1.clientX + p2.clientX) / 2,
+        y: (p1.clientY + p2.clientY) / 2
+      };
+
+      if (this.currentStep === 3) {
+        this.pinchStart = {
+          dist: Math.max(10, dist),
+          mid,
+          zoom: this.step3Zoom || 1.0,
+          panX: this.step3PanX || 0,
+          panY: this.step3PanY || 0
+        };
+      } else if (this.currentStep === 2) {
+        this.pinchStart = {
+          dist: Math.max(10, dist),
+          mid,
+          zoom: this.step2Zoom || 1.0,
+          panX: this.step2PanX || 0,
+          panY: this.step2PanY || 0
+        };
+      } else {
+        // Step 1: Crop Frame
+        this.pinchStart = {
+          dist: Math.max(10, dist),
+          mid,
+          crop: { ...this.crop }
+        };
+      }
+
+      try {
+        this.editorCanvas.setPointerCapture(e.pointerId);
+      } catch (_) {}
+      this.requestRender();
+      return;
+    }
+
+    // SINGLE POINTER INTERACTION (1 finger or mouse):
     if (this.currentStep === 1) {
       const scale = this.displayScale;
       const cropScreenX = this.displayOffsetX + this.crop.x * scale;
@@ -1515,7 +1631,8 @@ export class ManualEditor {
       const cropScreenW = this.crop.w * scale;
       const cropScreenH = this.crop.h * scale;
 
-      const handleThreshold = 22;
+      // Generous 32px touch target on touch screens for easy corner/edge grabbing
+      const handleThreshold = (e.pointerType === 'touch' || 'ontouchstart' in window) ? 32 : 22;
       const handles = [
         { name: 'tl', x: cropScreenX, y: cropScreenY },
         { name: 'tr', x: cropScreenX + cropScreenW, y: cropScreenY },
@@ -1533,7 +1650,7 @@ export class ManualEditor {
           this.resizeHandle = h.name;
           this.dragStart = { x: px, y: py };
           this.cropStart = { ...this.crop };
-          this.editorCanvas.setPointerCapture(e.pointerId);
+          try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
           return;
         }
       }
@@ -1543,22 +1660,28 @@ export class ManualEditor {
         this.isDragging = true;
         this.dragStart = { x: px, y: py };
         this.cropStart = { ...this.crop };
-        this.editorCanvas.setPointerCapture(e.pointerId);
+        try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
       }
     } else if (this.currentStep === 2) {
       if (this.straightenToolActive) {
         this.straightenLineStart = { x: px, y: py };
         this.straightenLineEnd = { x: px, y: py };
-        this.editorCanvas.setPointerCapture(e.pointerId);
+        try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
       } else {
         this.isDragging = true;
         this.dragStart = { x: px, y: py };
         this.panStart = { x: this.step2PanX, y: this.step2PanY };
-        this.editorCanvas.setPointerCapture(e.pointerId);
+        try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
       }
     } else if (this.currentStep === 3) {
+      // Snapshot mask before applying stroke so if a 2nd finger lands shortly, we can rollback
+      if (this.maskCanvas) {
+        this.maskSnapshotBeforeStroke = createCanvas(this.maskCanvas.width, this.maskCanvas.height);
+        this.maskSnapshotBeforeStroke.getContext('2d').drawImage(this.maskCanvas, 0, 0);
+      }
       this.pushMaskHistory();
       this.isBrushing = true;
+      this.hadSinglePointerStamp = true;
       this.brushCursor.x = px;
       this.brushCursor.y = py;
       this.brushCursor.visible = true;
@@ -1573,7 +1696,7 @@ export class ManualEditor {
 
       this.lastBrushPoint = { x: imgX, y: imgY };
       this.applyBrushStamp(imgX, imgY);
-      this.editorCanvas.setPointerCapture(e.pointerId);
+      try { this.editorCanvas.setPointerCapture(e.pointerId); } catch (_) {}
       this.requestRender();
     }
   }
@@ -1585,6 +1708,94 @@ export class ManualEditor {
     const rect = this.editorCanvas.getBoundingClientRect();
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
+
+    if (this.activePointers.has(e.pointerId)) {
+      this.activePointers.set(e.pointerId, {
+        x: px,
+        y: py,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        pointerType: e.pointerType || 'mouse'
+      });
+    }
+
+    // MULTI-TOUCH / PINCH ACTIVE:
+    if (this.isPinching || this.activePointers.size >= 2) {
+      this.isBrushing = false;
+      this.brushCursor.visible = false;
+      this.hadSinglePointerStamp = false;
+
+      if (this.activePointers.size >= 2 && this.pinchStart) {
+        const pointers = Array.from(this.activePointers.values());
+        const p1 = pointers[0];
+        const p2 = pointers[1];
+        const currentDist = Math.hypot(p1.clientX - p2.clientX, p1.clientY - p2.clientY);
+        const scaleRatio = currentDist / Math.max(10, this.pinchStart.dist);
+        const mid = {
+          x: (p1.clientX + p2.clientX) / 2,
+          y: (p1.clientY + p2.clientY) / 2
+        };
+        const deltaX = mid.x - this.pinchStart.mid.x;
+        const deltaY = mid.y - this.pinchStart.mid.y;
+
+        if (this.currentStep === 3) {
+          const newZoom = Math.min(8.0, Math.max(0.25, this.pinchStart.zoom * scaleRatio));
+          this.step3Zoom = newZoom;
+          this.step3PanX = this.pinchStart.panX + deltaX;
+          this.step3PanY = this.pinchStart.panY + deltaY;
+          this.requestRender();
+        } else if (this.currentStep === 2) {
+          const newZoom = Math.min(16.0, Math.max(0.1, this.pinchStart.zoom * scaleRatio));
+          this.step2Zoom = Math.round(newZoom * 100) / 100;
+          const zoomSlider = this.overlayEl.querySelector('#editorZoomSlider');
+          if (zoomSlider) zoomSlider.value = this.step2Zoom;
+          this.updateZoomInputDisplay();
+
+          const baseScale = this.displayScale || 1;
+          this.step2PanX = this.pinchStart.panX + (deltaX / baseScale);
+          this.step2PanY = this.pinchStart.panY + (deltaY / baseScale);
+          this.requestRender();
+        } else if (this.currentStep === 1) {
+          // Step 1: Smooth crop frame scaling and 2-finger pan
+          const targetAspect = this.targetW / this.targetH;
+          const baseCropW = this.pinchStart.crop.w;
+          let newW = baseCropW * scaleRatio;
+          let newH = newW / targetAspect;
+          const maxW = this.sourceCanvas.width;
+          const maxH = this.sourceCanvas.height;
+
+          if (newW > maxW) {
+            newW = maxW;
+            newH = newW / targetAspect;
+          }
+          if (newH > maxH) {
+            newH = maxH;
+            newW = newH * targetAspect;
+          }
+          newW = Math.max(20, newW);
+          newH = Math.max(20, newH);
+
+          const origCx = this.pinchStart.crop.x + this.pinchStart.crop.w / 2;
+          const origCy = this.pinchStart.crop.y + this.pinchStart.crop.h / 2;
+          const baseScale = this.displayScale || 1;
+          const newCx = origCx + (deltaX / baseScale);
+          const newCy = origCy + (deltaY / baseScale);
+
+          this.crop.w = Math.round(newW);
+          this.crop.h = Math.round(newH);
+          this.crop.x = Math.round(newCx - newW / 2);
+          this.crop.y = Math.round(newCy - newH / 2);
+          this.clampCropToBounds();
+          this.requestRender();
+        }
+      }
+      return;
+    }
+
+    // Cooldown check: ignore lingering move events from remaining finger right after pinch ends
+    if (Date.now() - this.lastPinchEndTime < this.cooldownDuration) {
+      return;
+    }
 
     if (this.currentStep === 1) {
       if (!this.isDragging && !this.isResizing) {
@@ -1684,6 +1895,40 @@ export class ManualEditor {
   }
 
   onPointerUp(e) {
+    this.activePointers.delete(e.pointerId);
+
+    try {
+      this.editorCanvas.releasePointerCapture(e.pointerId);
+    } catch (_) {}
+
+    if (this.isPinching) {
+      if (this.activePointers.size < 2) {
+        this.isPinching = false;
+        this.lastPinchEndTime = Date.now();
+        this.pinchStart = null;
+        this.isBrushing = false;
+        this.lastBrushPoint = null;
+        this.hadSinglePointerStamp = false;
+        this.maskSnapshotBeforeStroke = null;
+        this.isDragging = false;
+        this.isResizing = false;
+        if (this.currentStep === 2) {
+          this.pushHistory();
+        }
+        this.requestRender();
+      }
+      return;
+    }
+
+    if (Date.now() - this.lastPinchEndTime < this.cooldownDuration) {
+      this.isBrushing = false;
+      this.lastBrushPoint = null;
+      this.hadSinglePointerStamp = false;
+      this.maskSnapshotBeforeStroke = null;
+      this.isDragging = false;
+      this.isResizing = false;
+      return;
+    }
 
     if (this.currentStep === 2 && this.straightenToolActive && this.straightenLineStart && this.straightenLineEnd) {
       const dx = this.straightenLineEnd.x - this.straightenLineStart.x;
@@ -1709,15 +1954,42 @@ export class ManualEditor {
     } else if (this.currentStep === 3) {
       this.isBrushing = false;
       this.lastBrushPoint = null;
+      this.hadSinglePointerStamp = false;
+      this.maskSnapshotBeforeStroke = null;
       this.requestRender();
     }
 
     this.isDragging = false;
     this.isResizing = false;
     this.resizeHandle = null;
+  }
+
+  onPointerCancel(e) {
+    this.activePointers.delete(e.pointerId);
     try {
       this.editorCanvas.releasePointerCapture(e.pointerId);
-    } catch (err) {}
+    } catch (_) {}
+
+    if (this.isPinching) {
+      if (this.activePointers.size < 2) {
+        this.isPinching = false;
+        this.lastPinchEndTime = Date.now();
+        this.pinchStart = null;
+      }
+    }
+
+    this.isBrushing = false;
+    this.lastBrushPoint = null;
+    this.hadSinglePointerStamp = false;
+    this.maskSnapshotBeforeStroke = null;
+    this.brushCursor.visible = false;
+    this.isDragging = false;
+    this.isResizing = false;
+    this.resizeHandle = null;
+    this.straightenToolActive = false;
+    this.straightenLineStart = null;
+    this.straightenLineEnd = null;
+    this.requestRender();
   }
 
   onWheel(e) {
