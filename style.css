@@ -66,18 +66,42 @@
   --danger: #B91C1C;
 }
 
-/* Accessible Keyboard Focus Visible System */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+/* Accessible Keyboard Focus Visible System — Zero blue square selections on click/tap */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+button,
+a,
+input,
+select,
+[role="button"],
+[role="tab"],
+.btn,
+.chip,
+.seg-btn {
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 button:focus:not(:focus-visible),
 a:focus:not(:focus-visible),
 input:focus:not(:focus-visible),
-select:focus:not(:focus-visible) {
-  outline: none;
+select:focus:not(:focus-visible),
+[role="tab"]:focus:not(:focus-visible),
+.btn:focus:not(:focus-visible),
+.chip:focus:not(:focus-visible),
+.seg-btn:focus,
+.seg-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* File Protocol Warning Banner */
@@ -768,6 +792,92 @@ body.has-image .feature-strip,
   color: var(--muted);
 }
 
+/* Hero Segmented Pill Tabs */
+.seg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto var(--s-3);
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+[data-theme="dark"] .seg,
+body.dark .seg {
+  background-color: #141418;
+  border-color: #26262E;
+}
+
+.seg-slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 2);
+  height: calc(100% - 6px);
+  background-color: #FFFFFF;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="dark"] .seg-slider,
+body.dark .seg-slider {
+  background-color: #24242C;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.seg[data-state="right"] .seg-slider {
+  transform: translateX(100%);
+}
+
+.seg-btn {
+  position: relative;
+  flex: 1 1 0;
+  z-index: 2;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: none;
+  background: transparent !important;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.seg-btn:hover {
+  color: var(--text);
+}
+
+.seg-btn.active,
+.seg-btn[aria-selected="true"] {
+  color: var(--text) !important;
+  font-weight: 700;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .dropzone-actions {
   display: flex;
   align-items: center;
@@ -780,7 +890,9 @@ body.has-image .feature-strip,
 
 .dropzone-actions .btn {
   flex: 1 1 0px;
-  min-width: 140px;
+  width: 100%;
+  min-width: 130px;
+  max-width: 220px;
   height: 42px;
   padding: 0 16px;
   display: inline-flex;
@@ -797,16 +909,18 @@ body.has-image .feature-strip,
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .dropzone-actions {
     flex-direction: column;
     width: 100%;
+    max-width: 280px;
     gap: 10px;
   }
   .dropzone-actions .btn {
-    width: 100%;
-    max-width: 280px;
-    flex: none;
+    width: 100% !important;
+    max-width: 280px !important;
+    min-width: 100% !important;
+    flex: none !important;
   }
 }
 
@@ -814,13 +928,13 @@ body.has-image .feature-strip,
 #btnChooseFile {
   background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
   color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 #btnChooseFile:hover {
   background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
   transform: translateY(-1px);
 }
 
@@ -837,40 +951,38 @@ body.has-image .feature-strip,
   transform: translateY(-1px);
 }
 
-/* Dark Mode Dropzone Action Buttons (High-Impact Glowing Gradient & Sleek Glass) */
+/* Dark Mode Dropzone Action Buttons (Sharp, Crisp, Luminous without blurry halos) */
 [data-theme="dark"] #btnChooseFile,
 body.dark #btnChooseFile {
-  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #8B5CF6 100%) !important;
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%) !important;
   color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+  text-shadow: none !important;
 }
 
 [data-theme="dark"] #btnChooseFile:hover,
 body.dark #btnChooseFile:hover {
-  background: linear-gradient(135deg, #60A5FA 0%, #818CF8 50%, #A855F7 100%) !important;
-  box-shadow: 0 6px 26px rgba(139, 92, 246, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-  transform: translateY(-1.5px);
+  background: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+  transform: translateY(-1px);
 }
 
 [data-theme="dark"] #btnTakePhoto,
 body.dark #btnTakePhoto {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: #1B1B1E !important;
   color: #F8FAFC !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid #2E2E34 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
 [data-theme="dark"] #btnTakePhoto:hover,
 body.dark #btnTakePhoto:hover {
-  background: rgba(255, 255, 255, 0.16) !important;
-  border-color: rgba(165, 180, 252, 0.5) !important;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-  transform: translateY(-1.5px);
+  background: #26262C !important;
+  border-color: #3E3E48 !important;
   color: #FFFFFF !important;
+  transform: translateY(-1px);
 }
 
 /* Preset Chips (Layout Lock) */
