@@ -167,7 +167,7 @@ select:focus:not(:focus-visible) {
   transform: scale(1.1);
 }
 
-/* Prevent transition flash / bounce animation on initial page load */
+/* Prevent transition flash / bounce animation / layout shift on initial page load */
 .preload,
 .preload *,
 .preload *::before,
@@ -181,6 +181,15 @@ select:focus:not(:focus-visible) {
   -moz-animation: none !important;
   -o-animation: none !important;
   animation: none !important;
+}
+
+html.preload body {
+  opacity: 0 !important;
+}
+
+body {
+  opacity: 1;
+  transition: opacity 0.12s ease-out;
 }
 
 /* 2. Reset */
@@ -349,7 +358,8 @@ body.dark .header-container {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 3px;
+  gap: 2px;
+  min-width: 130px;
 }
 
 .brand-info h1 {
@@ -365,12 +375,18 @@ body.dark .header-container {
   font-size: 11.5px;
   font-weight: 500;
   color: var(--muted);
-  line-height: 1.35;
+  line-height: 15px;
+  height: 15px;
+  min-height: 15px;
+  max-height: 15px;
   border-left: none;
   padding-left: 0;
   margin: 0;
-  display: block;
+  display: flex;
+  align-items: center;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .header-nav {
@@ -754,8 +770,144 @@ body.has-image .feature-strip,
 
 .dropzone-actions {
   display: flex;
-  gap: var(--s-3);
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   margin-block: var(--s-2);
+  width: 100%;
+  max-width: 440px;
+}
+
+.dropzone-actions .btn {
+  flex: 1 1 0px;
+  min-width: 140px;
+  height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: var(--r-md);
+  text-align: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 480px) {
+  .dropzone-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  .dropzone-actions .btn {
+    width: 100%;
+    max-width: 280px;
+    flex: none;
+  }
+}
+
+/* Light Mode Dropzone Action Buttons */
+#btnChooseFile {
+  background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+#btnChooseFile:hover {
+  background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+#btnTakePhoto {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#btnTakePhoto:hover {
+  background-color: var(--surface-2);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Dark Mode Dropzone Action Buttons (High-Impact Glowing Gradient & Sleek Glass) */
+[data-theme="dark"] #btnChooseFile,
+body.dark #btnChooseFile {
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #8B5CF6 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] #btnChooseFile:hover,
+body.dark #btnChooseFile:hover {
+  background: linear-gradient(135deg, #60A5FA 0%, #818CF8 50%, #A855F7 100%) !important;
+  box-shadow: 0 6px 26px rgba(139, 92, 246, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  transform: translateY(-1.5px);
+}
+
+[data-theme="dark"] #btnTakePhoto,
+body.dark #btnTakePhoto {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+[data-theme="dark"] #btnTakePhoto:hover,
+body.dark #btnTakePhoto:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(165, 180, 252, 0.5) !important;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-1.5px);
+  color: #FFFFFF !important;
+}
+
+/* Preset Chips (Layout Lock) */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  margin-top: 4px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.chip:hover {
+  background-color: var(--surface-2);
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 .dropzone-hint {
