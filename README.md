@@ -1,4 +1,4 @@
-# ⚡ SnapSignFit — Intelligent Photo & Signature Auto-Formatter
+# SnapSignFit — Intelligent Photo & Signature Auto-Formatter
 > **100% Free, Privacy-First, Zero-Server Client-Side Media Processor**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -8,36 +8,36 @@
 
 ---
 
-## 🌟 What is SnapSignFit?
+## Overview
 
-**SnapSignFit** is a high-performance web tool built to solve strict government application, university admission, and passport portal photo/signature requirements (e.g., **Bangladesh BCS, Teletalk, DUET, Bank Jobs, SSC/HSC, US Visa DS-160, and International Passports**).
+**SnapSignFit** is a high-performance web tool built to solve strict government application, university admission, and passport portal photo/signature requirements (including **Bangladesh BCS, Teletalk, DUET, Bank Recruitment, SSC/HSC, US Visa DS-160, and International Passports**).
 
-Instead of struggling with confusing desktop photo editors to get an exact **$300\times300$ px (under 99 KB)** photo or **$300\times80$ px (under 60 KB)** signature, SnapSignFit does it **automatically in milliseconds** directly inside your browser.
+Instead of struggling with complex desktop editors to obtain exact **300×300 px (under 99 KB)** photos or **300×80 px (under 60 KB)** signatures, SnapSignFit performs all necessary adjustments **automatically in milliseconds** directly inside your browser.
 
-> 🔒 **100% Client-Side Privacy**: Your photos and signatures never leave your device. All neural networks, computer vision algorithms, and compression pipelines execute entirely inside your local browser memory using WebAssembly and WebGPU/WebGL.
-
----
-
-## 🚀 Key Features at a Glance
-
-- 🧠 **Dual-Engine Auto-Detection**: Instantly classifies whether an uploaded file is a portrait photo or a pen signature/handwriting document.
-- 🎯 **1-Click Official Presets**: Pre-configured with official guidelines for Bangladesh Government (BCS/Teletalk), DUET Admission ($250\times250$ & $250\times50$), Passports ($35\times45$ mm, $2\times2$ in), and Social Media.
-- 📐 **3-Step Manual Editor**: Professional Photoshop-grade Crop, Straighten ($\pm 180^\circ$ at $0.1^\circ$ precision), and Eraser/Restore Brush.
-- ✍️ **Adaptive Signature Contrast & Whitening**: Eliminates camera shadows and uneven yellow lighting, converting paper into pure crisp white while keeping ink sharp.
-- 🎨 **AI Background Replacer**: Seamlessly swaps portrait backgrounds to Pure White, Soft Light Blue, Light Gray, Red, or Custom Colors.
-- ⚖️ **Guaranteed File-Size Ladder**: Binary-search MozJPEG/WebP compression ladder guarantees files always strictly meet the $\le 99\text{ KB}$ or $\le 60\text{ KB}$ limit without visible artifacting.
-- 🌐 **Bilingual (English & বাংলা)**: Full internationalization with automatic Bengali script and numeral support.
-- 📴 **Offline PWA**: Installable as a progressive web app that works anywhere with zero internet connection.
+> **Privacy Guarantee**: Photos and signatures never leave your device. All neural networks, computer vision algorithms, and compression pipelines execute entirely inside local browser memory via WebAssembly and WebGPU/WebGL.
 
 ---
 
-## 🏗️ System Architecture: How All Engines Work Together
+## Key Features
+
+- **Dual-Engine Auto-Detection**: Automatically classifies whether an uploaded file is a portrait photo or a pen signature / handwriting document.
+- **1-Click Official Presets**: Pre-configured with official guidelines for Bangladesh Government (BCS/Teletalk), DUET Admission (250×250 & 250×50), Passports (35×45 mm, 2×2 in), and Social Media.
+- **3-Step Manual Editor**: Professional-grade studio supporting Crop, Straighten ($\pm 180^\circ$ at $0.1^\circ$ precision), and Eraser/Restore Brush.
+- **Adaptive Signature Contrast & Whitening**: Eliminates camera shadows and uneven yellow lighting, converting paper into pure crisp white while keeping ink strokes sharp.
+- **AI Background Replacer**: Seamlessly swaps portrait backgrounds to Pure White, Soft Light Blue, Light Gray, Red, or Custom Colors.
+- **Guaranteed File-Size Ladder**: Binary-search MozJPEG/WebP compression ladder guarantees files always strictly meet the $\le 99\text{ KB}$ or $\le 60\text{ KB}$ limit without visible artifacting.
+- **Bilingual (English & Bengali)**: Full internationalization with automatic Bengali script and numeral support.
+- **Offline PWA**: Installable as a progressive web app that works anywhere without an internet connection.
+
+---
+
+## System Architecture: Engine Coordination
 
 When an image is dropped into SnapSignFit, it flows through a sequential computer vision and neural inference pipeline:
 
 ```mermaid
 graph TD
-    Upload[📁 User Drops/Uploads Image] --> Loader[loader.js: Decode EXIF, HEIC, TIFF, WebP, PNG, JPG]
+    Upload[User Drops or Uploads Image] --> Loader[loader.js: Decode EXIF, HEIC, TIFF, WebP, PNG, JPG]
     Loader --> Orient[orient.js: Correct EXIF Sensor Orientation]
     Orient --> Classifier[signature.js: classifyImageContent]
     
@@ -64,17 +64,17 @@ graph TD
     AutoPresetSig --> Render[renderFitMode / User Transforms]
     AutoPresetPhoto --> Render
     
-    Render --> BgFilter{Custom BG Requested?}
+    Render --> BgFilter{Custom Background Requested?}
     BgFilter -- "Yes (Photo)" --> BgEngine[bg.js: MediaPipe Selfie Segmentation]
     BgFilter -- "No / Default" --> Export[export.js: MozJPEG/WASM Binary Search Ladder]
     BgEngine --> Export
     
-    Export --> Output[💾 Output Preview & 1-Click Download Guaranteed <= Limit]
+    Export --> Output[Output Preview & 1-Click Download Guaranteed Under Limit]
 ```
 
 ---
 
-## 📂 Core Scripts & Technology Breakdown
+## Core Scripts & Technology Breakdown
 
 Every file in the `js/` directory has a dedicated, single-responsibility role designed for speed and accuracy:
 
@@ -92,19 +92,19 @@ Every file in the `js/` directory has a dedicated, single-responsibility role de
 | [`js/smartcrop.js`](./js/smartcrop.js) | **Visual Saliency & Fallback Cropper**: Content-aware visual salience fallback for non-face images using Laplacian edge-energy and rule-of-thirds composition. | Image Edge Convolution |
 | [`js/presets.js`](./js/presets.js) | **Presets Catalog**: Catalog of dimensions, byte limits, crop aspect ratios, and notes for Government, DUET, Exam, Passport, and Social presets. | Structured JSON Constants |
 | [`js/session.js`](./js/session.js) | **Offline State & Session Cache**: Automatically saves and restores working canvases and user edits across browser reloads using IndexedDB and localStorage. | IndexedDB API / LocalStorage |
-| [`js/i18n.js`](./js/i18n.js) | **Internationalization Engine**: Dual-language engine (English & বাংলা) with localized numeral formatting (`০, ১, ২...`) and contextual warnings. | Intl API / DOM Mutation |
+| [`js/i18n.js`](./js/i18n.js) | **Internationalization Engine**: Dual-language engine (English & Bengali) with localized numeral formatting (`০, ১, ২...`) and contextual warnings. | Intl API / DOM Mutation |
 | [`sw.js`](./sw.js) | **PWA Offline Service Worker**: Cache-first service worker ensuring instant loading and full offline capability anywhere. | Service Worker API / Cache Storage |
 
 ---
 
-## 🛠️ How to Use SnapSignFit
+## How to Use SnapSignFit
 
 ### Step 1: Upload Your Image
-Drag and drop your file or click the upload area. You can upload any format: **JPEG, PNG, WebP, AVIF, HEIC (iPhone photos), TIFF, or BMP**.
+Drag and drop your file or click the upload area. Supported formats: **JPEG, PNG, WebP, AVIF, HEIC (iPhone photos), TIFF, and BMP**.
 
 ### Step 2: Automatic Classification & Smart Fit
-- **If you upload a Signature or Handwritten Paper**: SnapSignFit detects paper luminance and sparse stroke lines, automatically selects **Signature 300×80** (or DUET 250×50), removes paper yellowing/shadows, and boosts ink contrast.
-- **If you upload a Portrait Photo**: SnapSignFit detects facial landmarks, selects **Photo 300×300**, centers the head following official ICAO passport framing, and applies auto-enhancement.
+- **Signature / Handwritten Document**: SnapSignFit detects paper luminance and stroke lines, selects **Signature 300×80** (or DUET 250×50), flattens paper lighting, and sharpens ink contrast.
+- **Portrait Photo**: SnapSignFit detects facial landmarks, selects **Photo 300×300**, centers the head following official ICAO passport framing, and applies automatic level enhancement.
 
 ### Step 3: Manual Adjustments (Optional)
 Click **Manual Adjust** to enter the 3-step studio:
@@ -117,15 +117,15 @@ Click **Download Formatted File**. Your image is saved with the exact required p
 
 ---
 
-## 📜 Third-Party Open Source Credits & Acknowledgements
+## Third-Party Open Source Credits & Acknowledgements
 
-SnapSignFit stands on the shoulders of incredible open-source projects. All dependencies are vendored locally for offline, client-side execution:
+SnapSignFit utilizes the following permissive open-source libraries for offline, client-side execution:
 
 | Library / Tool | Author / Maintainers | License | Role in SnapSignFit |
 | :--- | :--- | :--- | :--- |
 | **[MediaPipe Vision Tasks](https://developers.google.com/mediapipe)** | Google LLC | Apache-2.0 | High-speed on-device BlazeFace detection & Selfie image segmentation. |
 | **[MozJPEG (jSquash)](https://github.com/jamsinclair/jSquash)** | James Sinclair, Google LLC | BSD-3-Clause | WebAssembly-compiled MozJPEG encoder for maximum quality at tiny file sizes. |
-| **[Lucide Icons](https://lucide.dev)** | Lucide Contributors | ISC | Crisp, lightweight, accessible UI vector icons. |
+| **[Lucide Icons](https://lucide.dev)** | Lucide Contributors | ISC | Clean, lightweight UI vector icons. |
 | **[UPNG.js](https://github.com/photopea/UPNG.js)** | Ivan Kuckir (Photopea) | MIT | Ultra-fast PNG quantization and compression. |
 | **[UTIF.js](https://github.com/photopea/UTIF.js)** | Ivan Kuckir (Photopea) | MIT | Fast client-side decoding of TIFF images. |
 | **[heic2any](https://github.com/alexcorvi/heic2any)** | Alex Corvi | MIT | In-browser conversion of Apple iPhone HEIC/HEIF photos to readable canvases. |
@@ -133,9 +133,9 @@ SnapSignFit stands on the shoulders of incredible open-source projects. All depe
 
 ---
 
-## 💻 Local Development Setup
+## Local Development Setup
 
-To run SnapSignFit locally on your machine:
+To run SnapSignFit locally:
 
 1. **Clone the repository**:
    ```bash
@@ -157,6 +157,6 @@ To run SnapSignFit locally on your machine:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](./LICENSE). All third-party libraries retain their original permissive open-source licenses detailed in [`THIRD-PARTY-LICENSES.md`](./THIRD-PARTY-LICENSES.md).
