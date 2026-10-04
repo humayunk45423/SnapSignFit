@@ -226,79 +226,98 @@ export function classifyImageContent(canvas) {
   const data = imgData.data;
   const total = w * h;
 
+  // Ultra-fast adaptive stride: sample up to 65,536 well-distributed pixels for sub-millisecond execution
+  const stride = Math.max(1, Math.floor(Math.sqrt(total / 65536)));
+  const stepBytes = stride * 4;
+
   let sumRg = 0, sumYb = 0, sumRgSq = 0, sumYbSq = 0;
   let skinToneCount = 0;
   let highSatCount = 0;
   let brightPaperCount = 0;
   let darkInkCount = 0;
-  let midToneCount = 0;
+  let sampleCount = 0;
 
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
+  for (let y = 0; y < h; y += stride) {
+    const rowOffset = y * w * 4;
+    for (let x = 0; x < w; x += stride) {
+      const i = rowOffset + x * 4;
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
 
-    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-    if (luma > 165 && Math.abs(r - g) < 28 && Math.abs(g - b) < 28) {
-      brightPaperCount++;
-    } else if (luma < 115) {
-      darkInkCount++;
-    } else {
-      midToneCount++;
+      const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const sat = max === 0 ? 0 : (max - min) / max;
+
+      // Detect white/off-white/ruled paper surfaces (including ambient indoor shadows)
+      const isPaper = (luma > 165 && Math.abs(r - g) < 32 && Math.abs(g - b) < 32) ||
+                      (luma > 130 && sat < 0.18);
+      if (isPaper) {
+        brightPaperCount++;
+      }
+
+      // Detect dark ink, black gel pen, blue ballpoint pen, or red signature ink
+      const isDarkInk = (luma < 115);
+      const isBlueInk = (b > r + 15 && b > g + 10 && luma < 175);
+      const isRedInk = (r > g + 35 && r > b + 35 && luma < 165);
+      if (isDarkInk || isBlueInk || isRedInk) {
+        darkInkCount++;
+      }
+
+      const rg = r - g;
+      const yb = 0.5 * (r + g) - b;
+      sumRg += rg;
+      sumYb += yb;
+      sumRgSq += rg * rg;
+      sumYbSq += yb * yb;
+
+      // Multi-spectral human skin tone heuristics (Fitzpatrick I through VI)
+      const isSkin = (
+        (r > g && g > b && (r - g) > 10 && (r - b) > 14 && r > 65 && b < 195) ||
+        (r > 120 && g > 80 && b > 55 && (r - g) >= 15 && (g - b) >= 5) ||
+        (r > 70 && g > 45 && b > 30 && r > g && g > b && (r - b) >= 20)
+      );
+      if (isSkin) {
+        skinToneCount++;
+      }
+
+      if (sat > 0.28 && max > 45) highSatCount++;
+      sampleCount++;
     }
-
-    const rg = r - g;
-    const yb = 0.5 * (r + g) - b;
-    sumRg += rg;
-    sumYb += yb;
-    sumRgSq += rg * rg;
-    sumYbSq += yb * yb;
-
-    // Skin tone heuristics across diverse lighting and skin tones (Fitzpatrick I-VI)
-    const isSkin = (
-      (r > g && g > b && (r - g) > 10 && (r - b) > 14 && r > 65 && b < 195) ||
-      (r > 120 && g > 80 && b > 55 && (r - g) >= 15 && (g - b) >= 5) ||
-      (r > 70 && g > 45 && b > 30 && r > g && g > b && (r - b) >= 20)
-    );
-    if (isSkin) {
-      skinToneCount++;
-    }
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const sat = max === 0 ? 0 : (max - min) / max;
-    if (sat > 0.28 && max > 45) highSatCount++;
   }
 
-  const meanRg = sumRg / total;
-  const meanYb = sumYb / total;
-  const stdRg = Math.sqrt(Math.max(0, sumRgSq / total - meanRg * meanRg));
-  const stdYb = Math.sqrt(Math.max(0, sumYbSq / total - meanYb * meanYb));
+  if (sampleCount === 0) return 'photo';
+
+  const meanRg = sumRg / sampleCount;
+  const meanYb = sumYb / sampleCount;
+  const stdRg = Math.sqrt(Math.max(0, sumRgSq / sampleCount - meanRg * meanRg));
+  const stdYb = Math.sqrt(Math.max(0, sumYbSq / sampleCount - meanYb * meanYb));
   const colorfulness = Math.sqrt(stdRg * stdRg + stdYb * stdYb) + 0.3 * Math.sqrt(meanRg * meanRg + meanYb * meanYb);
 
-  const skinRatio = skinToneCount / total;
-  const satRatio = highSatCount / total;
-  const paperRatio = brightPaperCount / total;
-  const inkRatio = darkInkCount / total;
+  const skinRatio = skinToneCount / sampleCount;
+  const satRatio = highSatCount / sampleCount;
+  const paperRatio = brightPaperCount / sampleCount;
+  const inkRatio = darkInkCount / sampleCount;
   const aspect = w / h;
 
-  // 1. Definite Photos: high human skin tones or rich natural colorfulness
-  if (skinRatio > 0.055 || (colorfulness > 24 && satRatio > 0.12)) {
+  // 1. Definite Photos: human skin tones present or rich organic color variance
+  if (skinRatio > 0.050 || (colorfulness > 24 && satRatio > 0.12)) {
     return 'photo';
   }
 
-  // 2. Wide aspect ratio signatures (e.g. standard signature crops)
-  if (aspect >= 1.7 && colorfulness < 22 && skinRatio < 0.035) {
+  // 2. Wide aspect ratio signatures (standard horizontal signature crops)
+  if (aspect >= 1.6 && colorfulness < 24 && skinRatio < 0.035 && (darkInkCount > 0 || paperRatio > 0.30)) {
     return 'signature';
   }
 
-  // 3. Document / Paper with ink writing (covers scanned documents and mobile camera shots with light shadows)
-  if ((paperRatio > 0.45 || (paperRatio + darkInkCount / total > 0.50)) && inkRatio > 0.001 && inkRatio < 0.35 && colorfulness < 20 && skinRatio < 0.025) {
+  // 3. Document / Paper with ink writing (scanned docs, mobile paper photos with shadows)
+  if ((paperRatio > 0.40 || (paperRatio + inkRatio > 0.48)) && inkRatio > 0.0008 && inkRatio < 0.38 && colorfulness < 22 && skinRatio < 0.025) {
     return 'signature';
   }
 
-  // 4. Pure monochrome or grayscale drawings/text/signatures
-  if (colorfulness < 10 && skinRatio < 0.015 && (darkInkCount > 0 || paperRatio > 0.35)) {
+  // 4. Monochrome or low-saturation drawings/text/signatures
+  if (colorfulness < 11 && skinRatio < 0.015 && (darkInkCount > 0 || paperRatio > 0.30)) {
     return 'signature';
   }
 
