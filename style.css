@@ -1300,10 +1300,14 @@ body.dark .ppc-badge.ppc-badge-duet {
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.22);
 }
 
-/* Animated Bluish-Purple Shifting Gradient for Stars */
+/* Animated Bluish-Purple Shifting Gradient for Icons (Stars, Graduation Cap, Certificate) */
 .star-gradient,
 i.fa-star.star-gradient,
-.fa-star {
+.fa-star,
+.fa-graduation-cap,
+.fa-certificate,
+i.fa-graduation-cap,
+i.fa-certificate {
   background: linear-gradient(135deg, #38bdf8 0%, #6366f1 35%, #a855f7 70%, #60a5fa 100%);
   background-size: 280% 280%;
   -webkit-background-clip: text;
@@ -3734,7 +3738,7 @@ body.dark .hero-ctas .btn-preset-pill {
   overflow: visible;
 }
 
-/* All Hero Preset Chips (BCS, Teletalk, DUET): Identical Thickness, Gradient Stroke by default, Gradient Fill on Hover */
+/* All Hero Preset Chips (BCS, Teletalk, DUET): Crisp Clean Border, Smooth Hover Lift */
 .chip-row .chip {
   height: 38px;
   min-height: 38px;
@@ -3746,15 +3750,10 @@ body.dark .hero-ctas .btn-preset-pill {
   border-radius: 999px;
   background-color: var(--surface);
   color: var(--text) !important;
-  border: 1.5px solid transparent;
-  background-image: linear-gradient(var(--surface), var(--surface)), linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%);
-  background-origin: padding-box, border-box;
-  background-clip: padding-box, border-box;
-  background-size: 100% 100%, 250% 250%;
-  animation: gradientShift 5s ease infinite alternate;
+  border: 1.5px solid #0f172a;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3767,20 +3766,12 @@ body.dark .hero-ctas .btn-preset-pill {
 [data-theme="dark"] .chip-row .chip,
 body.dark .chip-row .chip {
   background-color: #141418;
-  color: #e2e8f0 !important;
-  border: 1.5px solid transparent;
-  background-image: linear-gradient(#141418, #141418), linear-gradient(135deg, #6366f1 0%, #8b5cf6 35%, #3b82f6 70%, #a855f7 100%);
-  background-origin: padding-box, border-box;
-  background-clip: padding-box, border-box;
-  background-size: 100% 100%, 250% 250%;
-  animation: gradientShift 5s ease infinite alternate;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  color: #f1f5f9 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-.chip-row .chip i,
-.chip-row .chip .fa-graduation-cap,
-.chip-row .chip .fa-star {
-  transition: color 0.2s ease, filter 0.2s ease;
+.chip-row .chip i {
   font-size: 13px;
 }
 
@@ -3788,33 +3779,24 @@ body.dark .chip-row .chip {
   color: var(--muted) !important;
   font-weight: 500;
   font-size: 11px;
-  transition: color 0.2s ease;
 }
 
 .chip-row .chip:hover {
-  background-image: linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%) !important;
-  background-size: 250% 250% !important;
-  animation: gradientShift 4s ease infinite alternate !important;
-  color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3) !important;
+  background-color: var(--surface-2);
   transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+  border-color: #000000;
 }
 
-.chip-row .chip:hover i,
-.chip-row .chip:hover .fa-graduation-cap,
-.chip-row .chip:hover .fa-star {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
-}
-
-.chip-row .chip:hover small {
-  color: rgba(255, 255, 255, 0.92) !important;
+[data-theme="dark"] .chip-row .chip:hover,
+body.dark .chip-row .chip:hover {
+  background-color: #1c1c22;
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.4);
 }
 
 .chip-row .chip:active {
-  transform: scale(0.96);
+  transform: translateY(0) scale(0.97);
 }
 
 /* Hero card (right column) */
