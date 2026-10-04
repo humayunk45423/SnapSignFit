@@ -748,22 +748,19 @@
   </footer>
 
   <!-- Discard Confirmation Modal Dialog -->
-  <div class="confirm-modal-overlay hidden" id="discardModal" role="dialog" aria-modal="true" onclick="if (event.target === this) window.app?.closeDiscardModal();">
-    <div class="confirm-modal-dialog" onclick="event.stopPropagation();">
+  <div class="confirm-modal-overlay hidden" id="discardModal" role="dialog" aria-modal="true">
+    <div class="confirm-modal-dialog">
       <div class="confirm-modal-header">
         <div class="confirm-modal-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <div class="confirm-modal-title-wrap" style="flex: 1;">
-          <h3 class="confirm-modal-title" data-i18n="discardModalTitle">Discard Changes?</h3>
-        </div>
-        <button type="button" class="confirm-modal-close" id="btnDiscardModalClose" onclick="window.app?.closeDiscardModal();" aria-label="Close" title="Close">&times;</button>
+        <h3 class="confirm-modal-title" data-i18n="discardModalTitle">Discard Changes?</h3>
       </div>
       <p class="confirm-modal-body" data-i18n="discardModalDesc">
         You haven't downloaded your processed image yet. Do you want to download before closing?
       </p>
       <div class="confirm-modal-actions">
-        <button type="button" class="btn btn-primary" id="btnModalDownloadAndClose" onclick="window.app?.triggerDownload(); window.app?.closeDiscardModal(); window.app?.discardAndReset();" data-i18n="btnDownloadAndClose">Download & Close</button>
-        <button type="button" class="btn btn-danger-outline" id="btnModalDiscardAnyway" onclick="window.app?.closeDiscardModal(); window.app?.discardAndReset();" data-i18n="btnDiscardAnyway">Discard Anyway</button>
-        <button type="button" class="btn btn-outline" id="btnModalCancel" onclick="window.app?.closeDiscardModal();" data-i18n="cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnModalDownloadAndClose" data-i18n="btnDownloadAndClose">Download & Close</button>
+        <button type="button" class="btn btn-danger-outline" id="btnModalDiscardAnyway" data-i18n="btnDiscardAnyway">Discard Anyway</button>
+        <button type="button" class="btn btn-outline" id="btnModalCancel" data-i18n="cancel">Cancel</button>
       </div>
     </div>
   </div>

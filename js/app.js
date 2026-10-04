@@ -2077,25 +2077,15 @@ class SnapSignFitApp {
 
   openDiscardModal() {
     const modal = document.getElementById('discardModal');
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.style.display = 'flex';
-      document.getElementById('btnModalCancel')?.focus();
-    }
+    if (modal) modal.classList.remove('hidden');
   }
 
   closeDiscardModal() {
     const modal = document.getElementById('discardModal');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-    }
+    if (modal) modal.classList.add('hidden');
   }
 
   async discardAndReset() {
-    if (this.editor) {
-      this.editor.close();
-    }
     this.sourceData = null;
     this.exactCanvas = null;
     this.currentExport = null;
