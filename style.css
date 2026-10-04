@@ -3773,14 +3773,20 @@ body.dark .hero-ctas .btn-preset-pill {
   width: 100%;
 }
 
+/* All Hero Preset Chips (BCS, Teletalk, DUET): Gradient Stroke by default (no cut glow), Gradient Fill on Hover */
 .chip-row .chip {
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
   background-color: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
+  color: var(--text) !important;
+  border: 1.5px solid transparent;
+  background-image: linear-gradient(var(--surface), var(--surface)), linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%);
+  background-origin: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  background-size: 100% 100%, 250% 250%;
+  animation: gradientShift 5s ease infinite alternate;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3793,35 +3799,6 @@ body.dark .hero-ctas .btn-preset-pill {
 
 [data-theme="dark"] .chip-row .chip,
 body.dark .chip-row .chip {
-  background-color: rgba(99, 102, 241, 0.09);
-  border-color: rgba(99, 102, 241, 0.28);
-  color: #e2e8f0;
-}
-
-.chip-row .chip:hover {
-  border-color: #818cf8;
-  color: #818cf8;
-  background-color: rgba(99, 102, 241, 0.16);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
-}
-
-/* DUET 250×250 and DUET 250×50: Gradient Stroke by default (no cut glow), Gradient Fill on Hover */
-.chip-row .chip.chip-duet {
-  background-color: var(--surface);
-  color: var(--text) !important;
-  border: 1.5px solid transparent;
-  background-image: linear-gradient(var(--surface), var(--surface)), linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%);
-  background-origin: padding-box, border-box;
-  background-clip: padding-box, border-box;
-  background-size: 100% 100%, 250% 250%;
-  animation: gradientShift 5s ease infinite alternate;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  font-weight: 600;
-}
-
-[data-theme="dark"] .chip-row .chip.chip-duet,
-body.dark .chip-row .chip.chip-duet {
   background-color: #141418;
   color: #e2e8f0 !important;
   border: 1.5px solid transparent;
@@ -3833,19 +3810,19 @@ body.dark .chip-row .chip.chip-duet {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-.chip-row .chip.chip-duet i,
-.chip-row .chip.chip-duet .fa-graduation-cap {
-  color: #8b5cf6 !important;
+.chip-row .chip i,
+.chip-row .chip .fa-graduation-cap,
+.chip-row .chip .fa-star {
   transition: color 0.2s ease;
 }
 
-.chip-row .chip.chip-duet small {
+.chip-row .chip small {
   color: var(--muted) !important;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.chip-row .chip.chip-duet:hover {
+.chip-row .chip:hover {
   background-image: linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%) !important;
   background-size: 250% 250% !important;
   animation: gradientShift 4s ease infinite alternate !important;
@@ -3855,12 +3832,15 @@ body.dark .chip-row .chip.chip-duet {
   transform: translateY(-2px);
 }
 
-.chip-row .chip.chip-duet:hover i,
-.chip-row .chip.chip-duet:hover .fa-graduation-cap {
+.chip-row .chip:hover i,
+.chip-row .chip:hover .fa-graduation-cap,
+.chip-row .chip:hover .fa-star {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
 }
 
-.chip-row .chip.chip-duet:hover small {
+.chip-row .chip:hover small {
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
