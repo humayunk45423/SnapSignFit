@@ -1,0 +1,838 @@
+[
+  {
+    "slug": "300x300-photo-resizer",
+    "intent": "photo-300x300",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://alljobs.teletalk.com.bd",
+      "verified_on": "2026-09-15"
+    },
+    "en": {
+      "title": "300x300 Photo Resizer Online — Under 100KB for Govt Forms",
+      "meta": "Resize your photo to exact 300x300 pixels and under 100KB online. Free, private, client-side tool for Bangladesh BCS, Teletalk, and exam applications.",
+      "h1": "300×300 Photo Resizer (Under 100 KB)",
+      "intro": "Format your passport-style photograph to exact 300×300 pixels with a guaranteed file size under 100 KB. Fully compliant with all Teletalk, BCS, and Bangladesh Government online recruitment portals. Processing happens entirely inside your browser with zero server uploads.",
+      "also_searched": "300*300 photo resizer, 300by300 image resize online, bcs 300x300 photo converter, teletalk 300x300 picture size",
+      "steps": [
+        {
+          "name": "Upload Your Photo",
+          "text": "Click 'Choose File' or drag and drop your selfie, passport photo, or smartphone picture."
+        },
+        {
+          "name": "Smart Face Framing",
+          "text": "The tool automatically centers your facial keypoints according to official passport standards with balanced eye height."
+        },
+        {
+          "name": "Exact Size Lock & Download",
+          "text": "Export a crisp 300×300 JPG compressed strictly below the 100 KB limit ready for instant form submission."
+        }
+      ],
+      "mistakes": [
+        "Uploading square photos with blurred shoulders or dark indoor backgrounds.",
+        "Saving files in PNG format which exceeds the 100 KB government server ceiling.",
+        "Using generic compression tools that distort facial aspect ratios."
+      ],
+      "faq": [
+        {
+          "q": "Why do Bangladesh government forms require 300×300 pixels?",
+          "a": "The Bangladesh Public Service Commission (BPSC) and Teletalk recruitment engines standardize admit cards and verification databases on a square 300×300 aspect ratio under 100 KB."
+        },
+        {
+          "q": "Will this tool keep my file size under 100 KB?",
+          "a": "Yes. Our binary compression algorithm precisely caps output file size between 60 KB and 99 KB, ensuring 100% server acceptance."
+        },
+        {
+          "q": "Is my photo uploaded to any server?",
+          "a": "No. All cropping, facial alignment, and image encoding execute entirely client-side inside your browser."
+        },
+        {
+          "q": "Can I use this on an Android or iPhone device?",
+          "a": "Yes. The tool runs directly in mobile Chrome, Safari, and Firefox without requiring any app installations."
+        }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "৩০০×৩০০ ছবি রিসাইজার — ১০০ কেবির নিচে সরকারি চাকরির জন্য",
+      "meta": "অনলাইনে সহজে আপনার ছবি ৩০০×৩০০ পিক্সেল এবং ১০০ কেবির নিচে রিসাইজ করুন। বিসিএস, টেলিটক ও সরকারি চাকরির আবেদন ফরমের জন্য ১০০% নিরাপদ ও ফ্রি।",
+      "h1": "৩০০×৩০০ ছবি রিসাইজার (১০০ কেবির নিচে)",
+      "intro": "আপনার ছবিকে নির্ভুলভাবে ৩০০×৩০০ পিক্সেল এবং ১০০ কিলোবাইটের নিচে রিসাইজ করুন। বিসিএস, টেলিটক এবং বাংলাদেশের সকল সরকারি চাকরির আবেদনের জন্য সম্পূর্ণ উপযোগী। সম্পূর্ণ প্রসেসিং আপনার ব্রাউজারেই সম্পন্ন হয়, কোনো ছবি সার্ভারে আপলোড হয় না।",
+      "also_searched": "৩০০*৩০০ ছবি রিসাইজ, ৩০০ বাই ৩০০ ছবি সাইজ কনভার্টার, টেলিটক ৩০০*৩০০ ছবি, বিসিএস ছবি রিসাইজ",
+      "steps": [
+        {
+          "name": "ছবি সিলেক্ট করুন",
+          "text": "'Choose File' বাটনে ক্লিক করে বা ড্র্যাগ করে আপনার পছন্দের পাসপোর্ট সাইজ ছবি আপলোড করুন।"
+        },
+        {
+          "name": "স্বয়ংক্রিয় ফেস পজিশন",
+          "text": "স্মার্ট এআই আপনার মুখমণ্ডল ও চোখের উচ্চতা সরকারি ফরমের নিয়ম অনুযায়ী নিখুঁতভাবে সেন্টারে ফ্রেম করবে।"
+        },
+        {
+          "name": "ডাউনলোড ও সংরক্ষণ",
+          "text": "১০০ কেবির নিচে কমপ্রেসড ৩০০×৩০০ জেপিজি (JPG) ফরম্যাটে ছবি ডাউনলোড করুন।"
+        }
+      ],
+      "mistakes": [
+        "পিএনজি (PNG) ফরম্যাটে সেভ করা, যার ফলে সাইজ ১০০ কেবির বেশি হয়ে যায়।",
+        "মুখের আনুপাতিক অনুপাত বিকৃত করে চ্যাপ্টা করে ফেলা।",
+        "অস্পষ্ট বা অন্ধকার ব্যাকগ্রাউন্ডের ছবি ব্যবহার করা।"
+      ],
+      "faq": [
+        {
+          "q": "সরকারি চাকরির আবেদনের জন্য ছবির সাইজ কত হতে হয়?",
+          "a": "বাংলাদেশ টেলিটক ও বিসিএস সার্কুলার অনুযায়ী ছবির মাপ ৩০০×৩০০ পিক্সেল এবং ফাইল সাইজ অনূর্ধ্ব ১০০ কিলোবাইট হতে হবে।"
+        },
+        {
+          "q": "আমার ছবি কি সার্ভারে সংরক্ষিত হবে?",
+          "a": "না। সম্পূর্ণ কাজ আপনার ডিভাইসের ব্রাউজারেই সম্পন্ন হয়। কোনো তথ্য বা ছবি সার্ভারে জমা থাকে না।"
+        },
+        {
+          "q": "মোবাইল দিয়ে কি ৩০০×৩০০ সাইজ করা যাবে?",
+          "a": "হ্যাঁ, যেকোনো স্মার্টফোনে ক্রোম বা সাফারি ব্রাউজার দিয়ে সহজেই ৩০০×৩০০ ছবি তৈরি করা যায়।"
+        },
+        {
+          "q": "টেলিটক পোর্টালে এই ছবি আপলোড দিলে কোনো ত্রুটি দেখাবে?",
+          "a": "না। আমাদের টুল টেলিটকের অফিসিয়াল ভ্যালিডেশন রুলস কঠোরভাবে মেনে ফাইল তৈরি করে।"
+        }
+      ]
+    },
+    "related": [
+      "300x80-signature-resizer",
+      "bcs-photo-signature-resizer",
+      "teletalk-photo-signature-resizer",
+      "photo-size-reducer-under-100kb"
+    ]
+  },
+  {
+    "slug": "300x80-signature-resizer",
+    "intent": "sig-300x80",
+    "default_preset": "gov_sig_300x80",
+    "spec": {
+      "width": 300,
+      "height": 80,
+      "max_kb": 60,
+      "format": "JPG",
+      "source_url": "https://alljobs.teletalk.com.bd",
+      "verified_on": "2026-09-15"
+    },
+    "en": {
+      "title": "300x80 Signature Resizer Online — Under 60KB for Govt Forms",
+      "meta": "Resize signature to 300x80 pixels and under 60KB online. Automatic ink contrast enhancement and clean white background fit for BCS & Teletalk job forms.",
+      "h1": "300×80 Signature Resizer (Under 60 KB)",
+      "intro": "Transform handwritten signatures on paper into high-contrast 300×80 pixel digital signatures under 60 KB. Features automatic background illumination flattening, stroke enhancement, and aspect-ratio preservation for all Bangladesh government exam portals.",
+      "also_searched": "300*80 signature resizer, 300by80 sign resize, teletalk signature 300x80, bcs signature 300x80 online",
+      "steps": [
+        {
+          "name": "Capture or Upload Signature",
+          "text": "Take a photo of your signature on white paper using your phone or upload an existing scan."
+        },
+        {
+          "name": "Auto Illumination & Crop",
+          "text": "The tool removes paper shadows, enhances ballpoint/gel pen ink, and tight-crops the bounding box."
+        },
+        {
+          "name": "Instant 300×80 Download",
+          "text": "Download the clean signature formatted to exactly 300×80 pixels and strictly under 60 KB."
+        }
+      ],
+      "mistakes": [
+        "Stretching signatures vertically to fill 80px, causing severe stroke distortion.",
+        "Uploading dark, uncropped camera photos with visible shadows.",
+        "Exceeding the 60 KB file size limit on Teletalk applicant portals."
+      ],
+      "faq": [
+        {
+          "q": "What is the official signature size for Bangladesh government jobs?",
+          "a": "Official portals require a 300×80 pixel JPG image with a file size not exceeding 60 KB."
+        },
+        {
+          "q": "How does the tool handle signature aspect ratio?",
+          "a": "It centers the ink with balanced horizontal padding rather than distorting your natural handwriting."
+        },
+        {
+          "q": "Can it clean shadowy photos of signatures?",
+          "a": "Yes. Our background flattening filter whitens paper background while retaining dark, legible ink strokes."
+        }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "৩০০×৮০ স্বাক্ষর রিসাইজার — ৬০ কেবির নিচে সরকারি চাকরির জন্য",
+      "meta": "অনলাইনে সহজে আপনার স্বাক্ষর ৩০০×৮০ পিক্সেল এবং ৬০ কেবির নিচে রিসাইজ করুন। বিসিএস, টেলিটক এবং সরকারি চাকরির আবেদনের জন্য উপযুক্ত ও ১০০% ফ্রি।",
+      "h1": "৩০০×৮০ স্বাক্ষর রিসাইজার (৬০ কেবির নিচে)",
+      "intro": "কাগজে করা দস্তখত বা স্বাক্ষরকে নিখুঁতভাবে ৩০০×৮০ পিক্সেল এবং ৬০ কেবির নিচে ডিজিটাল স্বাক্ষরে রূপান্তর করুন। ব্যাকগ্রাউন্ডের ছায়া দূর করে কালির স্পষ্টতা বাড়িয়ে টেলিটক ও বিসিএস ফরমের জন্য প্রস্তুত করে।",
+      "also_searched": "৩০০*৮০ স্বাক্ষর রিসাইজ, ৩০০ বাই ৮০ সাইন রিসাইজার, টেলিটক স্বাক্ষর ৩০০*৮০, বিসিএস দস্তখত সাইজ",
+      "steps": [
+        {
+          "name": "স্বাক্ষরের ছবি তুলুন বা আপলোড করুন",
+          "text": "সাদা কাগজে নীল বা কালো কালিতে স্বাক্ষর করে মোবাইলে ছবি তুলে আপলোড করুন।"
+        },
+        {
+          "name": "অটো ব্যাকগ্রাউন্ড ও ক্রপ",
+          "text": "টুলটি স্বয়ংক্রিয়ভাবে কাগজের ছায়া মুছে কালি স্পষ্ট করবে এবং সঠিক অনুপাতে বসাবে।"
+        },
+        {
+          "name": "ডাউনলোড করুন",
+          "text": "৬০ কেবির নিচে ৩০০×৮০ জেপিজি ফরম্যাটে স্বাক্ষর ডাউনলোড করে সরাসরি আবেদনে ব্যবহার করুন।"
+        }
+      ],
+      "mistakes": [
+        "স্বাক্ষর টেনে লম্বা বা চ্যাপ্টা করে ফেলা।",
+        "অন্ধকার ঘরে ছবি তুলে ছায়াসহ আপলোড করা।",
+        "৬০ কেবির বেশি সাইজের ফাইল আপলোড করার চেষ্টা করা।"
+      ],
+      "faq": [
+        {
+          "q": "সরকারি চাকুরির স্বাক্ষরের সঠিক মাপ কত?",
+          "a": "বাংলাদেশ সরকারি চাকরির নিয়মানুযায়ী স্বাক্ষরের সাইজ ৩০০×৮০ পিক্সেল এবং ফাইল সাইজ সর্বোচ্চ ৬০ কিলোবাইট।"
+        },
+        {
+          "q": "কালি কি হালকা হয়ে যাবে?",
+          "a": "না। আমাদের কনট্রাস্ট ফিল্টার কালির গাঢ়ত্ব বাড়িয়ে স্পষ্ট ও পরিচ্ছন্ন স্বাক্ষর তৈরি করে।"
+        }
+      ]
+    },
+    "related": [
+      "300x300-photo-resizer",
+      "bcs-photo-signature-resizer",
+      "teletalk-photo-signature-resizer",
+      "signature-size-reducer-under-60kb"
+    ]
+  },
+  {
+    "slug": "bcs-photo-signature-resizer",
+    "intent": "bcs-resizer",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "http://bpsc.teletalk.com.bd",
+      "verified_on": "2026-09-20"
+    },
+    "en": {
+      "title": "BCS Photo & Signature Resizer Online — BPSC Application Form Ready",
+      "meta": "Resize photo to 300x300 (under 100KB) and signature to 300x80 (under 60KB) for Bangladesh Civil Service (BCS) BPSC online applications.",
+      "h1": "BCS Photo & Signature Resizer (BPSC Standards)",
+      "intro": "Prepare both your photograph and signature for Bangladesh Civil Service (BCS) online applications. Strictly conforms to BPSC specifications: Photo 300×300 pixels (under 100 KB) and Signature 300×80 pixels (under 60 KB).",
+      "also_searched": "bcs photo 300x300, bcs signature 300x80, bpsc application photo size, bcs chobi signature resize online",
+      "steps": [
+        {
+          "name": "Select BCS Photo or Signature Preset",
+          "text": "Choose 'BCS Photo 300×300' or 'Teletalk Sign 300×80' from the quick-preset toolbar."
+        },
+        {
+          "name": "Upload and Position",
+          "text": "Upload your file; smart face detection or ink extraction automatically applies official BPSC margins."
+        },
+        {
+          "name": "Export Compliant File",
+          "text": "Save the file directly to your device ready for error-free submission on bpsc.teletalk.com.bd."
+        }
+      ],
+      "mistakes": [
+        "Submitting outdated casual photos with hats, sunglasses, or busy backdrops.",
+        "Using compressed signatures with pixelated, unreadable handwriting.",
+        "Exceeding 100 KB for photo or 60 KB for signature."
+      ],
+      "faq": [
+        {
+          "q": "What are the exact BPSC BCS image requirements?",
+          "a": "Photo: 300×300 px (≤ 100 KB), Signature: 300×80 px (≤ 60 KB), both in standard JPG format."
+        },
+        {
+          "q": "Will BPSC reject photos with colored backgrounds?",
+          "a": "BPSC recommends a clean, light/white plain background. You can use our built-in background cleaner if needed."
+        }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "বিসিএস ছবি ও স্বাক্ষর রিসাইজার — বিপিএসসি অনলাইন আবেদন",
+      "meta": "বিসিএস আবেদনের জন্য ছবি ৩০০×৩০০ (১০০ কেবি) ও স্বাক্ষর ৩০০×৮০ (৬০ কেবি) পিক্সেল সাইজে অনলাইনে ফ্রিতে কনভার্ট করুন। বিপিএসসি অনুমোদিত মাপ।",
+      "h1": "বিসিএস ছবি ও স্বাক্ষর রিসাইজার (বিপিএসসি স্ট্যান্ডার্ড)",
+      "intro": "বাংলাদেশ সিভিল সার্ভিস (বিসিএস) অনলাইন আবেদনের জন্য ছবি ও স্বাক্ষর এক ক্লিকে প্রস্তুত করুন। বিপিএসসি নিয়ম মেনে ছবি ৩০০×৩০০ পিক্সেল (অনূর্ধ্ব ১০০ কেবি) এবং স্বাক্ষর ৩০০×৮০ পিক্সেল (অনূর্ধ্ব ৬০ কেবি) তৈরি হয়।",
+      "also_searched": "বিসিএস ছবি রিসাইজ, বিসিএস স্বাক্ষর রিসাইজ, বিপিএসসি অনলাইন ফরম ছবি সাইজ, bcs photo resize",
+      "steps": [
+        {
+          "name": "বিসিএস প্রিসেট নির্বাচন করুন",
+          "text": "হিরো সেকশন থেকে বিসিএস ছবি ৩০০×৩০০ অথবা টেলিটক স্বাক্ষর ৩০০×৮০ সিলেক্ট করুন।"
+        },
+        {
+          "name": "ছবি আপলোড করুন",
+          "text": "আপনার ফাইল আপলোড করলে স্বয়ংক্রিয়ভাবে বিপিএসসি স্ট্যান্ডার্ড ফ্রেমিং প্রয়োগ হবে।"
+        },
+        {
+          "name": "সেভ ও আপলোড",
+          "text": "সরাসরি bpsc.teletalk.com.bd পোর্টালে নির্দ্বিধায় আপলোড করুন।"
+        }
+      ],
+      "mistakes": [
+        "সানগ্লাস বা ক্যাপ পরা ছবি ব্যবহার করা।",
+        "স্বাক্ষর অস্পষ্ট ও ফাটা হওয়া।",
+        "১০০ কেবির বেশি সাইজের ছবি আপলোড দেওয়া।"
+      ],
+      "faq": [
+        {
+          "q": "বিসিএস আবেদনের ছবির সাইজ কত?",
+          "a": "ছবি ৩০০×৩০০ পিক্সেল (সর্বোচ্চ ১০০ কেবি) এবং স্বাক্ষর ৩০০×৮০ পিক্সেল (সর্বোচ্চ ৬০ কেবি)।"
+        }
+      ]
+    },
+    "related": [
+      "300x300-photo-resizer",
+      "300x80-signature-resizer",
+      "teletalk-photo-signature-resizer",
+      "government-job-form-photo-resizer"
+    ]
+  },
+  {
+    "slug": "teletalk-photo-signature-resizer",
+    "intent": "teletalk-resizer",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://alljobs.teletalk.com.bd",
+      "verified_on": "2026-09-18"
+    },
+    "en": {
+      "title": "Teletalk Alljobs Photo & Signature Resizer Online",
+      "meta": "Resize photo (300x300 <=100KB) and signature (300x80 <=60KB) for alljobs.teletalk.com.bd and all Bangladesh Teletalk recruitment portals.",
+      "h1": "Teletalk Alljobs Photo & Signature Resizer",
+      "intro": "Guaranteed validation for alljobs.teletalk.com.bd and ministry job recruitment engines. Formats photos to 300×300 pixels (≤ 100 KB) and signatures to 300×80 pixels (≤ 60 KB) with zero pixelation.",
+      "also_searched": "teletalk photo resizer 300x300, teletalk signature resizer 300x80, alljobs teletalk photo resize online",
+      "steps": [
+        {
+          "name": "Select Teletalk Mode",
+          "text": "Select 300×300 photo or 300×80 signature mode."
+        },
+        {
+          "name": "Instant Framing",
+          "text": "Crop and optimize with automated lighting balancing."
+        },
+        {
+          "name": "Download Teletalk Ready File",
+          "text": "Download the verified JPG file ready for immediate upload."
+        }
+      ],
+      "mistakes": [
+        "Uploading non-standard dimensions causing 'Invalid Photo Dimension' errors on Teletalk.",
+        "Incorrect file format like WebP or PNG."
+      ],
+      "faq": [
+        {
+          "q": "Why does Teletalk show 'Invalid Photo/Signature' error?",
+          "a": "Teletalk servers strictly check the exact width, height, and file byte size. Our tool guarantees exact matching dimensions."
+        }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "টেলিটক অলজবস ছবি ও স্বাক্ষর রিসাইজার অনলাইন",
+      "meta": "টেলিটক অলজবস ও সরকারি চাকরির আবেদনের জন্য ছবি ৩০০×৩০০ (১০০ কেবি) ও স্বাক্ষর ৩০০×৮০ (৬০ কেবি) রিসাইজ করুন বিনামূল্যে।",
+      "h1": "টেলিটক অলজবস ছবি ও স্বাক্ষর রিসাইজার",
+      "intro": "alljobs.teletalk.com.bd এবং সকল মন্ত্রণালয় ও অধিদপ্তরের চাকরির অনলাইন আবেদনের জন্য ছবি ও স্বাক্ষর ১০০% ভ্যালিডেশন নিশ্চয়তায় রিসাইজ করুন।",
+      "also_searched": "টেলিটক ছবি রিসাইজ, টেলিটক স্বাক্ষর ৩০০*৮০, alljobs teletalk chobi resize",
+      "steps": [
+        {
+          "name": "টেলিটক প্রিসেট সিলেক্ট করুন",
+          "text": "টেলিটক ছবি বা স্বাক্ষর অপশন বেছে নিন।"
+        },
+        {
+          "name": "ছবি আপলোড ও রিসাইজ",
+          "text": "ছবি যুক্ত করলেই স্বয়ংক্রিয়ভাবে টেলিটক সার্ভার উপযোগী সাইজে তৈরি হবে।"
+        },
+        {
+          "name": "ডাউনলোড",
+          "text": "ফাইলটি ডাউনলোড করে টেলিটক পোর্টালে সাবমিট করুন।"
+        }
+      ],
+      "mistakes": [
+        "টেলিটক নিয়মের বাইরে অন্য সাইজের ছবি ব্যবহার করা।",
+        "পিএনজি ফরম্যাটের ছবি আপলোড দেওয়ার চেষ্টা করা।"
+      ],
+      "faq": [
+        {
+          "q": "টেলিটক সার্ভারে ছবির সাইজ কত?",
+          "a": "ছবি ৩০০×৩০০ পিক্সেল (সর্বোচ্চ ১০০ কেবি) এবং স্বাক্ষর ৩০০×৮০ পিক্সেল (সর্বোচ্চ ৬০ কেবি)।"
+        }
+      ]
+    },
+    "related": [
+      "300x300-photo-resizer",
+      "300x80-signature-resizer",
+      "bcs-photo-signature-resizer",
+      "government-job-form-photo-resizer"
+    ]
+  },
+  {
+    "slug": "duet-photo-signature-resizer",
+    "intent": "duet-resizer",
+    "default_preset": "duet_photo_250x250",
+    "spec": {
+      "width": 250,
+      "height": 250,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://admission.duet.ac.bd",
+      "verified_on": "2026-09-22"
+    },
+    "en": {
+      "title": "DUET Admission Photo & Signature Resizer — 250x250 & 250x50",
+      "meta": "Resize photo to 250x250 pixels (under 100KB) and signature to 250x50 pixels (under 50KB) for Dhaka University of Engineering & Technology (DUET) admission form.",
+      "h1": "DUET Admission Photo & Signature Resizer",
+      "intro": "Format your admission application photograph to 250×250 pixels (under 100 KB) and signature to 250×50 pixels (under 50 KB) matching official DUET undergraduate & postgraduate admission guidelines.",
+      "also_searched": "duet 250x250 photo resizer, duet 250x50 signature resizer, duet admission photo signature size, 250*250 photo under 100kb, 250*50 sign under 50kb",
+      "steps": [
+        {
+          "name": "Choose DUET Preset",
+          "text": "Click 'DUET 250×250' for photo or 'DUET 250×50' for signature."
+        },
+        {
+          "name": "Upload Image",
+          "text": "Upload your picture; the framing grid locks to DUET's unique 250px specifications."
+        },
+        {
+          "name": "Download Verified File",
+          "text": "Export compliant JPG files ready for admission.duet.ac.bd."
+        }
+      ],
+      "mistakes": [
+        "Using 300×300 job presets on DUET admission forms, which fails server dimension checks.",
+        "Allowing signature file size to exceed 50 KB."
+      ],
+      "faq": [
+        {
+          "q": "What is the DUET admission photo and signature size?",
+          "a": "DUET requires Photo: 250×250 px (≤ 100 KB), Signature: 250×50 px (≤ 50 KB) in JPG format."
+        },
+        {
+          "q": "How does DUET differ from standard government job portals?",
+          "a": "Government job portals use 300×300 and 300×80, while DUET uses a specialized 250×250 and 250×50 standard."
+        }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "ডুয়েট ভর্তি পরীক্ষার ছবি ও স্বাক্ষর রিসাইজার — ২৫০×২৫০ ও ২৫০×৫০",
+      "meta": "ডুয়েট (DUET) ভর্তি পরীক্ষার আবেদনের জন্য ছবি ২৫০×২৫০ (১০০ কেবি) ও স্বাক্ষর ২৫০×৫০ (৫০ কেবি) পিক্সেল মাপে অনলাইনে ফ্রিতে রিসাইজ করুন।",
+      "h1": "ডুয়েট ভর্তি পরীক্ষার ছবি ও স্বাক্ষর রিসাইজার",
+      "intro": "ঢাকা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় (ডুয়েট) ভর্তি ফরমের জন্য ছবি ২৫০×২৫০ পিক্সেল (১০০ কেবির নিচে) এবং স্বাক্ষর ২৫০×৫০ পিক্সেল (৫০ কেবির নিচে) কনভার্ট করুন।",
+      "also_searched": "ডুয়েট ২৫০*২৫০ ছবি, ডুয়েট ২৫০*৫০ স্বাক্ষর, duet admission form photo signature resize",
+      "steps": [
+        {
+          "name": "ডুয়েট প্রিসেট বেছে নিন",
+          "text": "'ডুয়েট ২৫০×২৫০' বা 'ডুয়েট ২৫০×৫০' সিলেক্ট করুন।"
+        },
+        {
+          "name": "ছবি বা স্বাক্ষর আপলোড",
+          "text": "ফাইল ড্রপ করুন; ডুয়েটের নির্দিষ্ট অনুপাতে ফ্রেম লক হবে।"
+        },
+        {
+          "name": "ডাউনলোড ও সাবমিশন",
+          "text": "ডাউনলোড করে admission.duet.ac.bd পোর্টালে আপলোড করুন।"
+        }
+      ],
+      "mistakes": [
+        "ডুয়েট ফরমে সাধারণ ৩০০×৩০০ ছবি আপলোড দেওয়ার চেষ্টা করা।",
+        "স্বাক্ষর ৫০ কেবির বেশি হওয়া।"
+      ],
+      "faq": [
+        {
+          "q": "ডুয়েট ভর্তি পরীক্ষায় ছবির সাইজ কত?",
+          "a": "ছবি ২৫০×২৫০ পিক্সেল (অনূর্ধ্ব ১০০ কেবি) এবং স্বাক্ষর ২৫০×৫০ পিক্সেল (অনূর্ধ্ব ৫০ কেবি)।"
+        }
+      ]
+    },
+    "related": [
+      "300x300-photo-resizer",
+      "300x80-signature-resizer",
+      "photo-size-reducer-under-100kb",
+      "signature-size-reducer-under-60kb"
+    ]
+  },
+  {
+    "slug": "government-job-form-photo-resizer",
+    "intent": "govt-jobs",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://moedu.gov.bd",
+      "verified_on": "2026-09-15"
+    },
+    "en": {
+      "title": "Bangladesh Government Job Form Photo & Signature Resizer",
+      "meta": "Resize photos and signatures for Primary Teacher, NTRCA, Railway, and all Bangladesh government recruitment portals online for free.",
+      "h1": "Bangladesh Govt Job Form Photo & Signature Resizer",
+      "intro": "Complete image formatting suite for NTRCA, Primary Assistant Teacher, Bangladesh Railway, Food Department, and all government recruitment portals.",
+      "also_searched": "primary teacher application photo resize, ntrca photo signature resize, railway job photo resize, bd govt job photo size",
+      "steps": [
+        { "name": "Choose Govt Preset", "text": "Select 300×300 photo or 300×80 signature." },
+        { "name": "Upload & Align", "text": "Upload your file for automated passport framing." },
+        { "name": "Export Compliant JPG", "text": "Download the file ready for government job submission." }
+      ],
+      "mistakes": ["Using uncropped camera photos with shadows", "Saving as PNG exceeding 100 KB limit"],
+      "faq": [
+        { "q": "Does this work for NTRCA and Primary Teacher circulars?", "a": "Yes, both portals follow the standard 300×300 (<=100KB) and 300×80 (<=60KB) specification." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "সরকারি চাকরির আবেদন ছবি ও স্বাক্ষর রিসাইজার",
+      "meta": "প্রাথমিক শিক্ষক, এনটিআরসিএ (NTRCA), রেলওয়ে সহ সকল সরকারি চাকরির ফরমের জন্য ছবি ও স্বাক্ষর সঠিক সাইজে কনভার্ট করুন।",
+      "h1": "সরকারি চাকরির আবেদন ছবি ও স্বাক্ষর রিসাইজার",
+      "intro": "প্রাথমিক সহকারী শিক্ষক নিয়োগ, এনটিআরসিএ শিক্ষক নিবন্ধন, বাংলাদেশ রেলওয়ে ও সকল সরকারি চাকরির অনলাইন আবেদনের জন্য ছবি ও স্বাক্ষর প্রস্তুত করুন।",
+      "also_searched": "প্রাইমারি শিক্ষক নিয়োগ ছবি সাইজ, এনটিআরসিএ ছবি স্বাক্ষর রিসাইজ, সরকারি চাকরির ছবি কনভার্টার",
+      "steps": [
+        { "name": "প্রিসেট সিলেক্ট করুন", "text": "৩০০×৩০০ ছবি বা ৩০০×৮০ স্বাক্ষর নির্বাচন করুন।" },
+        { "name": "ছবি আপলোড", "text": "ফাইল ড্রপ করে স্বয়ংক্রিয়ভাবে সাইজ ঠিক করুন।" },
+        { "name": "ডাউনলোড", "text": "সরকারি সার্কুলার অনুযায়ী প্রস্তুত ফাইল সংরক্ষণ করুন।" }
+      ],
+      "mistakes": ["অস্পষ্ট ব্যাকগ্রাউন্ড", "১০০ কেবির বেশি সাইজ"],
+      "faq": [
+        { "q": "প্রাইমারি শিক্ষক নিয়োগের ছবির সাইজ কত?", "a": "ছবি ৩০০×৩০০ পিক্সেল (১০০ কেবি) ও স্বাক্ষর ৩০০×৮০ পিক্সেল (৬০ কেবি)।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "300x80-signature-resizer", "bcs-photo-signature-resizer", "teletalk-photo-signature-resizer"]
+  },
+  {
+    "slug": "bank-job-photo-signature-resizer",
+    "intent": "bank-jobs",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://erecruitment.bb.org.bd",
+      "verified_on": "2026-09-10"
+    },
+    "en": {
+      "title": "Bangladesh Bank & Combined Bank Job Photo Resizer",
+      "meta": "Resize photo (300x300 <=100KB) and signature (300x80 <=60KB) for Bangladesh Bank erecruitment and combined bank online application forms.",
+      "h1": "Bank Job Photo & Signature Resizer (BB & Combined)",
+      "intro": "Format photos and signatures for Bangladesh Bank eRecruitment (erecruitment.bb.org.bd), Sonali, Janata, Agrani, Rupali, and Combined Bankers Selection Committee circulars.",
+      "also_searched": "bangladesh bank job photo resize, combined bank job photo resizer, bank recruitment signature resize under 60kb",
+      "steps": [
+        { "name": "Select Bank Preset", "text": "Select 300×300 photo or 300×80 signature." },
+        { "name": "Upload File", "text": "Center face or signature ink." },
+        { "name": "Download", "text": "Save verified JPG file under size limits." }
+      ],
+      "mistakes": ["Using photos older than 6 months", "Low-resolution scanned signatures"],
+      "faq": [
+        { "q": "What is Bangladesh Bank eRecruitment photo size?", "a": "Photo must be 300×300 pixels (≤ 100 KB) and signature 300×80 pixels (≤ 60 KB)." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "বাংলাদেশ ব্যাংক ও সমন্বিত ব্যাংক জব ছবি রিসাইজার",
+      "meta": "বাংলাদেশ ব্যাংক এবং সমন্বিত ৯ ব্যাংক নিয়োগ পরীক্ষার জন্য ছবি ও স্বাক্ষর সঠিক সাইজে কনভার্ট করুন অনলাইনে।",
+      "h1": "ব্যাংক জব ছবি ও স্বাক্ষর রিসাইজার",
+      "intro": "বাংলাদেশ ব্যাংক ই-রিক্রুটমেন্ট ও সমন্বিত ব্যাংক নিয়োগ পরীক্ষার ফরমের জন্য ছবি ৩০০×৩০০ (১০০ কেবি) ও স্বাক্ষর ৩০০×৮০ (৬০ কেবি) পিক্সেল মাপে রূপান্তর করুন।",
+      "also_searched": "বাংলাদেশ ব্যাংক ছবি রিসাইজ, কম্বাইন্ড ব্যাংক জব সাইন সাইজ, ব্যাংক নিয়োগ ছবি",
+      "steps": [
+        { "name": "প্রিসেট পছন্দ করুন", "text": "ছবি বা স্বাক্ষর মোড সিলেক্ট করুন।" },
+        { "name": "আপলোড ও ফ্রেম", "text": "ছবি আপলোড করে সাইজ অ্যাডজাস্ট করুন।" },
+        { "name": "সংরক্ষণ", "text": "ডাউনলোড করে ব্যাংক রিক্রুটমেন্ট পোর্টালে আপলোড করুন।" }
+      ],
+      "mistakes": ["ছবির ব্যাকগ্রাউন্ডে অতিরিক্ত ছায়া থাকা"],
+      "faq": [
+        { "q": "বাংলাদেশ ব্যাংকের নিয়োগে ছবির মাপ কত?", "a": "ছবি ৩০০×৩০০ পিক্সেল (১০০ কেবি) এবং স্বাক্ষর ৩০০×৮০ পিক্সেল (৬০ কেবি)।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "300x80-signature-resizer", "bcs-photo-signature-resizer", "government-job-form-photo-resizer"]
+  },
+  {
+    "slug": "medical-nursing-admission-photo-resizer",
+    "intent": "medical-nursing",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "http://dgme.teletalk.com.bd",
+      "verified_on": "2026-09-12"
+    },
+    "en": {
+      "title": "Medical & Nursing Admission Photo Resizer (MBBS/BDS)",
+      "meta": "Resize photo (300x300 <=100KB) and signature (300x80 <=60KB) for DGHS MBBS, BDS, and Nursing admission online applications in Bangladesh.",
+      "h1": "Medical & Nursing Admission Photo Resizer",
+      "intro": "Prepare admission photographs and signatures for DGHS Medical (MBBS), Dental (BDS), and Nursing entrance examination portals.",
+      "also_searched": "dghs medical admission photo size, medical admission 300x300 photo, nursing admission photo resizer",
+      "steps": [
+        { "name": "Select Medical Admission Preset", "text": "Choose 300×300 photo or 300×80 signature." },
+        { "name": "Align Face", "text": "Automatic passport-standard framing." },
+        { "name": "Download", "text": "Export for dgme.teletalk.com.bd." }
+      ],
+      "mistakes": ["Covering forehead or eyes with hair", "Submitting non-standard aspect ratios"],
+      "faq": [
+        { "q": "What is the medical admission photo size in Bangladesh?", "a": "Standard 300×300 pixels under 100 KB and signature 300×80 under 60 KB." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "মেডিকেল ও নার্সিং ভর্তি পরীক্ষার ছবি রিসাইজার",
+      "meta": "এমবিবিএস, বিডিএস ও নার্সিং ভর্তি পরীক্ষার অনলাইন আবেদনের জন্য ছবি ও স্বাক্ষর সঠিক সাইজে কনভার্ট করুন।",
+      "h1": "মেডিকেল ও নার্সিং ভর্তি পরীক্ষার ছবি রিসাইজার",
+      "intro": "ডিজিএইচএস মেডিকেল (MBBS), ডেন্টাল (BDS) এবং নার্সিং ভর্তি পরীক্ষার ফরমের জন্য ছবি ৩০০×৩০০ ও স্বাক্ষর ৩০০×৮০ সাইজে প্রস্তুত করুন।",
+      "also_searched": "মেডিকেল ভর্তি ছবি সাইজ, নার্সিং ভর্তি স্বাক্ষর রিসাইজ, dgme teletalk photo resize",
+      "steps": [
+        { "name": "প্রিসেট পছন্দ করুন", "text": "মেডিকেল ছবি বা স্বাক্ষর নির্বাচন করুন।" },
+        { "name": "আপলোড ও ফ্রেম", "text": "ছবি যুক্ত করে সেন্টারিং ঠিক করুন।" },
+        { "name": "ডাউনলোড", "text": "সেভ করে ডিজিএমই পোর্টালে আপলোড করুন।" }
+      ],
+      "mistakes": ["মুখ বা কান ঢাকা থাকা"],
+      "faq": [
+        { "q": "মেডিকেল ভর্তির ছবির সাইজ কত?", "a": "ছবি ৩০০×৩০০ পিক্সেল (১০০ কেবি) ও স্বাক্ষর ৩০০×৮০ পিক্সেল (৬০ কেবি)।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "300x80-signature-resizer", "teletalk-photo-signature-resizer", "duet-photo-signature-resizer"]
+  },
+  {
+    "slug": "police-army-navy-photo-resizer",
+    "intent": "defense-jobs",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://police.teletalk.com.bd",
+      "verified_on": "2026-09-08"
+    },
+    "en": {
+      "title": "Bangladesh Police, Army & Defense Job Photo Resizer",
+      "meta": "Resize photo (300x300 <=100KB) and signature (300x80 <=60KB) for Bangladesh Police Constable, SI, Army, Navy & Air Force online applications.",
+      "h1": "Police, Army & Defense Job Photo Resizer",
+      "intro": "Format recruitment images for Bangladesh Police (Sub-Inspector, Constable, Sergeant), Bangladesh Army (Sainik, Officer Cadet), Navy, and Air Force portals.",
+      "also_searched": "bangladesh police job photo signature resize, army job photo resize, navy recruitment photo size",
+      "steps": [
+        { "name": "Choose Defense Preset", "text": "Select 300×300 photo or 300×80 signature." },
+        { "name": "Upload & Crop", "text": "Center portrait with upright posture." },
+        { "name": "Download", "text": "Export error-free JPG file." }
+      ],
+      "mistakes": ["Using tilted selfies", "Wearing sunglasses or caps"],
+      "faq": [
+        { "q": "What is the photo size for police job applications?", "a": "Police recruitment requires a 300×300 pixel JPG under 100 KB and a 300×80 pixel signature under 60 KB." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "পুলিশ, সেনাবাহিনী ও প্রতিরক্ষা বাহিনী ছবি রিসাইজার",
+      "meta": "বাংলাদেশ পুলিশ (কনস্টেবল/এসআই), সেনাবাহিনী ও নৌবাহিনীর চাকরির আবেদনের জন্য ছবি ও স্বাক্ষর রিসাইজ করুন।",
+      "h1": "পুলিশ, সেনা ও প্রতিরক্ষা চাকরি ছবি রিসাইজার",
+      "intro": "বাংলাদেশ পুলিশ কনস্টেবল ও এসআই নিয়োগ, বাংলাদেশ সেনাবাহিনী সৈনিক ও অফিসার ক্যাডেট এবং নৌ ও বিমান বাহিনী চাকরির জন্য ছবি ও স্বাক্ষর তৈরি করুন।",
+      "also_searched": "পুলিশ নিয়োগ ছবি সাইজ, সেনাবাহিনী সৈনিক ছবি রিসাইজ, police teletalk photo resize",
+      "steps": [
+        { "name": "প্রিসেট সিলেক্ট করুন", "text": "৩০০×৩০০ ছবি বা ৩০০×৮০ স্বাক্ষর সিলেক্ট করুন।" },
+        { "name": "আপলোড ও ফ্রেম", "text": "ছবি আপলোড করে সঠিক মাপ নিশ্চিত করুন।" },
+        { "name": "সংরক্ষণ", "text": "ডাউনলোড করে পুলিশ বা ডিফেন্স পোর্টালে আপলোড করুন।" }
+      ],
+      "mistakes": ["ক্যাপ বা চশমা পরা ছবি দেওয়া"],
+      "faq": [
+        { "q": "পুলিশ চাকরির আবেদনের ছবির সাইজ কত?", "a": "ছবি ৩০০×৩০০ পিক্সেল (১০০ কেবি) ও স্বাক্ষর ৩০০×৮০ পিক্সেল (৬০ কেবি)।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "300x80-signature-resizer", "bcs-photo-signature-resizer", "government-job-form-photo-resizer"]
+  },
+  {
+    "slug": "passport-photo-45x55-resizer",
+    "intent": "passport-visa",
+    "default_preset": "passport_bd_45x55",
+    "spec": {
+      "width": 531,
+      "height": 650,
+      "max_kb": 300,
+      "format": "JPG",
+      "source_url": "https://www.epassport.gov.bd",
+      "verified_on": "2026-09-01"
+    },
+    "en": {
+      "title": "Bangladesh E-Passport Photo Resizer (45x55 mm) Online",
+      "meta": "Resize photo to Bangladesh e-passport 45x55 mm dimensions online. Compliant with epassport.gov.bd biometric standards and Indian/US visa formats.",
+      "h1": "Bangladesh E-Passport Photo Resizer (45×55 mm)",
+      "intro": "Format digital photographs to official Bangladesh E-Passport standards (45×55 mm / 531×650 px at 300 DPI) and foreign visa specifications.",
+      "also_searched": "e-passport photo 45x55mm, bangladesh passport photo resizer 45x55, indian visa photo 300x300, us visa photo 600x600 online",
+      "steps": [
+        { "name": "Select E-Passport Preset", "text": "Choose 'E-Passport 45×55mm'." },
+        { "name": "Biometric Head Framing", "text": "Align head to cover 70-80% of vertical height." },
+        { "name": "Export High-DPI JPG", "text": "Download crisp 300 DPI passport image." }
+      ],
+      "mistakes": ["Shadows behind ears", "Closed eyes or smiling with teeth visible"],
+      "faq": [
+        { "q": "What is the official Bangladesh e-passport photo dimension?", "a": "45 mm width by 55 mm height (typically 531×650 pixels at 300 DPI) with white background." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "ই-পাসপোর্ট ছবি রিসাইজার (৪৫×৫৫ মিমি) অনলাইন",
+      "meta": "অনলাইনে সহজে ই-পাসপোর্টের ছবি ৪৫×৫৫ মিমি মাপে রিসাইজ করুন। epassport.gov.bd এর সকল বায়োমেট্রিক শর্ত মেনে ছবি প্রস্তুত করুন।",
+      "h1": "বাংলাদেশ ই-পাসপোর্ট ছবি রিসাইজার (৪৫×৫৫ মিমি)",
+      "intro": "বাংলাদেশ ই-পাসপোর্ট (epassport.gov.bd) এবং বিভিন্ন দেশের ভিসা আবেদনের জন্য ছবি ৪৫×৫৫ মিলিমিটার (৫৩১×৬৫০ পিক্সেল, ৩০০ ডিপিআই) মাপে কনভার্ট করুন।",
+      "also_searched": "ই পাসপোর্ট ছবি সাইজ, epassport photo resize 45x55, পাসপোর্ট সাইজ ছবি কনভার্টার",
+      "steps": [
+        { "name": "পাসপোর্ট প্রিসেট বেছে নিন", "text": "'ই-পাসপোর্ট ৪৫×৫৫ মিমি' সিলেক্ট করুন।" },
+        { "name": "ফেস অ্যালাইনমেন্ট", "text": "মুখমণ্ডল যাতে মোট ফ্রেমের ৭০-৮০% অংশ থাকে তা নিশ্চিত করুন।" },
+        { "name": "ডাউনলোড", "text": "উচ্চ রেজ্যুলেশনে ছবি সেভ করুন।" }
+      ],
+      "mistakes": ["ব্যাকগ্রাউন্ডে ছায়া থাকা", "মুখের অনুপাতে ফ্রেম ছোট হওয়া"],
+      "faq": [
+        { "q": "ই-পাসপোর্টের ছবির মাপ কত?", "a": "৪৫ মিমি × ৫৫ মিমি (৫৩১×৬৫০ পিক্সেল, ৩০০ ডিপিআই) সাদা ব্যাকগ্রাউন্ড।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "photo-size-reducer-under-100kb", "mobile-photo-resizer"]
+  },
+  {
+    "slug": "photo-size-reducer-under-100kb",
+    "intent": "compress-photo",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://alljobs.teletalk.com.bd",
+      "verified_on": "2026-09-15"
+    },
+    "en": {
+      "title": "Photo Size Reducer Under 100KB Online — No Quality Loss",
+      "meta": "Compress and reduce photo file size to strictly under 100KB online. Perfect for BCS, Teletalk, DUET, and job portals with instant private browser encoding.",
+      "h1": "Photo Size Reducer (Under 100 KB)",
+      "intro": "Reduce your photograph file size from 2 MB, 5 MB, or 10 MB to strictly under 100 KB while preserving crisp facial details and true color accuracy.",
+      "also_searched": "reduce photo size under 100kb, compress image to 100kb online, photo 100kb convert, 300x300 photo under 100kb",
+      "steps": [
+        { "name": "Upload Heavy Photo", "text": "Select any high-resolution photo from your phone or camera." },
+        { "name": "Smart Compression", "text": "Our algorithm bisects quality to reach ~85-95 KB with optimal clarity." },
+        { "name": "Download Under 100 KB", "text": "Download the verified file guaranteed to pass portal limits." }
+      ],
+      "mistakes": ["Using extreme compression that blurs eyes or face", "Saving as PNG which bloats file size"],
+      "faq": [
+        { "q": "Will reducing size below 100 KB make my photo blurry?", "a": "No. Our multi-step lanczos downsampler and Chroma sub-sampling preserve facial sharpness." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "ছবির সাইজ ১০০ কেবির নিচে কমানোর টুল — অনলাইন কনভার্টার",
+      "meta": "ছবির মান অক্ষুণ্ণ রেখে ফাইলের সাইজ ১০০ কেবির নিচে কমান। সরকারি চাকরি, বিসিএস ও ভর্তি পরীক্ষার জন্য ১০০% কার্যকর।",
+      "h1": "ছবির সাইজ রিডিউসার (১০০ কেবির নিচে)",
+      "intro": "ক্যামেরায় তোলা ৫ এমবি বা ১০ এমবির বড় ছবিকে চোখের পলকে ১০০ কেবির নিচে রূপান্তর করুন কোনো ঝাপসা হওয়া ছাড়াই।",
+      "also_searched": "ছবি ১০০ কেবি করা, photo size under 100kb, ছবির সাইজ ছোট করার উপায়",
+      "steps": [
+        { "name": "বড় সাইজের ছবি আপলোড করুন", "text": "মোবাইল বা ক্যামেরা থেকে যেকোনো ছবি সিলেক্ট করুন।" },
+        { "name": "অটো কম্প্রেশন", "text": "টুলটি স্বয়ংক্রিয়ভাবে মান বজায় রেখে ৮০-৯৫ কেবিতে অপটিমাইজ করবে।" },
+        { "name": "ডাউনলোড", "text": "১০০ কেবির নিচে ছবি ডাউনলোড করে সরাসরি ব্যবহার করুন।" }
+      ],
+      "mistakes": ["অতিরিক্ত কমপ্রেস করে মুখ ঝাপসা করা"],
+      "faq": [
+        { "q": "ছবি কি ঘোলা হয়ে যাবে?", "a": "না। আমাদের অ্যাডভান্সড এনকোডার মুখের শার্পনেস বজায় রেখে সাইজ কমায়।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "signature-size-reducer-under-60kb", "bcs-photo-signature-resizer"]
+  },
+  {
+    "slug": "signature-size-reducer-under-60kb",
+    "intent": "compress-sig",
+    "default_preset": "gov_sig_300x80",
+    "spec": {
+      "width": 300,
+      "height": 80,
+      "max_kb": 60,
+      "format": "JPG",
+      "source_url": "https://alljobs.teletalk.com.bd",
+      "verified_on": "2026-09-15"
+    },
+    "en": {
+      "title": "Signature Size Reducer Under 60KB & 50KB Online",
+      "meta": "Compress and reduce signature image size to strictly under 60KB (or 50KB for DUET) online with dark, clear ink strokes and clean white background.",
+      "h1": "Signature Size Reducer (Under 60 KB)",
+      "intro": "Compress handwritten signatures to strictly under 60 KB (for government jobs & BCS) or under 50 KB (for DUET) while keeping handwriting strokes dark, sharp, and clean.",
+      "also_searched": "signature under 60kb, compress signature to 50kb online, 300x80 sign under 60kb, duet signature under 50kb",
+      "steps": [
+        { "name": "Upload Signature Image", "text": "Upload any photo or scan of your signature." },
+        { "name": "Ink Enhancement & Compression", "text": "The tool cleans background and compresses to 35-50 KB." },
+        { "name": "Download", "text": "Save the clean, compact signature." }
+      ],
+      "mistakes": ["Saving signature in raw format exceeding 60 KB", "Distorting natural writing aspect ratio"],
+      "faq": [
+        { "q": "How to get signature size under 60 KB for Teletalk?", "a": "Upload your signature to this tool; it will auto-crop and export a verified 300×80 JPG under 60 KB." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "স্বাক্ষরের সাইজ ৬০ কেবি ও ৫০ কেবির নিচে কমানোর টুল",
+      "meta": "স্বাক্ষরের কালির স্পষ্টতা বজায় রেখে ফাইলের সাইজ ৬০ কেবি ও ৫০ কেবির নিচে রিসাইজ করুন অনলাইনে ফ্রিতে।",
+      "h1": "স্বাক্ষর সাইজ রিডিউসার (৬০ কেবির নিচে)",
+      "intro": "স্বাক্ষরের ছবিকে টেলিটক চাকরির জন্য অনূর্ধ্ব ৬০ কেবি এবং ডুয়েট ভর্তির জন্য অনূর্ধ্ব ৫০ কেবিতে রূপান্তর করুন সম্পূর্ণ নিখুঁত কালির স্পষ্টতায়।",
+      "also_searched": "স্বাক্ষর ৬০ কেবি করা, signature size under 60kb, সাইন সাইজ ছোট করার উপায়",
+      "steps": [
+        { "name": "স্বাক্ষর আপলোড", "text": "মোবাইলে তোলা স্বাক্ষরের ছবি সিলেক্ট করুন।" },
+        { "name": "কালি গাঢ়করণ ও কম্প্রেশন", "text": "ছায়া দূর করে ৩০-৫০ কেবি মাপে অপটিমাইজ করা হবে।" },
+        { "name": "ডাউনলোড", "text": "৬০ কেবির নিচে প্রস্তুত স্বাক্ষর সংরক্ষণ করুন।" }
+      ],
+      "mistakes": ["কালি অস্পষ্ট হওয়া", "সাইজ ৬০ কেবির বেশি থাকা"],
+      "faq": [
+        { "q": "টেলিটকে ৬০ কেবির নিচে স্বাক্ষর কিভাবে বানাব?", "a": "এখানে স্বাক্ষর আপলোড করলেই টুলটি স্বয়ংক্রিয়ভাবে ৩০০×৮০ মাপে ৬০ কেবির নিচে তৈরি করে দেবে।" }
+      ]
+    },
+    "related": ["300x80-signature-resizer", "photo-size-reducer-under-100kb", "duet-photo-signature-resizer"]
+  },
+  {
+    "slug": "mobile-photo-resizer",
+    "intent": "mobile-resizer",
+    "default_preset": "gov_photo_300x300",
+    "spec": {
+      "width": 300,
+      "height": 300,
+      "max_kb": 100,
+      "format": "JPG",
+      "source_url": "https://alljobs.teletalk.com.bd",
+      "verified_on": "2026-09-15"
+    },
+    "en": {
+      "title": "Resize Photo & Signature on Mobile (Phone Browser) — 100% Free",
+      "meta": "How to make 300x300 photo and 300x80 signature on your Android or iPhone without installing any apps. Fast, private, in-browser mobile photo resizer.",
+      "h1": "Mobile Photo & Signature Resizer (No App Needed)",
+      "intro": "Resize and format photos to 300×300 (under 100 KB) and signatures to 300×80 (under 60 KB) directly from your Android smartphone or iPhone browser without installing third-party apps.",
+      "also_searched": "make 300x300 photo in mobile, make 300x80 signature in mobile, how to resize photo to 300x300 in phone, mobile diye 300x300 chobi banano",
+      "steps": [
+        { "name": "Open in Mobile Chrome or Safari", "text": "Visit SnapSignFit from your phone browser." },
+        { "name": "Take Photo or Select from Gallery", "text": "Directly capture or choose from your phone gallery." },
+        { "name": "Download to Phone Gallery", "text": "Save ready-to-upload files directly to your mobile downloads." }
+      ],
+      "mistakes": ["Downloading untrusted mobile apps filled with ads", "Taking crooked photos without natural light"],
+      "faq": [
+        { "q": "Can I make 300×300 photo directly on Android or iPhone?", "a": "Yes! SnapSignFit runs 100% in your mobile browser with zero app installation needed." }
+      ]
+    },
+    "bn": {
+      "bn_reviewed": true,
+      "title": "মোবাইল দিয়ে ছবি ও স্বাক্ষর রিসাইজ করার সহজ উপায় — কোনো অ্যাপ ছাড়া",
+      "meta": "মোবাইলে কোনো অ্যাপ ইনস্টল না করেই ব্রাউজারে সহজে ৩০০×৩০০ ছবি এবং ৩০০×৮০ স্বাক্ষর বানান। বিসিএস ও চাকরির আবেদনের জন্য ১০০% ফ্রি।",
+      "h1": "মোবাইল দিয়ে ছবি ও স্বাক্ষর রিসাইজার (অ্যাপ ছাড়াই)",
+      "intro": "স্মার্টফোনে কোনো অ্যাপ ইনস্টল করার ঝামেলা ছাড়াই ক্রোম বা সাফারি ব্রাউজার দিয়ে এক মিনিটে ছবি ৩০০×৩০০ এবং স্বাক্ষর ৩০০×৮০ সাইজে তৈরি করুন।",
+      "also_searched": "মোবাইল দিয়ে ৩০০*৩০০ ছবি বানানো, মোবাইল দিয়ে স্বাক্ষর রিসাইজ, how to make 300x300 photo in mobile bangla",
+      "steps": [
+        { "name": "মোবাইল ব্রাউজারে খুলুন", "text": "ফোন থেকে সরাসরি SnapSignFit ব্রাউজারে ওপেন করুন।" },
+        { "name": "গ্যালারি থেকে সিলেক্ট করুন", "text": "গ্যালারি থেকে ছবি সিলেক্ট করুন বা সরাসরি ক্যামেরা দিয়ে তুলুন।" },
+        { "name": "মোবাইলে ডাউনলোড", "text": "সরাসরি ফোনে সেভ করে চাকরির ফরমে আপলোড করুন।" }
+      ],
+      "mistakes": ["অপরিচিত অ্যাডযুক্ত অ্যাপ ইনস্টল করা"],
+      "faq": [
+        { "q": "মোবাইল দিয়ে কি ৩০০×৩০০ এবং ৩০০×৮০ বানানো সম্ভব?", "a": "হ্যাঁ, সম্পূর্ণ ফ্রিতে কোনো অ্যাপ ছাড়া যেকোনো স্মার্টফোনে করা যায়।" }
+      ]
+    },
+    "related": ["300x300-photo-resizer", "300x80-signature-resizer", "photo-size-reducer-under-100kb"]
+  }
+]

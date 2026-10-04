@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node serve.cjs",
-    "test": "playwright test"
+    "test": "playwright test",
+    "build:seo": "node build-seo.js",
+    "check": "node build-seo.js"
   },
   "keywords": [],
   "author": "",

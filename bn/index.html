@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="light" class="preload">
+
+<head>
+  <meta charset="UTF-8">
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem('snapsignfit_theme');
+        if (savedTheme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+        var savedLang = localStorage.getItem('snapsignfit_lang') || 'en';
+        document.documentElement.lang = savedLang;
+        document.documentElement.setAttribute('data-lang', savedLang);
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="gbt7W1P_KD8WHElfmbnvi2pdLBGnUWCK617A8bAZdS8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' blob: data:; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;">
+  <title>SnapSignFit — Photo & Signature Auto-Formatter (100% Free & Client-Side)</title>
+  <meta name="description"
+    content="Resize photos and signatures to the exact pixel size and file size limit. Made for government forms, BCS, passport, visa and exams, works for social media and custom sizes. 100% client-side and free.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./snapsignfit_logo.svg">
+  <!-- Vendored Core Libraries -->
+  <script src="./vendor/pako.min.js"></script>
+  <script src="./vendor/UPNG.js"></script>
+</head>
+
+<body>
+
+  <!-- Global Drag-and-Drop Overlay (Phase 3) -->
+  <div id="globalDragOverlay" class="global-drag-overlay hidden" aria-hidden="true">
+    <div class="global-drag-box">
+      <div class="global-drag-icon-glow">
+        <i class="fa-solid fa-cloud-arrow-up global-drag-icon" aria-hidden="true"></i>
+      </div>
+      <h2 class="global-drag-title" data-i18n="dropAnywhereTitle">Drop image anywhere to format</h2>
+      <p class="global-drag-sub" data-i18n="dropAnywhereSub">Release to instantly auto-detect and crop · 100% offline &amp; client-side</p>
+      <div class="global-drag-badges">
+        <span class="global-drag-badge"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 100% Private</span>
+        <span class="global-drag-badge"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Instant Smart Fit</span>
+        <span class="global-drag-badge"><i class="fa-solid fa-check" aria-hidden="true"></i> Exact Size Lock</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Protocol Warning Banner (Rendered immediately without ES modules) -->
+  <div id="fileProtocolBanner" class="file-protocol-banner" style="display: none;" role="alert">
+    <div class="banner-inner">
+      <i class="fa-solid fa-triangle-exclamation banner-icon" aria-hidden="true"></i>
+      <div class="banner-text">
+        <strong data-i18n="fileWarningTitle">Opened directly from local file (file:///)?</strong>
+        <span data-i18n="fileWarningDesc">Modern browsers block JavaScript ES Modules on local files. To test locally, double-click <code>start.bat</code> in the project folder or open via <code>localhost</code>.</span>
+      </div>
+      <button type="button" class="banner-dismiss" id="dismissFileWarning" aria-label="Dismiss warning">&times;</button>
+    </div>
+  </div>
+  <script>
+    if (window.location.protocol === 'file:') {
+      var banner = document.getElementById('fileProtocolBanner');
+      if (banner) banner.style.display = 'block';
+      var dismissBtn = document.getElementById('dismissFileWarning');
+      if (dismissBtn) {
+        dismissBtn.onclick = function() {
+          banner.style.display = 'none';
+        };
+      }
+    }
+  </script>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <img src="./snapsignfit_logo.svg" alt="SnapSignFit Logo" class="brand-logo" aria-hidden="true">
+        <div class="brand-info">
+          <h1 data-i18n="siteName">SnapSignFit</h1>
+          <div class="brand-tagline" data-i18n="tagline">Snap it. Fit it.</div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <span class="nav-pill active">Resizer</span>
+        <button type="button" class="nav-link" id="navGovPresetsBtn" data-i18n="navGovPresets">Govt Presets</button>
+        <a href="#how" class="nav-link" id="navHowBtn" data-i18n="navHowItWorks">How It Works</a>
+        <span class="nav-badge-offline" data-i18n="navOffline">100% Offline</span>
+      </nav>
+      <div class="header-actions">
+        <!-- Language Toggle: BN on left, EN on right -->
+        <button type="button" class="segmented-toggle" id="langToggleBtn" data-state="right"
+          aria-label="Toggle Language (BN / EN)" title="Toggle Language (BN / EN)">
+          <div class="toggle-slider" aria-hidden="true"></div>
+          <span class="toggle-opt opt-left" data-val="bn">BN</span>
+          <span class="toggle-opt opt-right" data-val="en">EN</span>
+        </button>
+
+        <!-- Theme Toggle: Sun on left (Light), Moon on right (Dark) -->
+        <button type="button" class="segmented-toggle" id="themeToggleBtn" data-state="left"
+          aria-label="Toggle Theme (Light / Dark)" title="Toggle Theme (Light / Dark)">
+          <div class="toggle-slider" aria-hidden="true"></div>
+          <span class="toggle-opt opt-left" data-val="light" aria-label="Light mode">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+          </span>
+          <span class="toggle-opt opt-right" data-val="dark" aria-label="Dark mode">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" aria-hidden="true">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <script>
+    (function () {
+      try {
+        var lang = localStorage.getItem('snapsignfit_lang') || 'en';
+        var theme = localStorage.getItem('snapsignfit_theme') || 'light';
+        var langBtn = document.getElementById('langToggleBtn');
+        if (langBtn) langBtn.setAttribute('data-state', lang === 'en' ? 'right' : 'left');
+        var themeBtn = document.getElementById('themeToggleBtn');
+        if (themeBtn) themeBtn.setAttribute('data-state', theme === 'dark' ? 'right' : 'left');
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Global Error Banner -->
+  <div id="globalBanner" class="global-banner hidden" role="alert" aria-live="assertive">
+    <span id="globalBannerText">An unexpected issue occurred.</span>
+    <button type="button" class="btn btn-outline btn-sm" id="bannerManualBtn" data-i18n="adjustManually">Adjust
+      Manually</button>
+  </div>
+
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-grid">
+
+        <div class="hero-copy">
+          <span class="hero-badge"><i class="fa-solid fa-certificate" aria-hidden="true"></i><span data-i18n="heroBadge">MADE FOR BCS, TELETALK &amp; EXAM FORMS</span></span>
+          <h1 class="hero-title" data-i18n="heroTitle">Resize your photo &amp; signature to Bangladesh Government form presets.</h1>
+          <p class="hero-sub" data-i18n="heroSub">Photo 300×300 (under 100KB) · Photo 250×250 (under 100KB) · Signature 300×80 (under 60KB) · Signature 250×50 (under 50KB)</p>
+
+          <div class="hero-ctas">
+            <button type="button" class="btn btn-accent" id="heroUploadPhoto">
+              <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                <circle cx="9" cy="9" r="2"></circle>
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+              </svg>
+              <span data-i18n="heroBtnUploadPhoto">Upload Photo</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="heroUploadSig">
+              <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                <path d="M2 2l7.586 7.586"></path>
+              </svg>
+              <span data-i18n="heroBtnUploadSig">Upload Signature</span>
+            </button>
+            <button type="button" class="btn btn-preset-pill" id="btnViewPresetsHero">
+              <svg class="lucide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="4" x2="4" y1="21" y2="14"></line>
+                <line x1="4" x2="4" y1="10" y2="3"></line>
+                <line x1="12" x2="12" y1="21" y2="12"></line>
+                <line x1="12" x2="12" y1="8" y2="3"></line>
+                <line x1="20" x2="20" y1="21" y2="16"></line>
+                <line x1="20" x2="20" y1="12" y2="3"></line>
+                <line x1="1" x2="7" y1="14" y2="14"></line>
+                <line x1="9" x2="15" y1="8" y2="8"></line>
+                <line x1="17" x2="23" y1="16" y2="16"></line>
+              </svg>
+              <span data-i18n="heroBtnAllPresets">All Presets</span>
+            </button>
+            <button type="button" class="btn btn-duet-pill" id="btnDuetPresetsHero">
+              <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+              <span data-i18n="heroBtnDuetPresets">DUET Presets</span>
+            </button>
+          </div>
+
+          <div class="chip-row" id="presetChips">
+            <div class="chip-line">
+              <button type="button" class="chip" data-w="300" data-h="300" data-kb="99" data-preset="gov_photo_300x300"><i class="fa-solid fa-star star-gradient" aria-hidden="true"></i> <span data-i18n="chipBcsPhoto">BCS Photo 300×300</span> <small>(≤99KB)</small></button>
+              <button type="button" class="chip" data-w="300" data-h="80"  data-kb="60" data-preset="gov_sig_300x80"><i class="fa-solid fa-star star-gradient" aria-hidden="true"></i> <span data-i18n="chipTeletalkSig">Teletalk Sign 300×80</span> <small>(≤60KB)</small></button>
+            </div>
+            <div class="chip-line">
+              <button type="button" class="chip chip-duet" data-w="250" data-h="250" data-kb="100" data-preset="duet_photo_250x250"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> <span data-i18n="chipDuetPhoto">DUET 250×250</span> <small>(≤100KB)</small></button>
+              <button type="button" class="chip chip-duet" data-w="250" data-h="50"  data-kb="50" data-preset="duet_sig_250x50"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> <span data-i18n="chipDuetSig">DUET 250×50</span> <small>(≤50KB)</small></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="seg" id="heroSegTabs" data-state="left" role="tablist">
+            <span class="seg-slider" aria-hidden="true"></span>
+            <button type="button" class="seg-btn active" id="heroTabPhoto" role="tab" aria-selected="true"><span data-i18n="tabPhoto300">Photo (300×300)</span></button>
+            <button type="button" class="seg-btn" id="heroTabSig" role="tab" aria-selected="false"><span data-i18n="tabSig300">Signature (300×80)</span></button>
+          </div>
+
+          <!-- Dropzone block -->
+          <div class="dropzone" id="dropzone" tabindex="0" role="region" aria-label="Image upload dropzone">
+            <div class="dropzone-icon-wrap" aria-hidden="true">
+              <svg class="lucide-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4"></path>
+                <path d="m15 10-3-3-3 3"></path>
+                <path d="M12 7v11"></path>
+              </svg>
+            </div>
+            <div class="dropzone-title" data-i18n="dropzoneTitle">Drop your photo or signature here</div>
+            <div class="dropzone-subtitle" data-i18n="dropzoneSubtitle">or click to browse from device, paste (Ctrl+V), or take a photo</div>
+
+            <div class="dropzone-actions">
+              <button type="button" class="btn btn-primary" id="btnChooseFile">
+                <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                <span class="btn-text" data-i18n="chooseFile">Choose File</span>
+              </button>
+              <button type="button" class="btn btn-secondary" id="btnTakePhoto">
+                <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                <span class="btn-text" data-i18n="takePhoto">Take Photo</span>
+              </button>
+            </div>
+
+            <div class="dropzone-hint" data-i18n="dropzoneHint">Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, TIFF, HEIC (up to 40 MB)</div>
+
+            <!-- Hidden File Inputs -->
+            <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
+            <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden">
+          </div>
+
+          <div class="spec-row"><span id="heroSpecName" data-i18n="specBcsPhoto">BCS Photo Spec</span><code id="heroSpecValue" data-i18n="specBcsPhotoVal">300×300 px (≤ 100 KB)</code></div>
+          <p class="privacy-line"><i class="fa-solid fa-shield-halved" style="color: #10b981; margin-right: 6px;" aria-hidden="true"></i><span data-i18n="heroPrivacy">100% private · runs in your browser · works offline</span></p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Value Features Strip -->
+    <section class="feature-strip" id="how">
+      <div class="feature-strip-header">
+        <h2 class="feature-strip-title">
+          <span class="feature-strip-dot" aria-hidden="true"></span>
+          <span data-i18n="howItWorks">How it works</span>
+        </h2>
+      </div>
+      <div class="feature-cards">
+        <article>
+          <b>1</b>
+          <div>
+            <h3 data-i18n="howStep1Title">Exact Pixel Dimensions</h3>
+            <p data-i18n="howStep1Desc">Strictly resizes to 300×300 px for portraits, 300×80 px (≤ 60 KB) &amp; 250×50 px (≤ 50 KB) for signatures. Zero stretch or distortion.</p>
+          </div>
+        </article>
+        <article>
+          <b>2</b>
+          <div>
+            <h3 data-i18n="howStep2Title">Automatic File Size Lock</h3>
+            <p data-i18n="howStep2Desc">Calculates exact JPEG compression so photo is under 100 KB, 300×80 signature is under 60 KB, and 250×50 signature is under 50 KB every time.</p>
+          </div>
+        </article>
+        <article>
+          <b>3</b>
+          <div>
+            <h3 data-i18n="howStep3Title">Zero Server Storage</h3>
+            <p data-i18n="howStep3Desc">Processing happens locally in HTML5 Canvas. Your signature and face never leave your device.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Workspace (Visible after image loaded) -->
+    <section class="workspace-section hidden" id="workspaceSection">
+
+      <!-- Preset Picker -->
+      <div class="presets-section">
+        <div class="section-title">
+          <span data-i18n="catGov">Presets</span>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs" role="tablist">
+          <button type="button" class="tab-btn tab-gov active" id="tabGov" role="tab" aria-selected="true"
+            data-i18n="catGov">Government & Exam</button>
+          <button type="button" class="tab-btn tab-duet" id="tabDuet" role="tab" aria-selected="false"
+            data-i18n="catDuet">DUET Admission</button>
+          <button type="button" class="tab-btn" id="tabSocial" role="tab" aria-selected="false"
+            data-i18n="catSocial">Social & Web</button>
+          <button type="button" class="tab-btn" id="tabCustom" role="tab" aria-selected="false"
+            data-i18n="catCustom">Custom Size</button>
+        </div>
+
+        <!-- Gov Note Banner -->
+        <div class="gov-note-banner" id="govNoteBanner" data-i18n="govNote">
+          Sizes vary by form. Always check your form's official requirement, or use Custom.
+        </div>
+
+        <!-- Presets Search Input -->
+        <div class="presets-search-bar" id="presetsSearchBar">
+          <input type="text" class="search-input" id="presetSearchInput" data-i18n-placeholder="searchPresets"
+            placeholder="Search presets (e.g. 300x300, passport, facebook)...">
+        </div>
+
+        <!-- Presets Cards Grid -->
+        <div class="presets-grid" id="presetsGrid">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Custom Size Form Panel -->
+        <div class="custom-panel hidden" id="customPanel">
+          <div class="custom-grid">
+            <div class="form-group">
+              <label class="form-label" data-i18n="width">Width</label>
+              <input type="number" id="customW" class="form-input" value="300" min="1" max="8000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="height">Height</label>
+              <input type="number" id="customH" class="form-input" value="300" min="1" max="8000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="unit">Unit</label>
+              <select id="customUnit" class="form-select">
+                <option value="px">Pixels (px)</option>
+                <option value="cm">Centimeters (cm)</option>
+                <option value="mm">Millimeters (mm)</option>
+                <option value="inch">Inches (in)</option>
+              </select>
+            </div>
+            <div class="form-group" id="dpiGroup" style="display: none;">
+              <label class="form-label" data-i18n="dpi">DPI</label>
+              <input type="number" id="customDpi" class="form-input" value="300" min="72" max="1200">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kind</label>
+              <select id="customKind" class="form-select">
+                <option value="photo" data-i18n="kindPhoto">Photo</option>
+                <option value="signature" data-i18n="kindSignature">Signature</option>
+                <option value="avatar" data-i18n="kindAvatar">Avatar</option>
+                <option value="image" data-i18n="kindImage">General Image</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="fitMode">Fit Mode</label>
+              <select id="customFit" class="form-select">
+                <option value="cover" data-i18n="cover">Cover (Smart Crop)</option>
+                <option value="contain" data-i18n="contain">Contain (Fit with background)</option>
+                <option value="stretch" data-i18n="stretch">Stretch (Form compatibility)</option>
+              </select>
+            </div>
+          </div>
+          <div class="custom-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnSaveCustomPreset"
+              data-i18n="saveCustomPreset">Save preset</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Workspace Right / Main Column -->
+      <div class="workspace-main">
+
+        <!-- Before / After Live Split View -->
+        <div class="preview-split">
+          <!-- Before View -->
+          <div class="preview-pane">
+            <div class="preview-pane-header">
+              <div class="preview-pane-heading-group">
+                <div class="preview-pane-title-row">
+                  <span class="preview-pane-title" data-i18n="before">Original &amp; Detection</span>
+                  <button type="button" class="btn btn-danger-outline btn-sm" id="btnDiscard" data-i18n="discardBtn">Discard / Close</button>
+                </div>
+                <div class="active-preset-badge-wrap" id="activePresetBadgeWrap">
+                  <button type="button" class="active-preset-pill" id="activePresetPill" aria-haspopup="listbox" aria-expanded="false" aria-controls="activePresetDropdownMenu" title="Select or change preset">
+                    <i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>
+                    <span class="active-preset-label" id="activePresetLabel">Photo 300×300 (≤ 99KB)</span>
+                    <svg class="active-preset-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </button>
+                  <div class="active-preset-dropdown-menu hidden" id="activePresetDropdownMenu" role="listbox" aria-label="Choose Preset"></div>
+                </div>
+              </div>
+            </div>
+            <div class="preview-viewport" id="beforeViewport">
+              <canvas id="beforeCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- After View -->
+          <div class="preview-pane">
+            <div class="preview-pane-header">
+              <div class="preview-pane-heading-group">
+                <div class="preview-pane-title-row">
+                  <span class="preview-pane-title" data-i18n="after">Output Preview</span>
+                  <div class="preview-pane-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnHoldCompare" data-i18n-title="holdCompareTitle" title="Press &amp; hold to compare with raw original image (Shortcut: C)">
+                      <i class="fa-solid fa-code-compare" aria-hidden="true"></i>
+                      <span class="btn-text-full" data-i18n="holdCompareText">Hold to Compare</span>
+                      <span class="btn-text-short" data-i18n="holdCompareShort">Compare</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnToggleZoom" data-i18n-title="zoomRealTitle" title="Toggle 1x Real Pixels / 2x Zoom">
+                      <span class="btn-text-full" data-i18n="zoomReal">1× Real Pixels</span>
+                      <span class="btn-text-short" data-i18n="zoomRealShort">1× Real</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="preview-pane-dims-wrap">
+                  <span class="preview-pane-dims-sub" id="afterDimensionsReadout">300 × 300 px</span>
+                </div>
+              </div>
+            </div>
+            <div class="preview-viewport" id="afterViewport">
+              <canvas id="afterCanvas"></canvas>
+              <div class="comparing-badge hidden" id="comparingBadge" data-i18n="comparingBadge">ORIGINAL RAW</div>
+              <div class="spinner-overlay hidden" id="processingOverlay">
+                <div class="spinner"></div>
+                <span id="processingText" data-i18n="processing">Processing image...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions & Size Guarantee Bar -->
+        <div class="actions-bar">
+          <!-- Left: Size Status Badge & Quality Warning Chips -->
+          <div class="status-chips-section">
+            <div class="size-status-badge under-limit" id="sizeStatusBadge">
+              <span id="sizeStatusText">Ready</span>
+            </div>
+            <div class="chips-container" id="chipsContainer" aria-live="polite">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Right: Action Buttons Group -->
+          <div class="action-buttons-group">
+            <button type="button" class="btn btn-secondary" id="btnOpenEditor" data-i18n="adjustManually">Adjust
+              Manually</button>
+            <button type="button" class="btn btn-secondary" id="btnCopyClipboard" data-i18n="copyClipboard">Copy to
+              Clipboard</button>
+            <button type="button" class="btn btn-primary btn-lg" id="btnDownload" data-i18n="download">Download</button>
+          </div>
+        </div>
+
+        <!-- Export Settings & Controls Bar -->
+        <div class="settings-bar">
+          <!-- Format -->
+          <div class="settings-item">
+            <label class="form-label" for="exportFormatSelect" data-i18n="format">Format</label>
+            <select id="exportFormatSelect" class="form-select">
+              <option value="jpg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
+
+          <!-- Max Size Limit -->
+          <div class="settings-item">
+            <label class="form-label" for="exportMaxSizeSelect" data-i18n="maxSize">Max File Size</label>
+            <select id="exportMaxSizeSelect" class="form-select">
+              <option value="50">50 KB</option>
+              <option value="60">60 KB</option>
+              <option value="99" selected>100 KB (Gov locked)</option>
+              <option value="200">200 KB</option>
+              <option value="500">500 KB</option>
+              <option value="1000">1 MB</option>
+              <option value="2000">2 MB</option>
+              <option value="0">No limit</option>
+            </select>
+          </div>
+
+          <!-- Fit Mode -->
+          <div class="settings-item" id="fitModeGroup">
+            <label class="form-label" for="exportFitSelect" data-i18n="fitMode">Fit Mode</label>
+            <select id="exportFitSelect" class="form-select">
+              <option value="cover" data-i18n="cover">Cover (Smart Crop)</option>
+              <option value="contain" data-i18n="contain">Contain</option>
+              <option value="stretch" data-i18n="stretch">Stretch</option>
+            </select>
+          </div>
+
+          <!-- Background Mode (Keep / Solid White / Light Blue / Light Gray / Solid Red / Custom / Remove AI / Transparent) -->
+          <div class="settings-item" id="bgModeGroup">
+            <label class="form-label" for="exportBgModeSelect" data-i18n="bgMode">Background Mode</label>
+            <div class="bg-mode-select-wrap">
+              <select id="exportBgModeSelect" class="form-select">
+                <option value="keep" data-i18n="bgKeep">Keep Original</option>
+                <option value="white" data-i18n="bgWhite">Solid White</option>
+                <option value="blue" data-i18n="bgBlue">Light Blue (Passport/Visa)</option>
+                <option value="gray" data-i18n="bgGray">Light Gray</option>
+                <option value="red" data-i18n="bgRed">Solid Red</option>
+                <option value="custom" data-i18n="bgCustom">Custom Color...</option>
+                <option value="remove" data-i18n="bgRemove">Remove AI</option>
+                <option value="transparent" data-i18n="bgTransparent">Transparent</option>
+              </select>
+              <input type="color" id="exportCustomBgColor" value="#3b82f6" class="color-picker-input hidden" title="Pick custom background color" aria-label="Pick custom background color" style="width: 28px; height: 28px; padding: 0; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; flex-shrink: 0;">
+            </div>
+          </div>
+
+          <!-- Secondary/Conditional Settings Row -->
+          <div class="settings-bar-footer">
+            <!-- Signature: Thicken Strokes -->
+            <div class="settings-item-inline hidden" id="sigThickenGroup">
+              <label class="form-label-inline" data-i18n="thickenStrokes">Thicken ink:</label>
+              <input type="range" id="sigThickenSlider" min="0" max="2" step="1" value="0" style="width: 80px;">
+            </div>
+
+            <!-- Signature: Keep Ink Color -->
+            <div class="settings-item-inline hidden" id="sigKeepColorGroup">
+              <label class="editor-checkbox-label">
+                <input type="checkbox" id="sigKeepColorCheck">
+                <span data-i18n="keepInkColor">Keep ink color</span>
+              </label>
+            </div>
+
+            <!-- Auto-Detect Toggle -->
+            <div class="settings-item-inline" id="autoDetectGroup">
+              <label class="editor-checkbox-label">
+                <input type="checkbox" id="autoDetectCheck" checked>
+                <span data-i18n="autoDetectToggle">Auto-detect crop</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <!-- Footer -->
+  <footer class="site-footer" id="privacy">
+    <div class="footer-content">
+      <div class="footer-left">
+        <span class="footer-status-dot"></span>
+        <strong class="footer-brand-text">SnapSignFit</strong>
+        <span class="footer-sep">—</span>
+        <span id="footerPrivacy" data-i18n="privacyNotice">Crafted for Bangladesh Job Seekers</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-dev-credit">Developed by <a href="https://humayounkobir.vercel.app" target="_blank" rel="noopener noreferrer" class="footer-dev-name" id="footerDevCredit">Humayoun</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Discard Confirmation Modal Dialog -->
+  <div class="confirm-modal-overlay hidden" id="discardModal" role="dialog" aria-modal="true">
+    <div class="confirm-modal-dialog">
+      <div class="confirm-modal-header">
+        <div class="confirm-modal-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 class="confirm-modal-title" data-i18n="discardModalTitle">Discard Changes?</h3>
+      </div>
+      <p class="confirm-modal-body" data-i18n="discardModalDesc">
+        You haven't downloaded your processed image yet. Do you want to download before closing?
+      </p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="btn btn-primary" id="btnModalDownloadAndClose" data-i18n="btnDownloadAndClose">Download & Close</button>
+        <button type="button" class="btn btn-danger-outline" id="btnModalDiscardAnyway" data-i18n="btnDiscardAnyway">Discard Anyway</button>
+        <button type="button" class="btn btn-outline" id="btnModalCancel" data-i18n="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preset Picker Popup Modal -->
+  <div class="preset-popup-overlay hidden" id="presetPopupOverlay" role="dialog" aria-modal="true" aria-label="Choose a Preset">
+    <div class="preset-popup-dialog">
+      <div class="preset-popup-header">
+        <div class="preset-popup-title-row">
+          <h2 class="preset-popup-title" data-i18n="choosePresetModalTitle">Choose a Preset</h2>
+          <p class="preset-popup-subtitle" data-i18n="choosePresetModalSubtitle">Select a size, then pick your photo or signature from your device.</p>
+        </div>
+        <button type="button" class="preset-popup-close" id="btnPresetPopupClose" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="preset-popup-tabs" role="tablist" aria-label="Preset Categories">
+        <button type="button" class="preset-popup-tab active" id="ppTabGov" data-cat="gov" role="tab" aria-selected="true" aria-controls="presetPopupGrid">
+          <i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 6px;"></i>
+          <span data-i18n="catGov">Govt &amp; Exam</span>
+        </button>
+        <button type="button" class="preset-popup-tab" id="ppTabDuet" data-cat="duet" role="tab" aria-selected="false" aria-controls="presetPopupGrid">
+          <i class="fa-solid fa-graduation-cap" style="color: #8b5cf6; margin-right: 6px;" aria-hidden="true"></i>
+          <span data-i18n="catDuet">DUET Admission</span>
+        </button>
+        <button type="button" class="preset-popup-tab" id="ppTabSocial" data-cat="social" role="tab" aria-selected="false" aria-controls="presetPopupGrid">
+          <i class="fa-solid fa-globe" style="color: #3b82f6; margin-right: 6px;"></i>
+          <span data-i18n="catSocial">Social &amp; Web</span>
+        </button>
+      </div>
+
+      <!-- Preset Grid -->
+      <div class="preset-popup-grid" id="presetPopupGrid"></div>
+
+      <!-- File picker (hidden) -->
+      <input type="file" id="presetPopupFileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
+
+      <!-- Bottom hint footer -->
+      <div class="preset-popup-footer">
+        <p class="preset-popup-hint" data-i18n="presetPopupHint">Click a preset → your file picker will open → image is processed automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Modules -->
+  <script type="module" src="./js/editor-pan.js"></script>
+  <script type="module" src="./js/hero.js"></script>
+  <script type="module" src="./js/app.js"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script src="./js/register-sw.js"></script>
+
+</body>
+
+</html>

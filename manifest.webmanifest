@@ -1,0 +1,17 @@
+{
+  "name": "SnapSignFit — Photo & Signature Resizer",
+  "short_name": "SnapSignFit",
+  "description": "Resize photos and signatures to exact dimensions (300x300, 300x80, 250x250) under KB limits.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/snapsignfit_logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

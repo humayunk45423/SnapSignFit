@@ -1,14 +1,16 @@
-// sw.js - SnapSignFit Service Worker: cache-first offline strategy
-const CACHE_VERSION = 'snapsignfit-v21';
-const VENDOR_CACHE = 'snapsignfit-vendor-v21';
+// sw.js - SnapSignFit Service Worker: safe network-first for HTML, cache-first for vendor assets
+const CACHE_VERSION = 'snapsignfit-v22';
+const VENDOR_CACHE = 'snapsignfit-vendor-v22';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
+  '/bn/index.html',
   '/style.css',
   '/snapsignfit_logo.svg',
   '/manifest.json',
+  '/manifest.webmanifest',
   '/js/app.js',
   '/js/hero.js',
   '/js/editor.js',
@@ -59,6 +61,15 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+
+  // Never intercept sitemap.xml, robots.txt, or the IndexNow key
+  if (
+    url.pathname === '/sitemap.xml' ||
+    url.pathname === '/robots.txt' ||
+    url.pathname.endsWith('.txt')
+  ) {
+    return;
+  }
 
   // Only handle same-origin GET requests
   if (url.origin !== location.origin || event.request.method !== 'GET') return;
