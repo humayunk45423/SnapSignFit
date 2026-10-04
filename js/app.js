@@ -58,13 +58,10 @@ class SnapSignFitApp {
       onApply: (state) => this.onManualEditorApply(state)
     });
 
-    window.app = this;
     this.init();
   }
 
   init() {
-    this.closeDiscardModal();
-    if (this.editor) this.editor.close();
     initLanguage();
     this.initTheme();
     this.setupGlobalErrors();
@@ -2089,8 +2086,6 @@ class SnapSignFitApp {
   }
 
   async discardAndReset() {
-    this.closeDiscardModal();
-    if (this.editor) this.editor.close();
     this.sourceData = null;
     this.exactCanvas = null;
     this.currentExport = null;

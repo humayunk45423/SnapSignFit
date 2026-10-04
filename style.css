@@ -2320,20 +2320,15 @@ body.dark .site-footer {
 .confirm-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100000;
+  z-index: 2000;
   padding: var(--s-4);
   animation: fadeIn 0.15s ease-out;
-  pointer-events: auto;
-}
-
-.confirm-modal-overlay.hidden {
-  display: none !important;
 }
 
 .confirm-modal-dialog {
@@ -2346,37 +2341,13 @@ body.dark .site-footer {
   display: flex;
   flex-direction: column;
   gap: var(--s-4);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 0, 0, 0.2);
-  position: relative;
-  pointer-events: auto;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
 }
 
 .confirm-modal-header {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  position: relative;
-}
-
-.confirm-modal-title-wrap {
-  flex: 1;
-}
-
-.confirm-modal-close {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  line-height: 1;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--r-sm);
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.confirm-modal-close:hover {
-  color: var(--text);
-  background-color: var(--surface-2);
 }
 
 .confirm-modal-icon {
@@ -2424,22 +2395,12 @@ body.dark .site-footer {
 .editor-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: var(--s-4);
-}
-
-.editor-modal-overlay.hidden,
-.editor-modal-overlay[hidden] {
-  display: none !important;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
 }
 
 .editor-modal-dialog {

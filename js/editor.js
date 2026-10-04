@@ -94,8 +94,6 @@ export class ManualEditor {
   initDOM() {
     this.overlayEl = document.createElement('div');
     this.overlayEl.className = 'editor-modal-overlay hidden';
-    this.overlayEl.style.display = 'none';
-    this.overlayEl.setAttribute('hidden', '');
     this.overlayEl.setAttribute('role', 'dialog');
     this.overlayEl.setAttribute('aria-modal', 'true');
     this.overlayEl.setAttribute('aria-label', 'Manual Image Editor');
@@ -1185,9 +1183,7 @@ export class ManualEditor {
     this.commitCropToBitmap();
     this.setStep(1);
 
-    this.overlayEl.removeAttribute('hidden');
     this.overlayEl.classList.remove('hidden');
-    this.overlayEl.style.display = 'flex';
     this.resizeEditorCanvas();
     this.redraw();
   }
@@ -1243,8 +1239,6 @@ export class ManualEditor {
     this.isDragging = false;
     this.isResizing = false;
     this.overlayEl.classList.add('hidden');
-    this.overlayEl.style.display = 'none';
-    this.overlayEl.setAttribute('hidden', '');
   }
 
   apply() {
