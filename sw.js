@@ -1,6 +1,6 @@
 // sw.js - SnapSignFit Service Worker: cache-first offline strategy
-const CACHE_VERSION = 'snapsignfit-v15';
-const VENDOR_CACHE = 'snapsignfit-vendor-v15';
+const CACHE_VERSION = 'snapsignfit-v16';
+const VENDOR_CACHE = 'snapsignfit-vendor-v16';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [

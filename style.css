@@ -3571,25 +3571,12 @@ body.dark .hero-badge i {
   font-weight: 800;
   line-height: 1.18;
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, #1e40af 0%, #4f46e5 32%, #7c3aed 68%, #2563eb 100%);
-  background-size: 250% 250%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  animation: gradientShift 6s ease-in-out infinite alternate;
-  display: inline-block;
+  color: var(--text);
 }
 
 [data-theme="dark"] .hero-title,
 body.dark .hero-title {
-  background: linear-gradient(135deg, #60a5fa 0%, #818cf8 32%, #c084fc 68%, #38bdf8 100%);
-  background-size: 250% 250%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  animation: gradientShift 6s ease-in-out infinite alternate;
+  color: #f8fafc;
 }
 
 .hero-sub {
