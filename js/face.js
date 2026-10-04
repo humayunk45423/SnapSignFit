@@ -1,6 +1,7 @@
 // js/face.js - MediaPipe Face Detection, multi-pass retry ladder, quality checks, and passport crop math
 import { CONFIG } from './i18n.js';
 import { createCanvas } from './loader.js';
+import { classifyImageContent } from './signature.js';
 
 let faceDetectorInstance = null;
 let isModelLoading = false;
@@ -27,7 +28,7 @@ export async function getFaceDetector(onProgress) {
           delegate: 'GPU'
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.3
+        minDetectionConfidence: 0.55
       });
     } catch (gpuError) {
       console.warn('FaceDetector GPU delegate failed, falling back to CPU:', gpuError);
@@ -37,7 +38,7 @@ export async function getFaceDetector(onProgress) {
           delegate: 'CPU'
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.3
+        minDetectionConfidence: 0.55
       });
     }
 
@@ -100,14 +101,126 @@ export function createPaddedCanvas(srcCanvas, padRatio = 0.25) {
 }
 
 /**
- * Single-pass detection on a given canvas
+ * Validates a detected face candidate against facial anatomy, keypoint geometry,
+ * skin-tone pigmentation, and paper-text rejection rules.
+ */
+export function validateFaceCandidate(face, canvas) {
+  if (!face || !face.box || !canvas) return false;
+  const { x, y, w, h } = face.box;
+
+  // 1. Basic dimension and aspect ratio checks
+  if (w < 20 || h < 20) return false;
+  const aspect = w / h;
+  if (aspect < 0.52 || aspect > 1.90) return false; // Faces are roughly upright ovals
+
+  // 2. Anatomical Keypoints Geometry (if 6 BlazeFace keypoints exist)
+  if (face.keypoints && face.keypoints.length >= 4) {
+    const rightEye = face.keypoints[0];
+    const leftEye = face.keypoints[1];
+    const nose = face.keypoints[2];
+    const mouth = face.keypoints[3];
+
+    if (rightEye && leftEye) {
+      const eyeDx = Math.abs(leftEye.x - rightEye.x);
+      const eyeDy = Math.abs(leftEye.y - rightEye.y);
+      // Eyes must have reasonable horizontal separation
+      if (eyeDx < w * 0.12) return false;
+      // Eyes shouldn't have extreme vertical tilt in an unrotated image
+      if (eyeDy > eyeDx * 1.1) return false;
+    }
+
+    if (rightEye && leftEye && nose) {
+      // Eyes should be vertically above or near nose level
+      if (rightEye.y > nose.y + h * 0.22 || leftEye.y > nose.y + h * 0.22) return false;
+    }
+
+    if (nose && mouth) {
+      // Nose should be above mouth
+      if (nose.y > mouth.y + h * 0.22) return false;
+    }
+  }
+
+  // 3. Pixel Texture & Skin-Tone / Paper Rejection Check
+  try {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const clampedX = Math.max(0, Math.min(canvas.width - 1, Math.floor(x)));
+    const clampedY = Math.max(0, Math.min(canvas.height - 1, Math.floor(y)));
+    const clampedW = Math.max(1, Math.min(canvas.width - clampedX, Math.floor(w)));
+    const clampedH = Math.max(1, Math.min(canvas.height - clampedY, Math.floor(h)));
+
+    if (clampedW < 10 || clampedH < 10) return false;
+
+    const imgData = ctx.getImageData(clampedX, clampedY, clampedW, clampedH);
+    const data = imgData.data;
+    const totalPixels = clampedW * clampedH;
+
+    let skinCount = 0;
+    let brightPaperCount = 0;
+    let darkInkCount = 0;
+    let sumRg = 0, sumYb = 0, sumRgSq = 0, sumYbSq = 0;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+
+      const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+      if (luma > 170 && Math.abs(r - g) < 22 && Math.abs(g - b) < 22) {
+        brightPaperCount++;
+      } else if (luma < 100) {
+        darkInkCount++;
+      }
+
+      // Skin tone detection
+      if (r > g && g > b && (r - g) > 10 && (r - b) > 14 && r > 60 && b < 195) {
+        skinCount++;
+      }
+
+      const rg = r - g;
+      const yb = 0.5 * (r + g) - b;
+      sumRg += rg;
+      sumYb += yb;
+      sumRgSq += rg * rg;
+      sumYbSq += yb * yb;
+    }
+
+    const paperRatio = brightPaperCount / totalPixels;
+    const skinRatio = skinCount / totalPixels;
+    const inkRatio = darkInkCount / totalPixels;
+
+    // Reject white paper documents with text/drawings:
+    // If the detected box is > 55% plain paper with < 2.5% skin tones
+    if (paperRatio > 0.55 && skinRatio < 0.025) {
+      return false;
+    }
+
+    // Colorfulness calculation
+    const meanRg = sumRg / totalPixels;
+    const meanYb = sumYb / totalPixels;
+    const stdRg = Math.sqrt(Math.max(0, sumRgSq / totalPixels - meanRg * meanRg));
+    const stdYb = Math.sqrt(Math.max(0, sumYbSq / totalPixels - meanYb * meanYb));
+    const colorfulness = Math.sqrt(stdRg * stdRg + stdYb * stdYb) + 0.3 * Math.sqrt(meanRg * meanRg + meanYb * meanYb);
+
+    // If completely monochromatic with no skin and sparse strokes -> paper writing
+    if (colorfulness < 12 && skinRatio < 0.02 && (paperRatio > 0.40 || inkRatio > 0.005)) {
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    return true;
+  }
+}
+
+/**
+ * Single-pass detection on a given canvas with quality verification
  */
 function runDetection(detector, canvas) {
   try {
     const res = detector.detect(canvas);
     if (!res || !res.detections || res.detections.length === 0) return [];
 
-    return res.detections.map(d => {
+    const candidates = res.detections.map(d => {
       const bb = d.boundingBox;
       const score = (d.categories && d.categories[0]) ? d.categories[0].score : 0.5;
       const keypoints = (d.keypoints || []).map(kp => ({
@@ -125,6 +238,8 @@ function runDetection(detector, canvas) {
         keypoints
       };
     });
+
+    return candidates.filter(f => f.score >= 0.55 && validateFaceCandidate(f, canvas));
   } catch (e) {
     console.warn('Detection call failed:', e);
     return [];
@@ -142,6 +257,9 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
     return { success: false, faces: [], method: 'no_detector' };
   }
 
+  // If the image is already classified as a signature/paper document, don't waste time on face ladder
+  const isDocument = classifyImageContent(workingCanvas) === 'signature';
+
   // Ladder Step 1: Standard working copy
   let rawFaces = runDetection(detector, workingCanvas);
   if (rawFaces.length > 0) {
@@ -151,6 +269,10 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
       detectedAngle: 0,
       method: 'direct'
     };
+  }
+
+  if (isDocument) {
+    return { success: false, faces: [], detectedAngle: 0, method: 'document_skipped' };
   }
 
   // Ladder Step 2: 25% edge-replicated padding
@@ -184,7 +306,7 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
     const rotFaces = runDetection(detector, rotCanvas);
     if (rotFaces.length > 0) {
       const topFace = rotFaces.reduce((prev, cur) => cur.score > prev.score ? cur : prev, rotFaces[0]);
-      if (!bestRotResult || topFace.score > bestRotResult.score) {
+      if (topFace.score >= 0.70 && (!bestRotResult || topFace.score > bestRotResult.score)) {
         bestRotResult = {
           deg,
           rotFaces,
@@ -194,7 +316,7 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
         };
       }
       // If score is strong at 90/180/270, we can break early
-      if (topFace.score >= 0.7 && [90, 180, 270].includes(deg)) break;
+      if (topFace.score >= 0.80 && [90, 180, 270].includes(deg)) break;
     }
   }
 
