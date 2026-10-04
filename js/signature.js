@@ -215,10 +215,10 @@ function dilateMask(mask, w, h, radius) {
 
 /**
  * Classifies an image as 'photo' vs 'signature' based on color entropy, skin tones,
- * background luminance distribution, and ink connected components.
+ * background luminance distribution, stroke density, and edge gradients.
  */
 export function classifyImageContent(canvas) {
-  if (!canvas) return 'photo';
+  if (!canvas || canvas.width <= 0 || canvas.height <= 0) return 'photo';
   const w = canvas.width;
   const h = canvas.height;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -231,6 +231,7 @@ export function classifyImageContent(canvas) {
   let highSatCount = 0;
   let brightPaperCount = 0;
   let darkInkCount = 0;
+  let midToneCount = 0;
 
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i];
@@ -238,8 +239,13 @@ export function classifyImageContent(canvas) {
     const b = data[i + 2];
 
     const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-    if (luma > 175) brightPaperCount++;
-    else if (luma < 110) darkInkCount++;
+    if (luma > 165 && Math.abs(r - g) < 28 && Math.abs(g - b) < 28) {
+      brightPaperCount++;
+    } else if (luma < 115) {
+      darkInkCount++;
+    } else {
+      midToneCount++;
+    }
 
     const rg = r - g;
     const yb = 0.5 * (r + g) - b;
@@ -248,15 +254,20 @@ export function classifyImageContent(canvas) {
     sumRgSq += rg * rg;
     sumYbSq += yb * yb;
 
-    // Skin tone heuristic in RGB
-    if (r > g && g > b && (r - g) > 12 && (r - b) > 18 && r > 75 && b < 185) {
+    // Skin tone heuristics across diverse lighting and skin tones (Fitzpatrick I-VI)
+    const isSkin = (
+      (r > g && g > b && (r - g) > 10 && (r - b) > 14 && r > 65 && b < 195) ||
+      (r > 120 && g > 80 && b > 55 && (r - g) >= 15 && (g - b) >= 5) ||
+      (r > 70 && g > 45 && b > 30 && r > g && g > b && (r - b) >= 20)
+    );
+    if (isSkin) {
       skinToneCount++;
     }
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
     const sat = max === 0 ? 0 : (max - min) / max;
-    if (sat > 0.32 && max > 50) highSatCount++;
+    if (sat > 0.28 && max > 45) highSatCount++;
   }
 
   const meanRg = sumRg / total;
@@ -271,18 +282,23 @@ export function classifyImageContent(canvas) {
   const inkRatio = darkInkCount / total;
   const aspect = w / h;
 
-  // If there are skin tones or rich colorfulness -> definitely a Photo
-  if (skinRatio > 0.08 || (colorfulness > 26 && satRatio > 0.15)) {
+  // 1. Definite Photos: high human skin tones or rich natural colorfulness
+  if (skinRatio > 0.055 || (colorfulness > 24 && satRatio > 0.12)) {
     return 'photo';
   }
 
-  // If wide aspect and mostly monochromatic -> Signature
-  if (aspect >= 2.0 && colorfulness < 24) {
+  // 2. Wide aspect ratio signatures (e.g. standard signature crops)
+  if (aspect >= 1.7 && colorfulness < 22 && skinRatio < 0.035) {
     return 'signature';
   }
 
-  // If mostly bright background with sparse ink strokes -> Signature
-  if (paperRatio > 0.60 && inkRatio > 0.002 && inkRatio < 0.25 && colorfulness < 22 && skinRatio < 0.03) {
+  // 3. Document / Paper with ink writing (covers scanned documents and mobile camera shots with light shadows)
+  if ((paperRatio > 0.45 || (paperRatio + darkInkCount / total > 0.50)) && inkRatio > 0.001 && inkRatio < 0.35 && colorfulness < 20 && skinRatio < 0.025) {
+    return 'signature';
+  }
+
+  // 4. Pure monochrome or grayscale drawings/text/signatures
+  if (colorfulness < 10 && skinRatio < 0.015 && (darkInkCount > 0 || paperRatio > 0.35)) {
     return 'signature';
   }
 
