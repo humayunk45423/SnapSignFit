@@ -55,7 +55,12 @@ class SnapSignFitApp {
 
     // Manual Editor
     this.editor = new ManualEditor({
-      onApply: (state) => this.onManualEditorApply(state)
+      onApply: (state) => this.onManualEditorApply(state),
+      onPresetChange: (preset) => {
+        if (preset) {
+          this.applyPreset(preset, { skipProcessing: true });
+        }
+      }
     });
 
     this.init();

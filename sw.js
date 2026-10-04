@@ -1,6 +1,6 @@
 // sw.js - SnapSignFit Service Worker: safe network-first for HTML, cache-first for vendor assets
-const CACHE_VERSION = 'snapsignfit-v22';
-const VENDOR_CACHE = 'snapsignfit-vendor-v22';
+const CACHE_VERSION = 'snapsignfit-v23';
+const VENDOR_CACHE = 'snapsignfit-vendor-v23';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [

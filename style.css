@@ -2430,11 +2430,21 @@ body.dark .site-footer {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.editor-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .editor-title {
   font-size: 15px;
   font-weight: 600;
+  margin: 0;
 }
 
 .editor-close-btn {

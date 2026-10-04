@@ -4,6 +4,7 @@ import { parseLocalizedNumber, formatLocalizedNumber, getLanguage, t } from './i
 import { icon } from './icons.js';
 import { getSegmentationMask } from './bg.js';
 import { extractSignatureMask, classifyImageContent } from './signature.js';
+import { PRESETS } from './presets.js';
 
 export class ManualEditor {
   constructor(options = {}) {
@@ -14,6 +15,7 @@ export class ManualEditor {
     this.preset = null;
     this.onApply = options.onApply || (() => {});
     this.onLiveUpdate = options.onLiveUpdate || (() => {});
+    this.onPresetChange = options.onPresetChange || (() => {});
 
     // Step state: 1 = Crop Frame, 2 = Straighten & Rotate, 3 = Background & Eraser Brush
     this.currentStep = 1;
@@ -101,7 +103,17 @@ export class ManualEditor {
       <div class="editor-modal-dialog">
         <div class="editor-header">
           <div class="editor-header-top">
-            <h3 class="editor-title" data-i18n="editorTitle">Manual Crop & Straighten</h3>
+            <div class="editor-header-title-row">
+              <h3 class="editor-title" data-i18n="editorTitle">Manual Crop & Straighten</h3>
+              <div class="active-preset-badge-wrap editor-preset-badge-wrap" id="editorPresetBadgeWrap">
+                <button type="button" class="active-preset-pill" id="editorPresetPill" aria-haspopup="listbox" aria-expanded="false" aria-controls="editorPresetDropdownMenu" title="Select or change preset">
+                  <i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>
+                  <span class="active-preset-label" id="editorPresetLabel">Photo 300×300 (≤ 99KB)</span>
+                  <svg class="active-preset-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="active-preset-dropdown-menu hidden" id="editorPresetDropdownMenu" role="listbox" aria-label="Choose Preset"></div>
+              </div>
+            </div>
             <button type="button" class="editor-close-btn" id="editorCancelBtn" aria-label="Close" title="Close">&times;</button>
           </div>
           <div class="editor-step-tabs" role="tablist" aria-label="Editor Steps">
@@ -456,6 +468,23 @@ export class ManualEditor {
     el.querySelector('#btnBackToStep1').addEventListener('click', () => this.setStep(1));
     el.querySelector('#btnCommitStraighten').addEventListener('click', () => this.setStep(3));
     el.querySelector('#btnBackToStep2').addEventListener('click', () => this.setStep(2));
+
+    // Preset Dropdown in Editor Header
+    const editorPresetPill = el.querySelector('#editorPresetPill');
+    const editorPresetMenu = el.querySelector('#editorPresetDropdownMenu');
+    if (editorPresetPill && editorPresetMenu) {
+      editorPresetPill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.togglePresetDropdown();
+      });
+      document.addEventListener('click', (e) => {
+        if (!editorPresetMenu.classList.contains('hidden') &&
+            !editorPresetMenu.contains(e.target) &&
+            !editorPresetPill.contains(e.target)) {
+          this.closePresetDropdown();
+        }
+      });
+    }
 
     // Modal buttons
     el.querySelector('#editorCancelBtn').addEventListener('click', () => this.close());
@@ -1145,6 +1174,8 @@ export class ManualEditor {
     this.updateBrushSizeInputDisplay();
     this.updateBrushHardnessInputDisplay();
     this.overlayEl.querySelector('#editorDimText').textContent = `${this.targetW}×${this.targetH} px`;
+    this.updatePresetPill(this.preset);
+    this.populatePresetDropdown();
 
     if (initialCrop && initialCrop.w > 0 && initialCrop.h > 0) {
       const cropAspect = initialCrop.w / initialCrop.h;
@@ -1186,6 +1217,237 @@ export class ManualEditor {
     this.overlayEl.classList.remove('hidden');
     this.resizeEditorCanvas();
     this.redraw();
+  }
+
+  togglePresetDropdown() {
+    const menu = this.overlayEl.querySelector('#editorPresetDropdownMenu');
+    const pill = this.overlayEl.querySelector('#editorPresetPill');
+    if (!menu || !pill) return;
+
+    const isHidden = menu.classList.contains('hidden');
+    if (isHidden) {
+      this.populatePresetDropdown();
+      menu.classList.remove('hidden');
+      pill.classList.add('open');
+      pill.setAttribute('aria-expanded', 'true');
+    } else {
+      this.closePresetDropdown();
+    }
+  }
+
+  closePresetDropdown() {
+    const menu = this.overlayEl.querySelector('#editorPresetDropdownMenu');
+    const pill = this.overlayEl.querySelector('#editorPresetPill');
+    if (menu) menu.classList.add('hidden');
+    if (pill) {
+      pill.classList.remove('open');
+      pill.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  populatePresetDropdown() {
+    const menu = this.overlayEl.querySelector('#editorPresetDropdownMenu');
+    if (!menu) return;
+
+    const govPresets = PRESETS.filter(p => p.category === 'gov');
+    const duetPresets = PRESETS.filter(p => p.category === 'duet');
+    const socialPresets = PRESETS.filter(p => p.category === 'social');
+
+    const govLabel = t('catGov') || 'Government & Exam';
+    const duetLabel = t('catDuet') || 'DUET Admission';
+    const socialLabel = t('catSocial') || 'Social & Web';
+    const customLabel = t('catCustom') || 'Custom Size';
+
+    let html = '';
+
+    // 1. Govt & Exam Group
+    html += `<div class="active-preset-menu-group">
+      <div class="active-preset-menu-group-header">
+        <i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>
+        <span>${govLabel}</span>
+      </div>
+      <div class="active-preset-menu-group-items">`;
+    govPresets.forEach(p => {
+      const isSelected = this.preset && this.preset.id === p.id;
+      const kbStr = p.maxKB ? `≤${p.maxKB}KB` : '';
+      html += `
+        <div class="active-preset-menu-item ${isSelected ? 'selected' : ''}" role="option" aria-selected="${isSelected}" data-preset-id="${p.id}">
+          <div class="active-preset-item-main">
+            <span class="active-preset-item-name">${p.label}</span>
+            ${kbStr ? `<span class="active-preset-item-badge">${kbStr}</span>` : ''}
+          </div>
+          <span class="active-preset-item-dims">${p.w}×${p.h}</span>
+          ${isSelected ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+        </div>`;
+    });
+    html += `</div></div>`;
+
+    // 2. DUET Admission Group
+    if (duetPresets.length > 0) {
+      html += `<div class="active-preset-menu-group">
+        <div class="active-preset-menu-group-header">
+          <i class="fa-solid fa-graduation-cap" style="color: #a78bfa;" aria-hidden="true"></i>
+          <span>${duetLabel}</span>
+        </div>
+        <div class="active-preset-menu-group-items">`;
+      duetPresets.forEach(p => {
+        const isSelected = this.preset && this.preset.id === p.id;
+        const kbStr = p.maxKB ? `≤${p.maxKB}KB` : '';
+        html += `
+          <div class="active-preset-menu-item ${isSelected ? 'selected' : ''}" role="option" aria-selected="${isSelected}" data-preset-id="${p.id}">
+            <div class="active-preset-item-main">
+              <span class="active-preset-item-name">${p.label}</span>
+              ${kbStr ? `<span class="active-preset-item-badge">${kbStr}</span>` : ''}
+            </div>
+            <span class="active-preset-item-dims">${p.w}×${p.h}</span>
+            ${isSelected ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+          </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // 3. Social & Web Group
+    html += `<div class="active-preset-menu-group">
+      <div class="active-preset-menu-group-header">
+        <i class="fa-solid fa-globe" style="color: #38bdf8;" aria-hidden="true"></i>
+        <span>${socialLabel}</span>
+      </div>
+      <div class="active-preset-menu-group-items">`;
+    socialPresets.forEach(p => {
+      const isSelected = this.preset && this.preset.id === p.id;
+      const kbStr = p.maxKB ? `≤${p.maxKB}KB` : '';
+      html += `
+        <div class="active-preset-menu-item ${isSelected ? 'selected' : ''}" role="option" aria-selected="${isSelected}" data-preset-id="${p.id}">
+          <div class="active-preset-item-main">
+            <span class="active-preset-item-name">${p.label}</span>
+            ${kbStr ? `<span class="active-preset-item-badge">${kbStr}</span>` : ''}
+          </div>
+          <span class="active-preset-item-dims">${p.w}×${p.h}</span>
+          ${isSelected ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+        </div>`;
+    });
+    html += `</div></div>`;
+
+    // 4. Custom Size Group
+    const isCustom = this.preset && (this.preset.category === 'custom' || this.preset.id?.startsWith('custom'));
+    html += `<div class="active-preset-menu-group">
+      <div class="active-preset-menu-group-header">
+        <i class="fa-solid fa-sliders" style="color: #c084fc;" aria-hidden="true"></i>
+        <span>${customLabel}</span>
+      </div>
+      <div class="active-preset-menu-group-items">
+        <div class="active-preset-menu-item ${isCustom ? 'selected' : ''}" role="option" aria-selected="${isCustom}" data-preset-id="custom">
+          <div class="active-preset-item-main">
+            <span class="active-preset-item-name">${customLabel}</span>
+          </div>
+          <span class="active-preset-item-dims">${this.targetW}×${this.targetH}</span>
+          ${isCustom ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+        </div>
+      </div>
+    </div>`;
+
+    menu.innerHTML = html;
+
+    // Attach click listeners to each menu item
+    menu.querySelectorAll('.active-preset-menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const presetId = item.getAttribute('data-preset-id');
+        this.selectPreset(presetId);
+      });
+    });
+  }
+
+  updatePresetPill(preset) {
+    const pill = this.overlayEl.querySelector('#editorPresetPill');
+    const label = this.overlayEl.querySelector('#editorPresetLabel');
+    const menu = this.overlayEl.querySelector('#editorPresetDropdownMenu');
+    if (!pill || !label) return;
+
+    if (preset) {
+      const isGov = preset.category === 'gov';
+      const isDuet = preset.category === 'duet';
+      const kbStr = preset.maxKB ? ` (≤ ${preset.maxKB}KB)` : '';
+      const starIcon = isGov
+        ? '<i class="fa-solid fa-star star-gradient" aria-hidden="true"></i>'
+        : (isDuet ? '<i class="fa-solid fa-graduation-cap" style="color: #a78bfa;" aria-hidden="true"></i>' : '<i class="fa-solid fa-crop-simple" aria-hidden="true"></i>');
+
+      pill.innerHTML = `
+        ${starIcon}
+        <span class="active-preset-label" id="editorPresetLabel">${preset.label || 'Preset'}${kbStr}</span>
+        <svg class="active-preset-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      `;
+    }
+
+    if (menu && !menu.classList.contains('hidden')) {
+      this.populatePresetDropdown();
+    }
+  }
+
+  selectPreset(presetId) {
+    let newPreset = PRESETS.find(p => p.id === presetId);
+    if (!newPreset && presetId === 'custom') {
+      newPreset = {
+        id: 'custom',
+        category: 'custom',
+        label: t('catCustom') || 'Custom Size',
+        w: this.targetW,
+        h: this.targetH,
+        kind: 'photo',
+        fit: 'cover',
+        format: 'jpg',
+        maxKB: 100
+      };
+    }
+    if (!newPreset) return;
+
+    this.preset = newPreset;
+    this.targetW = newPreset.w;
+    this.targetH = newPreset.h;
+
+    this.updatePresetPill(newPreset);
+    this.closePresetDropdown();
+
+    const dimText = this.overlayEl.querySelector('#editorDimText');
+    if (dimText) dimText.textContent = `${this.targetW}×${this.targetH} px`;
+
+    // Adjust crop aspect ratio to match new target
+    const targetAspect = this.targetW / this.targetH;
+    if (this.sourceCanvas && this.crop) {
+      const cx = this.crop.x + this.crop.w / 2;
+      const cy = this.crop.y + this.crop.h / 2;
+      let cw = this.crop.w;
+      let ch = cw / targetAspect;
+      if (ch > this.sourceCanvas.height * 0.98) {
+        ch = this.sourceCanvas.height * 0.98;
+        cw = ch * targetAspect;
+      }
+      if (cw > this.sourceCanvas.width * 0.98) {
+        cw = this.sourceCanvas.width * 0.98;
+        ch = cw / targetAspect;
+      }
+      this.crop = {
+        x: Math.max(0, Math.round(cx - cw / 2)),
+        y: Math.max(0, Math.round(cy - ch / 2)),
+        w: Math.round(cw),
+        h: Math.round(ch)
+      };
+      this.clampCropToBounds();
+    }
+
+    if (this.currentStep === 1) {
+      this.commitCropToBitmap();
+    } else if (this.currentStep === 2) {
+      this.commitCropToBitmap();
+      this.commitStep2ToBitmap();
+    } else if (this.currentStep === 3) {
+      this.commitStep2ToBitmap();
+    }
+
+    this.requestRender();
+    if (typeof this.onPresetChange === 'function') {
+      this.onPresetChange(this.preset);
+    }
   }
 
   toggleStep3Fullscreen(enable) {
