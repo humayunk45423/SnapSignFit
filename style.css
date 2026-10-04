@@ -987,47 +987,6 @@ body.dark #btnTakePhoto:hover {
   transform: translateY(-1px);
 }
 
-/* Preset Chips (Layout Lock) */
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  margin-top: 4px;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  min-height: 32px;
-  max-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.chip:hover {
-  background-color: var(--surface-2);
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
-
 .dropzone-hint {
   font-size: 12px;
   color: var(--muted);
@@ -3760,24 +3719,30 @@ body.dark .hero-ctas .btn-preset-pill {
 .chip-row {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding-top: 4px;
+  padding: 6px 0 12px 0;
+  overflow: visible;
 }
 
 .chip-row .chip-line {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
+  overflow: visible;
 }
 
-/* All Hero Preset Chips (BCS, Teletalk, DUET): Gradient Stroke by default (no cut glow), Gradient Fill on Hover */
+/* All Hero Preset Chips (BCS, Teletalk, DUET): Identical Thickness, Gradient Stroke by default, Gradient Fill on Hover */
 .chip-row .chip {
-  padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 600;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  padding: 0 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
   border-radius: 999px;
   background-color: var(--surface);
   color: var(--text) !important;
@@ -3789,12 +3754,14 @@ body.dark .hero-ctas .btn-preset-pill {
   animation: gradientShift 5s ease infinite alternate;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 7px;
   text-align: center;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 [data-theme="dark"] .chip-row .chip,
@@ -3813,12 +3780,14 @@ body.dark .chip-row .chip {
 .chip-row .chip i,
 .chip-row .chip .fa-graduation-cap,
 .chip-row .chip .fa-star {
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, filter 0.2s ease;
+  font-size: 13px;
 }
 
 .chip-row .chip small {
   color: var(--muted) !important;
   font-weight: 500;
+  font-size: 11px;
   transition: color 0.2s ease;
 }
 
@@ -3827,8 +3796,8 @@ body.dark .chip-row .chip {
   background-size: 250% 250% !important;
   animation: gradientShift 4s ease infinite alternate !important;
   color: #ffffff !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3) !important;
   transform: translateY(-2px);
 }
 
@@ -3841,16 +3810,11 @@ body.dark .chip-row .chip {
 }
 
 .chip-row .chip:hover small {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 
 .chip-row .chip:active {
   transform: scale(0.96);
-}
-
-.chip-row .chip small {
-  color: var(--muted);
-  font-size: 11px;
 }
 
 /* Hero card (right column) */
