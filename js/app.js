@@ -2086,6 +2086,9 @@ class SnapSignFitApp {
   }
 
   async discardAndReset() {
+    if (this.editor) {
+      this.editor.close();
+    }
     this.sourceData = null;
     this.exactCanvas = null;
     this.currentExport = null;
