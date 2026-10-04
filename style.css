@@ -3602,13 +3602,11 @@ body.dark .hero-title {
   border-radius: 999px;
   font-size: 14px;
   font-weight: 600;
-  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 35%, #7c3aed 70%, #6366f1 100%);
-  background-size: 250% 250%;
-  animation: gradientShift 5s ease infinite alternate;
+  background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
-  transition: all 0.25s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3619,9 +3617,29 @@ body.dark .hero-title {
 
 .hero-ctas .btn-accent:hover,
 #heroUploadPhoto:hover {
-  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+  background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .hero-ctas .btn-accent,
+[data-theme="dark"] #heroUploadPhoto,
+body.dark .hero-ctas .btn-accent,
+body.dark #heroUploadPhoto {
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="dark"] .hero-ctas .btn-accent:hover,
+[data-theme="dark"] #heroUploadPhoto:hover,
+body.dark .hero-ctas .btn-accent:hover,
+body.dark #heroUploadPhoto:hover {
+  background: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+  transform: translateY(-1px);
 }
 
 .hero-ctas .btn-secondary {
@@ -3698,6 +3716,17 @@ body.dark .hero-ctas .btn-preset-pill {
 .hero-ctas #btnDuetPresetsHero,
 .hero-ctas .btn-duet-pill {
   display: none;
+}
+
+.hero-ctas #btnDuetPresetsHero i,
+.hero-ctas #btnDuetPresetsHero .fa-graduation-cap,
+.btn-duet-pill .fa-graduation-cap {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: currentColor !important;
+  animation: none !important;
+  filter: none !important;
 }
 
 @keyframes gradientShift {
@@ -5255,6 +5284,16 @@ body.dark .ppc-badge {
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0 3px 12px rgba(79, 70, 229, 0.35);
+  }
+
+  .hero-ctas #btnDuetPresetsHero i,
+  .hero-ctas #btnDuetPresetsHero .fa-graduation-cap {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+    animation: none !important;
+    filter: none !important;
   }
 
   .hero-ctas #btnViewPresetsHero:active,
