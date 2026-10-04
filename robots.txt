@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://humayunk45423.github.io/SnapSignFit/sitemap.xml
