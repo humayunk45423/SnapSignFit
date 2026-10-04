@@ -28,7 +28,7 @@ export async function getFaceDetector(onProgress) {
           delegate: 'GPU'
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.55
+        minDetectionConfidence: 0.35
       });
     } catch (gpuError) {
       console.warn('FaceDetector GPU delegate failed, falling back to CPU:', gpuError);
@@ -38,7 +38,7 @@ export async function getFaceDetector(onProgress) {
           delegate: 'CPU'
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.55
+        minDetectionConfidence: 0.35
       });
     }
 
@@ -101,19 +101,58 @@ export function createPaddedCanvas(srcCanvas, padRatio = 0.25) {
 }
 
 /**
+ * Fast luma contrast stretch helper for detecting faces in low-contrast, dark, or backlit photos
+ */
+function boostLumaContrast(canvas) {
+  try {
+    const w = canvas.width;
+    const h = canvas.height;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    let minLuma = 255;
+    let maxLuma = 0;
+    const step = Math.max(1, Math.floor(data.length / (4 * 2048)));
+    for (let i = 0; i < data.length; i += step * 4) {
+      const l = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+      if (l < minLuma) minLuma = l;
+      if (l > maxLuma) maxLuma = l;
+    }
+
+    if (maxLuma - minLuma < 120 || (minLuma > 35 && maxLuma < 225)) {
+      const range = Math.max(1, maxLuma - minLuma);
+      const boosted = createCanvas(w, h);
+      const bCtx = boosted.getContext('2d');
+      const bImg = bCtx.createImageData(w, h);
+      const bd = bImg.data;
+      for (let i = 0; i < data.length; i += 4) {
+        bd[i] = Math.max(0, Math.min(255, Math.round(((data[i] - minLuma) / range) * 255)));
+        bd[i + 1] = Math.max(0, Math.min(255, Math.round(((data[i + 1] - minLuma) / range) * 255)));
+        bd[i + 2] = Math.max(0, Math.min(255, Math.round(((data[i + 2] - minLuma) / range) * 255)));
+        bd[i + 3] = data[i + 3];
+      }
+      bCtx.putImageData(bImg, 0, 0);
+      return boosted;
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
  * Validates a detected face candidate against facial anatomy, keypoint geometry,
- * skin-tone pigmentation, and paper-text rejection rules.
+ * and rejects pure paper documents with isolated strokes. Supports both color & black-and-white photos.
  */
 export function validateFaceCandidate(face, canvas) {
   if (!face || !face.box || !canvas) return false;
   const { x, y, w, h } = face.box;
 
-  // 1. Basic dimension and aspect ratio checks
+  // 1. Basic dimension and aspect ratio checks (human faces are upright ovals)
   if (w < 20 || h < 20) return false;
   const aspect = w / h;
-  if (aspect < 0.52 || aspect > 1.90) return false; // Faces are roughly upright ovals
+  if (aspect < 0.55 || aspect > 1.65) return false;
 
-  // 2. Anatomical Keypoints Geometry (if 6 BlazeFace keypoints exist)
+  // 2. Anatomical Keypoints Geometry (if BlazeFace landmarks exist)
   if (face.keypoints && face.keypoints.length >= 4) {
     const rightEye = face.keypoints[0];
     const leftEye = face.keypoints[1];
@@ -121,26 +160,39 @@ export function validateFaceCandidate(face, canvas) {
     const mouth = face.keypoints[3];
 
     if (rightEye && leftEye) {
+      const eyeDist = Math.hypot(leftEye.x - rightEye.x, leftEye.y - rightEye.y);
+      // Eyes must have realistic facial spacing (18% to 75% of face width)
+      if (eyeDist < w * 0.18 || eyeDist > w * 0.75) return false;
+
       const eyeDx = Math.abs(leftEye.x - rightEye.x);
       const eyeDy = Math.abs(leftEye.y - rightEye.y);
       // Eyes must have reasonable horizontal separation
       if (eyeDx < w * 0.12) return false;
-      // Eyes shouldn't have extreme vertical tilt in an unrotated image
-      if (eyeDy > eyeDx * 1.1) return false;
+      // Eyes shouldn't have extreme vertical tilt in an upright image
+      if (eyeDy > eyeDx * 1.0) return false;
     }
 
     if (rightEye && leftEye && nose) {
+      const minEyeX = Math.min(leftEye.x, rightEye.x);
+      const maxEyeX = Math.max(leftEye.x, rightEye.x);
+      // Nose must be horizontally centered between the eyes
+      if (nose.x < minEyeX - w * 0.15 || nose.x > maxEyeX + w * 0.15) return false;
+
       // Eyes should be vertically above or near nose level
-      if (rightEye.y > nose.y + h * 0.22 || leftEye.y > nose.y + h * 0.22) return false;
+      const eyeMidY = (leftEye.y + rightEye.y) / 2;
+      if (nose.y < eyeMidY - h * 0.05) return false;
     }
 
     if (nose && mouth) {
       // Nose should be above mouth
-      if (nose.y > mouth.y + h * 0.22) return false;
+      if (mouth.y < nose.y - h * 0.05) return false;
     }
+  } else if (face.score < 0.60) {
+    // Low-confidence candidates without full facial keypoints are false artifacts
+    return false;
   }
 
-  // 3. Pixel Texture & Skin-Tone / Paper Rejection Check
+  // 3. Pixel Texture & Document/Blank Paper Rejection Check
   try {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const clampedX = Math.max(0, Math.min(canvas.width - 1, Math.floor(x)));
@@ -157,7 +209,6 @@ export function validateFaceCandidate(face, canvas) {
     let skinCount = 0;
     let brightPaperCount = 0;
     let darkInkCount = 0;
-    let sumRg = 0, sumYb = 0, sumRgSq = 0, sumYbSq = 0;
 
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
@@ -165,44 +216,24 @@ export function validateFaceCandidate(face, canvas) {
       const b = data[i + 2];
 
       const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-      if (luma > 170 && Math.abs(r - g) < 22 && Math.abs(g - b) < 22) {
+      if (luma > 200 && Math.abs(r - g) < 18 && Math.abs(g - b) < 18) {
         brightPaperCount++;
-      } else if (luma < 100) {
+      } else if (luma < 90) {
         darkInkCount++;
       }
 
-      // Skin tone detection
-      if (r > g && g > b && (r - g) > 10 && (r - b) > 14 && r > 60 && b < 195) {
+      // Multi-spectral skin tone detection (color photos)
+      if (r > g && g > b && (r - g) > 8 && (r - b) > 12 && r > 55 && b < 210) {
         skinCount++;
       }
-
-      const rg = r - g;
-      const yb = 0.5 * (r + g) - b;
-      sumRg += rg;
-      sumYb += yb;
-      sumRgSq += rg * rg;
-      sumYbSq += yb * yb;
     }
 
     const paperRatio = brightPaperCount / totalPixels;
     const skinRatio = skinCount / totalPixels;
     const inkRatio = darkInkCount / totalPixels;
 
-    // Reject white paper documents with text/drawings:
-    // If the detected box is > 55% plain paper with < 2.5% skin tones
-    if (paperRatio > 0.55 && skinRatio < 0.025) {
-      return false;
-    }
-
-    // Colorfulness calculation
-    const meanRg = sumRg / totalPixels;
-    const meanYb = sumYb / totalPixels;
-    const stdRg = Math.sqrt(Math.max(0, sumRgSq / totalPixels - meanRg * meanRg));
-    const stdYb = Math.sqrt(Math.max(0, sumYbSq / totalPixels - meanYb * meanYb));
-    const colorfulness = Math.sqrt(stdRg * stdRg + stdYb * stdYb) + 0.3 * Math.sqrt(meanRg * meanRg + meanYb * meanYb);
-
-    // If completely monochromatic with no skin and sparse strokes -> paper writing
-    if (colorfulness < 12 && skinRatio < 0.02 && (paperRatio > 0.40 || inkRatio > 0.005)) {
+    // Only reject if overwhelmingly empty white paper document (> 85% pure paper with very sparse ink < 5%)
+    if (paperRatio > 0.85 && skinRatio < 0.015 && inkRatio < 0.05) {
       return false;
     }
 
@@ -215,7 +246,7 @@ export function validateFaceCandidate(face, canvas) {
 /**
  * Single-pass detection on a given canvas with quality verification
  */
-function runDetection(detector, canvas) {
+function runDetection(detector, canvas, minScore = 0.45) {
   try {
     const res = detector.detect(canvas);
     if (!res || !res.detections || res.detections.length === 0) return [];
@@ -239,7 +270,7 @@ function runDetection(detector, canvas) {
       };
     });
 
-    return candidates.filter(f => f.score >= 0.55 && validateFaceCandidate(f, canvas));
+    return candidates.filter(f => f.score >= minScore && validateFaceCandidate(f, canvas));
   } catch (e) {
     console.warn('Detection call failed:', e);
     return [];
@@ -247,9 +278,13 @@ function runDetection(detector, canvas) {
 }
 
 /**
- * Full detection retry ladder as specified in §7
- * Ladder: (1) working copy, (2) 25% edge-replicated padding, (3) rotation ladder,
- * (4) scale ×1.5 / ×0.5.
+ * Full detection retry ladder:
+ * (1) direct working copy (0.45),
+ * (2) 20% edge-replicated padding (fixes edge-touching selfies),
+ * (3) contrast/luma boosted copy (fixes dark/backlit photos),
+ * (4) multi-scale pass (1.4x / 0.7x),
+ * (5) sensitive upright pass (0.38) on base and boosted images,
+ * (6) strictly 90° incremental rotations only if image is landscape.
  */
 export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingScale) {
   const detector = await getFaceDetector();
@@ -257,11 +292,8 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
     return { success: false, faces: [], method: 'no_detector' };
   }
 
-  // If the image is already classified as a signature/paper document, don't waste time on face ladder
-  const isDocument = classifyImageContent(workingCanvas) === 'signature';
-
   // Ladder Step 1: Standard working copy
-  let rawFaces = runDetection(detector, workingCanvas);
+  let rawFaces = runDetection(detector, workingCanvas, 0.45);
   if (rawFaces.length > 0) {
     return {
       success: true,
@@ -271,13 +303,9 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
     };
   }
 
-  if (isDocument) {
-    return { success: false, faces: [], detectedAngle: 0, method: 'document_skipped' };
-  }
-
-  // Ladder Step 2: 25% edge-replicated padding
-  const { padded, padX, padY } = createPaddedCanvas(workingCanvas, 0.25);
-  rawFaces = runDetection(detector, padded);
+  // Ladder Step 2: 20% edge-replicated padding (fixes faces touching image edges)
+  const { padded, padX, padY } = createPaddedCanvas(workingCanvas, 0.20);
+  rawFaces = runDetection(detector, padded, 0.42);
   if (rawFaces.length > 0) {
     const unpaddedFaces = rawFaces.map(f => ({
       ...f,
@@ -297,16 +325,78 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
     };
   }
 
-  // Ladder Step 3: Rotation ladder (90°, 270°, 180°, ±15°, ±30°, ±45°, ±60°)
-  const rotationAngles = [90, 270, 180, 15, -15, 30, -30, 45, -45, 60, -60];
+  // Ladder Step 3: Contrast/Levels boost (fixes underexposed, dark, or backlit portrait photos)
+  const boosted = boostLumaContrast(workingCanvas);
+  if (boosted) {
+    rawFaces = runDetection(detector, boosted, 0.42);
+    if (rawFaces.length > 0) {
+      return {
+        success: true,
+        faces: mapFacesToFull(rawFaces, 1 / workingScale),
+        detectedAngle: 0,
+        method: 'contrast_boost'
+      };
+    }
+  }
+
+  // Ladder Step 4: Scale adjustment (1.4x scale up for small faces, 0.7x for high-res)
+  const isSmall = workingCanvas.width < 600 || workingCanvas.height < 600;
+  const scaleFactor = isSmall ? 1.4 : 0.7;
+  const scaledCanvas = createCanvas(
+    Math.round(workingCanvas.width * scaleFactor),
+    Math.round(workingCanvas.height * scaleFactor)
+  );
+  const sCtx = scaledCanvas.getContext('2d');
+  sCtx.drawImage(workingCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+
+  rawFaces = runDetection(detector, scaledCanvas, 0.42);
+  if (rawFaces.length > 0) {
+    const rescale = (1 / scaleFactor) * (1 / workingScale);
+    return {
+      success: true,
+      faces: mapFacesToFull(rawFaces, rescale),
+      detectedAngle: 0,
+      method: 'scaled'
+    };
+  }
+
+  // Ladder Step 5: Sensitive upright pass (0.38) with strict anatomical validation
+  rawFaces = runDetection(detector, workingCanvas, 0.38);
+  if (rawFaces.length > 0) {
+    return {
+      success: true,
+      faces: mapFacesToFull(rawFaces, 1 / workingScale),
+      detectedAngle: 0,
+      method: 'sensitive_upright'
+    };
+  }
+
+  if (boosted) {
+    rawFaces = runDetection(detector, boosted, 0.38);
+    if (rawFaces.length > 0) {
+      return {
+        success: true,
+        faces: mapFacesToFull(rawFaces, 1 / workingScale),
+        detectedAngle: 0,
+        method: 'boosted_sensitive'
+      };
+    }
+  }
+
+  // Ladder Step 6: 90-degree rotations ONLY when image orientation indicates need
+  // If the image is already portrait/tall (width <= height * 1.05), NEVER test 90° or 270°!
+  // Normal portrait photos should NEVER be turned sideways!
+  const isLandscape = workingCanvas.width > workingCanvas.height * 1.05;
+  const rotationAngles = isLandscape ? [90, 270, 180] : [180];
   let bestRotResult = null;
 
   for (const deg of rotationAngles) {
     const { rotCanvas } = rotateCanvas(workingCanvas, deg);
-    const rotFaces = runDetection(detector, rotCanvas);
+    const minConf = deg === 180 ? 0.85 : 0.80;
+    const rotFaces = runDetection(detector, rotCanvas, minConf);
     if (rotFaces.length > 0) {
       const topFace = rotFaces.reduce((prev, cur) => cur.score > prev.score ? cur : prev, rotFaces[0]);
-      if (topFace.score >= 0.70 && (!bestRotResult || topFace.score > bestRotResult.score)) {
+      if (topFace.score >= minConf && (!bestRotResult || topFace.score > bestRotResult.score)) {
         bestRotResult = {
           deg,
           rotFaces,
@@ -315,38 +405,16 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
           rotH: rotCanvas.height
         };
       }
-      // If score is strong at 90/180/270, we can break early
-      if (topFace.score >= 0.80 && [90, 180, 270].includes(deg)) break;
+      if (topFace.score >= 0.88) break;
     }
   }
 
   if (bestRotResult) {
     return {
       success: true,
-      faces: [], // Calling code handles rotation of source canvas first
+      faces: mapFacesToFull(bestRotResult.rotFaces, 1 / workingScale),
       detectedAngle: bestRotResult.deg,
       method: 'rotation'
-    };
-  }
-
-  // Ladder Step 4: Scale adjustment (×1.5 if small, ×0.5 if very large)
-  const isSmall = workingCanvas.width < 600 || workingCanvas.height < 600;
-  const scaleFactor = isSmall ? 1.5 : 0.5;
-  const scaledCanvas = createCanvas(
-    Math.round(workingCanvas.width * scaleFactor),
-    Math.round(workingCanvas.height * scaleFactor)
-  );
-  const sCtx = scaledCanvas.getContext('2d');
-  sCtx.drawImage(workingCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
-
-  rawFaces = runDetection(detector, scaledCanvas);
-  if (rawFaces.length > 0) {
-    const rescale = (1 / scaleFactor) * (1 / workingScale);
-    return {
-      success: true,
-      faces: mapFacesToFull(rawFaces, rescale),
-      detectedAngle: 0,
-      method: 'scaled'
     };
   }
 
@@ -421,7 +489,7 @@ export function computePassportCrop(faceBox, imgW, imgH, targetW, targetH) {
   const fhPrime = fh * CONFIG.FACE.HEAD_RATIO;
   const shiftedCenterY = fcy - fh * CONFIG.FACE.SHIFT_UP_RATIO;
 
-  // Base square side S
+  // Base square side S (head ≈ 52% of frame height)
   let S = fhPrime * CONFIG.FACE.CROP_SIDE_RATIO;
 
   const targetAspect = targetW / targetH;
@@ -435,35 +503,65 @@ export function computePassportCrop(faceBox, imgW, imgH, targetW, targetH) {
     cropW = S * targetAspect;
   }
 
-  let cropX = fcx - cropW / 2;
-  let cropY = (shiftedCenterY + CONFIG.FACE.CENTER_Y_SHIFT_RATIO * cropH) - cropH / 2;
-
-  // If crop exceeds image dimensions, adjust gracefully
+  // Constrain crop box to fit completely within image while strictly preserving targetAspect
   if (cropW > imgW || cropH > imgH) {
     const scaleFactor = Math.min(imgW / cropW, imgH / cropH);
-    cropW *= scaleFactor;
-    cropH *= scaleFactor;
-    cropX = fcx - cropW / 2;
-    cropY = (shiftedCenterY + CONFIG.FACE.CENTER_Y_SHIFT_RATIO * cropH) - cropH / 2;
+    cropW = Math.max(20, Math.floor(cropW * scaleFactor));
+    cropH = Math.max(20, Math.round(cropW / targetAspect));
+  } else {
+    cropW = Math.round(cropW);
+    cropH = Math.round(cropH);
   }
 
-  // Shift inside bounds
-  if (cropX < 0) cropX = 0;
-  if (cropY < 0) cropY = 0;
-  if (cropX + cropW > imgW) cropX = imgW - cropW;
-  if (cropY + cropH > imgH) cropY = imgH - cropH;
+  // Center horizontally on face, and position face with golden headroom
+  let cropX = Math.round(fcx - cropW / 2);
+  let cropY = Math.round(shiftedCenterY + CONFIG.FACE.CENTER_Y_SHIFT_RATIO * cropH - cropH / 2);
 
-  // Clamp within image bounds
-  cropX = Math.max(0, cropX);
-  cropY = Math.max(0, cropY);
-  cropW = Math.min(imgW - cropX, cropW);
-  cropH = Math.min(imgH - cropY, cropH);
+  // Shift inside bounds strictly without altering cropW or cropH (maintaining exact target aspect ratio)
+  cropX = Math.max(0, Math.min(imgW - cropW, cropX));
+  cropY = Math.max(0, Math.min(imgH - cropH, cropY));
 
   return {
-    x: Math.round(cropX),
-    y: Math.round(cropY),
-    w: Math.round(cropW),
-    h: Math.round(cropH)
+    x: cropX,
+    y: cropY,
+    w: cropW,
+    h: cropH
+  };
+}
+
+/**
+ * Intelligent portrait composition fallback when no face is recognized by neural detector:
+ * Accurately frames upper-body and head centered with exact target aspect ratio.
+ */
+export function computePortraitFallbackCrop(imgW, imgH, targetW, targetH) {
+  const targetAspect = targetW / targetH;
+  let cropW, cropH;
+
+  if (imgW / imgH > targetAspect) {
+    cropH = Math.round(imgH * 0.90);
+    cropW = Math.round(cropH * targetAspect);
+  } else {
+    cropW = Math.round(imgW * 0.90);
+    cropH = Math.round(cropW / targetAspect);
+  }
+
+  if (cropW > imgW) {
+    cropW = imgW;
+    cropH = Math.round(cropW / targetAspect);
+  }
+  if (cropH > imgH) {
+    cropH = imgH;
+    cropW = Math.round(cropH * targetAspect);
+  }
+
+  const cropX = Math.max(0, Math.min(imgW - cropW, Math.round((imgW - cropW) / 2)));
+  const cropY = Math.max(0, Math.min(imgH - cropH, Math.round((imgH - cropH) * 0.15)));
+
+  return {
+    x: cropX,
+    y: cropY,
+    w: cropW,
+    h: cropH
   };
 }
 

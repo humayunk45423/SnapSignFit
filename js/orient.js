@@ -18,9 +18,10 @@ export function calculateEyeTilt(keypoints) {
   const angleRad = Math.atan2(dy, dx);
   const angleDeg = (angleRad * 180) / Math.PI;
 
-  // Normal human head tilt is within -45..+45
-  if (Math.abs(angleDeg) >= 2 && Math.abs(angleDeg) <= 45) {
-    return angleDeg;
+  // Only correct significant head tilt (>= 5° and <= 30°).
+  // Natural subtle head pose and landmark noise (< 5°) should never rotate the photo.
+  if (Math.abs(angleDeg) >= 5 && Math.abs(angleDeg) <= 30) {
+    return Math.round(angleDeg * 10) / 10;
   }
   return 0;
 }
@@ -182,14 +183,14 @@ export function detectSignaturePaperTilt(canvas, components) {
   const w = canvas.width;
   const h = canvas.height;
 
-  // Search for candidate line:
-  // Component spanning > 40% of image width or aspect ratio w/h > 8.0
+  // Search for candidate printed line:
+  // Component spanning > 55% of image width or aspect ratio w/h > 12.0
   let candidateLine = null;
   let maxLineWidth = 0;
 
   for (const comp of components) {
     const aspect = comp.w / Math.max(1, comp.h);
-    if ((comp.w > w * 0.40 || aspect > 7.0) && comp.points && comp.points.length > 50) {
+    if ((comp.w > w * 0.55 || aspect > 12.0) && comp.points && comp.points.length > 100) {
       if (comp.w > maxLineWidth) {
         maxLineWidth = comp.w;
         candidateLine = comp;
@@ -217,10 +218,25 @@ export function detectSignaturePaperTilt(canvas, components) {
   if (denom === 0) return 0;
 
   const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+
+  // Calculate variance of residuals to verify it's a true straight printed line, not wavy handwriting
+  let residualSq = 0;
+  for (let i = 0; i < n; i++) {
+    const expectedY = slope * pts[i].x + intercept;
+    const diff = pts[i].y - expectedY;
+    residualSq += diff * diff;
+  }
+  const meanResidual = Math.sqrt(residualSq / n);
+  if (meanResidual > 3.0) {
+    // Wavy or irregular stroke (organic handwriting), not a printed line
+    return 0;
+  }
+
   const angleDeg = (Math.atan(slope) * 180) / Math.PI;
 
-  // Only apply if between 1° and 15° (natural handwriting is often steeper or irregular)
-  if (Math.abs(angleDeg) >= 1 && Math.abs(angleDeg) <= 15) {
+  // Only apply if between 2.5° and 10° (sub-2.5° natural handwriting shouldn't be altered)
+  if (Math.abs(angleDeg) >= 2.5 && Math.abs(angleDeg) <= 10) {
     return Math.round(angleDeg * 10) / 10;
   }
 

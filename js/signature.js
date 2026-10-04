@@ -301,23 +301,18 @@ export function classifyImageContent(canvas) {
   const inkRatio = darkInkCount / sampleCount;
   const aspect = w / h;
 
-  // 1. Definite Photos: human skin tones present or rich organic color variance
-  if (skinRatio > 0.050 || (colorfulness > 24 && satRatio > 0.12)) {
+  // 1. Definite Photos: tall/portrait aspect, human skin tones, rich organic color, or dense dark clothing/hair
+  if (aspect < 1.05 || skinRatio > 0.025 || (colorfulness > 18 && satRatio > 0.08) || inkRatio > 0.20) {
     return 'photo';
   }
 
-  // 2. Wide aspect ratio signatures (standard horizontal signature crops)
-  if (aspect >= 1.6 && colorfulness < 24 && skinRatio < 0.035 && (darkInkCount > 0 || paperRatio > 0.30)) {
+  // 2. Wide aspect ratio signatures (standard horizontal paper or transparent signature crops)
+  if (aspect >= 1.35 && skinRatio < 0.015 && paperRatio > 0.60 && inkRatio > 0.0005 && inkRatio < 0.15) {
     return 'signature';
   }
 
-  // 3. Document / Paper with ink writing (scanned docs, mobile paper photos with shadows)
-  if ((paperRatio > 0.40 || (paperRatio + inkRatio > 0.48)) && inkRatio > 0.0008 && inkRatio < 0.38 && colorfulness < 22 && skinRatio < 0.025) {
-    return 'signature';
-  }
-
-  // 4. Monochrome or low-saturation drawings/text/signatures
-  if (colorfulness < 11 && skinRatio < 0.015 && (darkInkCount > 0 || paperRatio > 0.30)) {
+  // 3. Document / Paper with ink writing on white or light paper surface (must be predominantly paper with sparse strokes)
+  if (aspect >= 1.15 && paperRatio > 0.70 && inkRatio > 0.0005 && inkRatio < 0.12 && colorfulness < 15 && skinRatio < 0.010) {
     return 'signature';
   }
 

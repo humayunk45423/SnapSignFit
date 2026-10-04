@@ -2,7 +2,7 @@
 import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations } from './i18n.js';
 import { PRESETS, getSavedCustomPresets, saveCustomPreset, unitToPixels } from './presets.js';
 import { loadImageFile, createCanvas, flattenAlpha } from './loader.js';
-import { detectFacesWithLadder, selectPrimaryFace, computePassportCrop, checkFaceQuality, rotateCanvas } from './face.js';
+import { detectFacesWithLadder, selectPrimaryFace, computePassportCrop, computePortraitFallbackCrop, checkFaceQuality, rotateCanvas } from './face.js';
 import { calculateEyeTilt, rotateWithEdgeReplication, autoEnhanceCanvas, detectSignaturePaperTilt } from './orient.js';
 import { processSignature, classifyImageContent } from './signature.js';
 import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smartcrop.js';
@@ -1320,38 +1320,16 @@ class SnapSignFitApp {
     try {
       const currentKind = this.currentPreset.kind;
 
-      // 1. First classify image content (color entropy, skin tones, bright paper & stroke density)
-      const detectedKind = classifyImageContent(workingCanvas);
-
-      if (detectedKind === 'signature') {
-        if (currentKind === 'photo') {
-          let targetPresetId = 'gov_sig_300x80';
-          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
-            targetPresetId = 'duet_sig_250x50';
-          }
-          const match = PRESETS.find(p => p.id === targetPresetId);
-          if (match) {
-            this.applyPreset(match, { skipProcessing: true });
-            this.addChip({
-              id: 'chip-auto-kind',
-              label: t('chipAutoSig') || 'Signature detected — switched to Signature preset',
-              isUndoable: false
-            });
-          }
-        }
-        return;
-      }
-
-      // 2. Strict face detection check (with anatomical keypoints & skin-tone verification)
+      // 1. ALWAYS run MediaPipe face detection FIRST with our robust multi-pass ladder
       let hasFace = false;
       try {
         const faceDetection = await detectFacesWithLadder(workingCanvas, fullCanvas, workingScale);
-        hasFace = faceDetection && faceDetection.success && faceDetection.faces && faceDetection.faces.length > 0;
+        hasFace = faceDetection && faceDetection.success && (faceDetection.faces?.length > 0 || (faceDetection.detectedAngle && faceDetection.detectedAngle !== 0));
       } catch (e) {
         hasFace = false;
       }
 
-      // If a verified face is found -> switched to Photo preset
+      // If a verified face is present -> 100% certainty of human portrait/photo
       if (hasFace) {
         if (currentKind === 'signature') {
           let targetPresetId = 'gov_photo_300x300';
@@ -1364,6 +1342,30 @@ class SnapSignFitApp {
             this.addChip({
               id: 'chip-auto-kind',
               label: t('chipAutoPhoto') || 'Face detected — switched to Photo preset',
+              isUndoable: false
+            });
+          }
+        }
+        return; // Firmly lock into Photo preset, never evaluate as signature!
+      }
+
+      // 2. If NO face was detected, test content classification
+      const detectedKind = classifyImageContent(workingCanvas);
+      const isWidePaper = (workingCanvas.width / workingCanvas.height) >= 1.35;
+
+      if (detectedKind === 'signature') {
+        // Only switch away from a Photo preset if the image is distinctly a signature
+        if (currentKind === 'photo' && isWidePaper) {
+          let targetPresetId = 'gov_sig_300x80';
+          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
+            targetPresetId = 'duet_sig_250x50';
+          }
+          const match = PRESETS.find(p => p.id === targetPresetId);
+          if (match) {
+            this.applyPreset(match, { skipProcessing: true });
+            this.addChip({
+              id: 'chip-auto-kind',
+              label: t('chipAutoSig') || 'Signature detected — switched to Signature preset',
               isUndoable: false
             });
           }
@@ -1534,12 +1536,6 @@ class SnapSignFitApp {
           // Run export guarantee on fallback canvas
           await this.runExportGuarantee();
           this.setProcessing(false);
-
-          // Open manual editor only on preset/option changes, not on initial file load.
-          if (!fromFileUpload && !this.manualEditorOpenedForFile) {
-            this.manualEditorOpenedForFile = true;
-            this.openManualEditor();
-          }
           return;
         } else {
           if (signatureResult.warnings) {
@@ -1565,8 +1561,8 @@ class SnapSignFitApp {
               }
             }
 
-            // Test ink aspect rotation test (> 1.6)
-            if (signatureResult.inkAspect > 1.6 && this.autoFixes.rotationDeg === 0) {
+            // Test ink aspect rotation only for strictly vertical signatures photographed in landscape
+            if (signatureResult.inkAspect > 2.8 && activeFull.width > activeFull.height * 1.2 && this.autoFixes.rotationDeg === 0) {
               this.autoFixes.rotationDeg = 90;
               this.addChip({
                 id: 'chip-rot',
@@ -1674,20 +1670,10 @@ class SnapSignFitApp {
         } else {
           computedCrop = computeFaceAwareCrop(faces, activeFull.width, activeFull.height, targetW, targetH, kind);
         }
-      } else {
         // No face found
         if (kind === 'photo') {
           this.activeWarnings.push('warnNoFace');
-          computedCrop = {
-            x: Math.round((activeFull.width - Math.min(activeFull.width, activeFull.height)) / 2),
-            y: 0,
-            w: Math.min(activeFull.width, activeFull.height),
-            h: Math.min(activeFull.width, activeFull.height)
-          };
-          if (!this.userTransforms.crop && !this.manualEditorOpenedForFile) {
-            this.manualEditorOpenedForFile = true;
-            this.openManualEditor();
-          }
+          computedCrop = computePortraitFallbackCrop(activeFull.width, activeFull.height, targetW, targetH);
         } else {
           // Saliency crop (§9)
           computedCrop = computeSaliencyCrop(activeFull, targetW, targetH);
