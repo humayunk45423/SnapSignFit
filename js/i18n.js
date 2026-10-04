@@ -181,6 +181,8 @@ export const translations = {
     // Manual Editor
     editorTitle: 'Manual Crop & Straighten',
     zoom: 'Zoom',
+    rotate: 'Rotate',
+    cropSize: 'Crop Scale',
     rotateLeft: 'Rotate -90°',
     rotateRight: 'Rotate +90°',
     straighten: 'Straighten Slider',
@@ -415,6 +417,8 @@ export const translations = {
     // Manual Editor
     editorTitle: 'ক্রপ ও সোজা করা',
     zoom: 'জুম',
+    rotate: 'ঘোরান',
+    cropSize: 'ফ্রেম সাইজ',
     rotateLeft: 'বামে ৯০°',
     rotateRight: 'ডানে ৯০°',
     straighten: 'সোজা করুন',
