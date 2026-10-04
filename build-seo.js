@@ -105,10 +105,22 @@ function generatePageHtml(page, lang = 'en') {
   };
 
   // Generate HowTo Schema
+  const howToName = isBn
+    ? (page.slug === '300x300-photo-resizer'
+        ? "কীভাবে বিসিএস ও টেলিটকের জন্য ১০০ কেবির নিচে ৩০০×৩০০ ছবি রিসাইজ করবেন"
+        : (page.slug === '300x80-signature-resizer'
+            ? "কীভাবে সরকারি চাকরির জন্য ৬০ কেবির নিচে ৩০০×৮০ স্বাক্ষর রিসাইজ করবেন"
+            : `কীভাবে ${c.h1} তৈরি ও ডাউনলোড করবেন`))
+    : (page.slug === '300x300-photo-resizer'
+        ? "How to resize a photo to 300x300 pixels under 100KB for BCS & Teletalk"
+        : (page.slug === '300x80-signature-resizer'
+            ? "How to resize a signature to 300x80 pixels under 60KB for Teletalk & Govt Jobs"
+            : `How to resize and format ${c.h1}`));
+
   const howToJson = {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": c.h1,
+    "name": howToName,
     "description": c.intro,
     "step": steps.map((s, idx) => ({
       "@type": "HowToStep",
@@ -624,6 +636,165 @@ bnSectorMappings.forEach(sec => {
   });
 });
 
+// Explicit High-Priority Keywords from Masterpiece Index & Screenshots
+const explicitPhrases = [
+  // 300x300 Photo Variations
+  { kw: '300x300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300*300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300by300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300 * 300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300 by 300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300 x 300 image resizer online', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300 300 photo resizer', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300x300 picture resize online', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: 'resize photo to 300x300 under 100kb', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+  { kw: '300 300 photo', url: 'https://snapsignfit.com/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'en', cat: 'dimension' },
+
+  // 300x80 Signature Variations
+  { kw: '300x80 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300*80 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300by80 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300 * 80 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300 by 80 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300 x 80 sign resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '30080 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300 80 signature resizer', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300x80 sign resize', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: 'resize signature to 300x80 under 60kb', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300*80', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+  { kw: '300by80', url: 'https://snapsignfit.com/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'en', cat: 'dimension' },
+
+  // DUET Variations
+  { kw: '250x250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250*250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250by250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250 * 250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250 by 250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250x50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250*50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250by50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250 * 50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250 by 50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250x250 photo resizer', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250x50 signature resizer', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet admission form photo signature size', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250x250 photo under 100kb', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: '250x50 signature under 50kb', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet signature resize', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet signature resizer', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet admission form photo resize', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet admission signature resize', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet photo signature size', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250x250 photo resize', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250x50 signature resize', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250*250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250*50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250by250', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet 250by50', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet admission photo under 100kb', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+  { kw: 'duet admission signature under 50kb', url: 'https://snapsignfit.com/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'en', cat: 'duet' },
+
+  // BCS, Teletalk & Govt Job Portals
+  { kw: 'bcs photo 300x300', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'bcs signature 300x80', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'bcs photo resizer', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'bcs signature resizer', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'bcs application photo size', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'bcs job photo size', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'bccs photo resize', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'typo' },
+  { kw: 'bpsc photo signature resizer', url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'en', cat: 'bcs' },
+  { kw: 'teletalk photo resizer 300x300', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk signature resizer 300x80', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk 300x300', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk 300x80', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk 300x300 photo size', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk signature resizer 300x80', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk alljobs photo resize', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'alljobs.teletalk.com.bd photo resize', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletalk photo resize online', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'teletak photo resizer', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'typo' },
+  { kw: 'teletalk sign resize', url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'en', cat: 'teletalk' },
+  { kw: 'bangladesh government form resizer', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'govt' },
+  { kw: 'bd govt job photo size', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'govt' },
+  { kw: 'bd govt job signature size', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'govt' },
+  { kw: 'primary teacher application photo resize', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'govt' },
+  { kw: 'ntrca photo signature resize', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'govt' },
+  { kw: 'railway job photo resize', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'govt' },
+  { kw: 'govment form photo resizer', url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'en', cat: 'typo' },
+
+  // Bank, Medical, Defense, Passport
+  { kw: 'bangladesh bank job photo resize', url: 'https://snapsignfit.com/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'en', cat: 'bank' },
+  { kw: 'combined bank job photo resizer', url: 'https://snapsignfit.com/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'en', cat: 'bank' },
+  { kw: 'bank job 300x300 photo 300x80 signature', url: 'https://snapsignfit.com/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'en', cat: 'bank' },
+  { kw: 'bank recruitment signature resize under 60kb', url: 'https://snapsignfit.com/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'en', cat: 'bank' },
+  { kw: 'dghs medical admission photo size', url: 'https://snapsignfit.com/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing', lang: 'en', cat: 'medical' },
+  { kw: 'medical admission 300x300 photo', url: 'https://snapsignfit.com/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing', lang: 'en', cat: 'medical' },
+  { kw: 'nursing admission photo resizer', url: 'https://snapsignfit.com/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing', lang: 'en', cat: 'medical' },
+  { kw: 'dental admission photo signature resize', url: 'https://snapsignfit.com/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing', lang: 'en', cat: 'medical' },
+  { kw: 'bangladesh police job photo signature resize', url: 'https://snapsignfit.com/police-army-navy-photo-resizer/', intent: 'defense-jobs', lang: 'en', cat: 'defense' },
+  { kw: 'army job photo resize', url: 'https://snapsignfit.com/police-army-navy-photo-resizer/', intent: 'defense-jobs', lang: 'en', cat: 'defense' },
+  { kw: 'navy recruitment photo size', url: 'https://snapsignfit.com/police-army-navy-photo-resizer/', intent: 'defense-jobs', lang: 'en', cat: 'defense' },
+  { kw: 'air force photo resize', url: 'https://snapsignfit.com/police-army-navy-photo-resizer/', intent: 'defense-jobs', lang: 'en', cat: 'defense' },
+  { kw: 'e-passport photo 45x55mm', url: 'https://snapsignfit.com/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'en', cat: 'passport' },
+  { kw: 'bangladesh passport photo resizer 45x55', url: 'https://snapsignfit.com/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'en', cat: 'passport' },
+  { kw: 'indian visa photo 300x300', url: 'https://snapsignfit.com/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'en', cat: 'visa' },
+  { kw: 'us visa photo 600x600 online', url: 'https://snapsignfit.com/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'en', cat: 'visa' },
+  { kw: 'make 300x300 photo in mobile', url: 'https://snapsignfit.com/mobile-photo-resizer/', intent: 'mobile-resizer', lang: 'en', cat: 'mobile' },
+  { kw: 'make 300x80 signature in mobile', url: 'https://snapsignfit.com/mobile-photo-resizer/', intent: 'mobile-resizer', lang: 'en', cat: 'mobile' },
+  { kw: 'how to resize photo to 300x300 in phone', url: 'https://snapsignfit.com/mobile-photo-resizer/', intent: 'mobile-resizer', lang: 'en', cat: 'mobile' },
+
+  // Bangla Explicit Queries
+  { kw: '৩০০x৩০০ ছবি রিসাইজার', url: 'https://snapsignfit.com/bn/300x300-photo-resizer/', intent: 'bn-photo-300x300', lang: 'bn', cat: 'dimension' },
+  { kw: '৩০০*৩০০ ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/300x300-photo-resizer/', intent: 'bn-photo-300x300', lang: 'bn', cat: 'dimension' },
+  { kw: '৩০০ বাই ৩০০ ছবি রিসাইজার', url: 'https://snapsignfit.com/bn/300x300-photo-resizer/', intent: 'bn-photo-300x300', lang: 'bn', cat: 'dimension' },
+  { kw: '৩০০x৩০০ ছবি', url: 'https://snapsignfit.com/bn/300x300-photo-resizer/', intent: 'bn-photo-300x300', lang: 'bn', cat: 'dimension' },
+  { kw: 'বিসিএস আবেদন ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'bn', cat: 'bcs' },
+  { kw: 'টেলিটক ছবি রিসাইজ ৩০০x৩০০', url: 'https://snapsignfit.com/bn/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'bn', cat: 'teletalk' },
+  { kw: '১০০ কেবির নিচে ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/photo-size-reducer-under-100kb/', intent: 'compress-photo', lang: 'bn', cat: 'compress' },
+  { kw: '৩০০x৮০ স্বাক্ষর রিসাইজার', url: 'https://snapsignfit.com/bn/300x80-signature-resizer/', intent: 'bn-sig-300x80', lang: 'bn', cat: 'dimension' },
+  { kw: '৩০০*৮০ স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/300x80-signature-resizer/', intent: 'bn-sig-300x80', lang: 'bn', cat: 'dimension' },
+  { kw: '৩০০ বাই ৮০ স্বাক্ষর রিসাইজার', url: 'https://snapsignfit.com/bn/300x80-signature-resizer/', intent: 'bn-sig-300x80', lang: 'bn', cat: 'dimension' },
+  { kw: '৩০০x৮০ স্বাক্ষর', url: 'https://snapsignfit.com/bn/300x80-signature-resizer/', intent: 'bn-sig-300x80', lang: 'bn', cat: 'dimension' },
+  { kw: 'টেলিটক স্বাক্ষর রিসাইজ ৩০০x৮০', url: 'https://snapsignfit.com/bn/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'bn', cat: 'teletalk' },
+  { kw: '৬০ কেবির নিচে স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/signature-size-reducer-under-60kb/', intent: 'compress-sig', lang: 'bn', cat: 'compress' },
+  { kw: 'টেলিটক ছবির মাপ ৩০০*৩০০', url: 'https://snapsignfit.com/bn/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'bn', cat: 'teletalk' },
+  { kw: 'টেলিটক স্বাক্ষরের মাপ ৩০০*৮০', url: 'https://snapsignfit.com/bn/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer', lang: 'bn', cat: 'teletalk' },
+  { kw: 'বিসিএস আবেদন ছবি ও স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'bn', cat: 'bcs' },
+  { kw: 'বিসিএস ছবির সাইজ ৩০০x৩০০', url: 'https://snapsignfit.com/bn/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'bn', cat: 'bcs' },
+  { kw: 'বিসিএস স্বাক্ষরের সাইজ ৩০০x৮০', url: 'https://snapsignfit.com/bn/bcs-photo-signature-resizer/', intent: 'bcs-resizer', lang: 'bn', cat: 'bcs' },
+  { kw: 'সরকারি চাকরির ছবির সাইজ', url: 'https://snapsignfit.com/bn/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'bn', cat: 'govt' },
+  { kw: 'সরকারি চাকরির ছবি ও স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'bn', cat: 'govt' },
+  { kw: 'চাকরির আবেদন ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/government-job-form-photo-resizer/', intent: 'govt-jobs', lang: 'bn', cat: 'govt' },
+  { kw: 'ডুয়েট এডমিশন ছবি ও স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: 'ডুয়েট ভর্তি পরীক্ষার ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: 'ডুয়েট স্বাক্ষর রিসাইজ ২৫০x৫০', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: 'ডুয়েট এডমিশন ফরম ছবি ও স্বাক্ষর সাইজ', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: '২৫০x২৫০ ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: '২৫০x৫০ স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: '৫০ কেবির নিচে ডুয়েট স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/duet-photo-signature-resizer/', intent: 'duet-resizer', lang: 'bn', cat: 'duet' },
+  { kw: 'অনলাইন ছবি রিসাইজার', url: 'https://snapsignfit.com/bn/300x300-photo-resizer/', intent: 'photo-300x300', lang: 'bn', cat: 'general' },
+  { kw: 'পাসপোর্ট সাইজ ছবি তৈরি', url: 'https://snapsignfit.com/bn/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'bn', cat: 'passport' },
+  { kw: 'স্বাক্ষর ক্রপ অনলাইন', url: 'https://snapsignfit.com/bn/300x80-signature-resizer/', intent: 'sig-300x80', lang: 'bn', cat: 'general' },
+  { kw: 'বাংলাদেশ ব্যাংক ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'bn', cat: 'bank' },
+  { kw: 'ব্যাংক নিয়োগ ছবি স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'bn', cat: 'bank' },
+  { kw: 'ব্যাংক চাকরির আবেদন ছবির সাইজ', url: 'https://snapsignfit.com/bn/bank-job-photo-signature-resizer/', intent: 'bank-jobs', lang: 'bn', cat: 'bank' },
+  { kw: 'মেডিকেল ভর্তি ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing', lang: 'bn', cat: 'medical' },
+  { kw: 'নার্সিং ভর্তি পরীক্ষার ছবির সাইজ', url: 'https://snapsignfit.com/bn/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing', lang: 'bn', cat: 'medical' },
+  { kw: 'পুলিশ নিয়োগ ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/police-army-navy-photo-resizer/', intent: 'defense-jobs', lang: 'bn', cat: 'defense' },
+  { kw: 'সেনাবাহিনী সৈনিক ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/police-army-navy-photo-resizer/', intent: 'defense-jobs', lang: 'bn', cat: 'defense' },
+  { kw: 'ই পাসপোর্ট ছবি রিসাইজ ৪৫x৫৫', url: 'https://snapsignfit.com/bn/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'bn', cat: 'passport' },
+  { kw: 'পাসপোর্ট সাইজ ছবি ৪৫x৫৫ মিমি', url: 'https://snapsignfit.com/bn/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'bn', cat: 'passport' },
+  { kw: 'ভারতীয় ভিসা ছবির সাইজ', url: 'https://snapsignfit.com/bn/passport-photo-45x55-resizer/', intent: 'passport-visa', lang: 'bn', cat: 'visa' },
+  { kw: 'মোবাইল দিয়ে ৩০০x৩০০ ছবি রিসাইজ', url: 'https://snapsignfit.com/bn/mobile-photo-resizer/', intent: 'mobile-resizer', lang: 'bn', cat: 'mobile' },
+  { kw: 'মোবাইল দিয়ে ৩০০x৮০ স্বাক্ষর রিসাইজ', url: 'https://snapsignfit.com/bn/mobile-photo-resizer/', intent: 'mobile-resizer', lang: 'bn', cat: 'mobile' },
+  { kw: 'মোবাইল দিয়ে ছবির সাইজ কমানোর নিয়ম', url: 'https://snapsignfit.com/bn/mobile-photo-resizer/', intent: 'mobile-resizer', lang: 'bn', cat: 'mobile' }
+];
+
+explicitPhrases.forEach(ep => {
+  keywordRows.push(`"${ep.kw}",${ep.url},${ep.intent},${ep.lang},${ep.cat}`);
+});
+
 // Phonetic Banglish
 const banglishSeeds = [
   'chobi resize 300 300', 'shakkhor resize 300 80', 'bcs chobi resize', 'teletalk shakkhor resize',
@@ -644,8 +815,20 @@ banglishSeeds.forEach(bs => {
   keywordRows.push(`"${m} ৩০০x৮০ স্বাক্ষর বানানো",https://snapsignfit.com/bn/mobile-photo-resizer/,mobile-resizer,bn,device`);
 });
 
-fs.writeFileSync(path.join(__dirname, 'keywords.csv'), keywordRows.join('\n'), 'utf8');
-console.log(`Generated ${keywordRows.length} keywords in keywords.csv.`);
+// Deduplicate keywordRows preserving order
+const uniqueRows = [];
+const seenKws = new Set();
+for (const row of keywordRows) {
+  const match = row.match(/^"([^"]+)"/);
+  const kw = match ? match[1].toLowerCase().trim() : row;
+  if (!seenKws.has(kw)) {
+    seenKws.add(kw);
+    uniqueRows.push(row);
+  }
+}
+
+fs.writeFileSync(path.join(__dirname, 'keywords.csv'), uniqueRows.join('\n'), 'utf8');
+console.log(`Generated ${uniqueRows.length} unique keywords in keywords.csv.`);
 
 // 11. Run Automated Release Gates (R1 - R20)
 console.log('\n=== RUNNING R1 - R20 RELEASE GATES ===');
