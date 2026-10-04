@@ -2077,12 +2077,19 @@ class SnapSignFitApp {
 
   openDiscardModal() {
     const modal = document.getElementById('discardModal');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      document.getElementById('btnModalCancel')?.focus();
+    }
   }
 
   closeDiscardModal() {
     const modal = document.getElementById('discardModal');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
   }
 
   async discardAndReset() {
