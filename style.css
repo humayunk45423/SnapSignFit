@@ -1300,7 +1300,7 @@ body.dark .ppc-badge.ppc-badge-duet {
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.22);
 }
 
-/* Animated Bluish-Purple Shifting Gradient for Icons (Stars, Graduation Cap, Certificate) */
+/* FontAwesome Icons (Clean Static Color Matching Text) */
 .star-gradient,
 i.fa-star.star-gradient,
 .fa-star,
@@ -1308,30 +1308,9 @@ i.fa-star.star-gradient,
 .fa-certificate,
 i.fa-graduation-cap,
 i.fa-certificate {
-  background: linear-gradient(135deg, #38bdf8 0%, #6366f1 35%, #a855f7 70%, #60a5fa 100%);
-  background-size: 280% 280%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
+  color: currentColor;
   display: inline-block;
-  animation: starGradientShift 3.5s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.45));
   vertical-align: -1px;
-}
-
-@keyframes starGradientShift {
-  0% {
-    background-position: 0% 50%;
-    filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.55));
-  }
-  50% {
-    background-position: 100% 50%;
-    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.65));
-  }
-  100% {
-    background-position: 0% 50%;
-    filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.6));
-  }
 }
 
 
