@@ -4,7 +4,7 @@ import { PRESETS, getSavedCustomPresets, saveCustomPreset, unitToPixels } from '
 import { loadImageFile, createCanvas, flattenAlpha } from './loader.js';
 import { detectFacesWithLadder, selectPrimaryFace, computePassportCrop, checkFaceQuality, rotateCanvas } from './face.js';
 import { calculateEyeTilt, rotateWithEdgeReplication, autoEnhanceCanvas, detectSignaturePaperTilt } from './orient.js';
-import { processSignature } from './signature.js';
+import { processSignature, classifyImageContent } from './signature.js';
 import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smartcrop.js';
 import { ManualEditor } from './editor.js';
 import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.js';
@@ -1299,6 +1299,7 @@ class SnapSignFitApp {
       croppedCanvas: null,
       step2Transform: null
     };
+    this.lastComputedCrop = null;
     this.autoFixes = {
       rotationDeg: 0,
       tiltDeg: 0,
@@ -1313,13 +1314,54 @@ class SnapSignFitApp {
 
     try {
       // 1. Fast face detection check
-      const faceDetection = await detectFacesWithLadder(workingCanvas, fullCanvas, workingScale);
-      const hasFace = faceDetection.success && faceDetection.faces && faceDetection.faces.length > 0;
+      let hasFace = false;
+      try {
+        const faceDetection = await detectFacesWithLadder(workingCanvas, fullCanvas, workingScale);
+        hasFace = faceDetection && faceDetection.success && faceDetection.faces && faceDetection.faces.length > 0;
+      } catch (e) {
+        hasFace = false;
+      }
 
       const currentKind = this.currentPreset.kind;
 
-      // If a face is found but user was on a signature preset -> switch to photo preset
-      if (hasFace && currentKind === 'signature') {
+      // If a face is found -> it's definitely a Photo
+      if (hasFace) {
+        if (currentKind === 'signature') {
+          let targetPresetId = 'gov_photo_300x300';
+          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
+            targetPresetId = 'duet_photo_250x250';
+          }
+          const match = PRESETS.find(p => p.id === targetPresetId);
+          if (match) {
+            this.applyPreset(match);
+            this.addChip({
+              id: 'chip-auto-kind',
+              label: t('chipAutoPhoto') || 'Face detected — switched to Photo preset',
+              isUndoable: false
+            });
+          }
+        }
+        return;
+      }
+
+      // 2. Classify image using color entropy, skin tones, and stroke analysis
+      const detectedKind = classifyImageContent(workingCanvas);
+
+      if (detectedKind === 'signature' && currentKind === 'photo') {
+        let targetPresetId = 'gov_sig_300x80';
+        if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
+          targetPresetId = 'duet_sig_250x50';
+        }
+        const match = PRESETS.find(p => p.id === targetPresetId);
+        if (match) {
+          this.applyPreset(match);
+          this.addChip({
+            id: 'chip-auto-kind',
+            label: t('chipAutoSig') || 'Signature detected — switched to Signature preset',
+            isUndoable: false
+          });
+        }
+      } else if (detectedKind === 'photo' && currentKind === 'signature') {
         let targetPresetId = 'gov_photo_300x300';
         if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
           targetPresetId = 'duet_photo_250x250';
@@ -1329,51 +1371,9 @@ class SnapSignFitApp {
           this.applyPreset(match);
           this.addChip({
             id: 'chip-auto-kind',
-            label: t('chipAutoPhoto') || 'Face detected — switched to Photo preset',
+            label: t('chipAutoPhoto') || 'Photo detected — switched to Photo preset',
             isUndoable: false
           });
-        }
-        return;
-      }
-
-      // If no face is found and user was on a photo preset -> check if image is a signature scan
-      if (!hasFace && currentKind === 'photo') {
-        const w = workingCanvas.width;
-        const h = workingCanvas.height;
-        const ctx = workingCanvas.getContext('2d', { willReadFrequently: true });
-        const imgData = ctx.getImageData(0, 0, w, h).data;
-
-        let whiteCount = 0;
-        let darkCount = 0;
-        const total = w * h;
-
-        for (let i = 0; i < imgData.length; i += 4) {
-          const luma = 0.299 * imgData[i] + 0.587 * imgData[i + 1] + 0.114 * imgData[i + 2];
-          if (luma > 185) whiteCount++;
-          else if (luma < 120) darkCount++;
-        }
-
-        const whiteRatio = whiteCount / total;
-        const darkRatio = darkCount / total;
-        const aspect = w / h;
-
-        // Signature on paper: mostly light background (>65%) and sparse dark ink strokes (<22%) or wide aspect (>2.2)
-        const isSignatureLike = (whiteRatio > 0.65 && darkRatio > 0.003 && darkRatio < 0.22) || (aspect > 2.2 && whiteRatio > 0.5);
-
-        if (isSignatureLike) {
-          let targetPresetId = 'gov_sig_300x80';
-          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
-            targetPresetId = 'duet_sig_250x50';
-          }
-          const match = PRESETS.find(p => p.id === targetPresetId);
-          if (match) {
-            this.applyPreset(match);
-            this.addChip({
-              id: 'chip-auto-kind',
-              label: t('chipAutoSig') || 'Signature detected — switched to Signature preset',
-              isUndoable: false
-            });
-          }
         }
       }
     } catch (e) {

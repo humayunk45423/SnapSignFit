@@ -214,6 +214,82 @@ function dilateMask(mask, w, h, radius) {
 }
 
 /**
+ * Classifies an image as 'photo' vs 'signature' based on color entropy, skin tones,
+ * background luminance distribution, and ink connected components.
+ */
+export function classifyImageContent(canvas) {
+  if (!canvas) return 'photo';
+  const w = canvas.width;
+  const h = canvas.height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const total = w * h;
+
+  let sumRg = 0, sumYb = 0, sumRgSq = 0, sumYbSq = 0;
+  let skinToneCount = 0;
+  let highSatCount = 0;
+  let brightPaperCount = 0;
+  let darkInkCount = 0;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+    if (luma > 175) brightPaperCount++;
+    else if (luma < 110) darkInkCount++;
+
+    const rg = r - g;
+    const yb = 0.5 * (r + g) - b;
+    sumRg += rg;
+    sumYb += yb;
+    sumRgSq += rg * rg;
+    sumYbSq += yb * yb;
+
+    // Skin tone heuristic in RGB
+    if (r > g && g > b && (r - g) > 12 && (r - b) > 18 && r > 75 && b < 185) {
+      skinToneCount++;
+    }
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const sat = max === 0 ? 0 : (max - min) / max;
+    if (sat > 0.32 && max > 50) highSatCount++;
+  }
+
+  const meanRg = sumRg / total;
+  const meanYb = sumYb / total;
+  const stdRg = Math.sqrt(Math.max(0, sumRgSq / total - meanRg * meanRg));
+  const stdYb = Math.sqrt(Math.max(0, sumYbSq / total - meanYb * meanYb));
+  const colorfulness = Math.sqrt(stdRg * stdRg + stdYb * stdYb) + 0.3 * Math.sqrt(meanRg * meanRg + meanYb * meanYb);
+
+  const skinRatio = skinToneCount / total;
+  const satRatio = highSatCount / total;
+  const paperRatio = brightPaperCount / total;
+  const inkRatio = darkInkCount / total;
+  const aspect = w / h;
+
+  // If there are skin tones or rich colorfulness -> definitely a Photo
+  if (skinRatio > 0.08 || (colorfulness > 26 && satRatio > 0.15)) {
+    return 'photo';
+  }
+
+  // If wide aspect and mostly monochromatic -> Signature
+  if (aspect >= 2.0 && colorfulness < 24) {
+    return 'signature';
+  }
+
+  // If mostly bright background with sparse ink strokes -> Signature
+  if (paperRatio > 0.60 && inkRatio > 0.002 && inkRatio < 0.25 && colorfulness < 22 && skinRatio < 0.03) {
+    return 'signature';
+  }
+
+  return 'photo';
+}
+
+/**
  * Main signature analysis & extraction function
  * Follows all 11 steps of §8
  * 

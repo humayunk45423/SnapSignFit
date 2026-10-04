@@ -1146,8 +1146,33 @@ export class ManualEditor {
     this.overlayEl.querySelector('#editorDimText').textContent = `${this.targetW}×${this.targetH} px`;
 
     if (initialCrop && initialCrop.w > 0 && initialCrop.h > 0) {
-      this.crop = { ...initialCrop };
-      this.autoDetectedCrop = { ...initialCrop };
+      const cropAspect = initialCrop.w / initialCrop.h;
+      const targetAspect = this.targetW / this.targetH;
+      if (Math.abs(cropAspect - targetAspect) / targetAspect < 0.08) {
+        this.crop = { ...initialCrop };
+        this.autoDetectedCrop = { ...initialCrop };
+      } else {
+        const cx = initialCrop.x + initialCrop.w / 2;
+        const cy = initialCrop.y + initialCrop.h / 2;
+        let cw = initialCrop.w;
+        let ch = cw / targetAspect;
+        if (ch > sourceCanvas.height * 0.95) {
+          ch = sourceCanvas.height * 0.95;
+          cw = ch * targetAspect;
+        }
+        if (cw > sourceCanvas.width * 0.95) {
+          cw = sourceCanvas.width * 0.95;
+          ch = cw / targetAspect;
+        }
+        this.crop = {
+          x: Math.max(0, Math.round(cx - cw / 2)),
+          y: Math.max(0, Math.round(cy - ch / 2)),
+          w: Math.round(cw),
+          h: Math.round(ch)
+        };
+        this.clampCropToBounds();
+        this.autoDetectedCrop = { ...this.crop };
+      }
     } else {
       this.resetCropToCenter();
       this.autoDetectedCrop = { ...this.crop };
