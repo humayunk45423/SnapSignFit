@@ -529,36 +529,111 @@ separators.forEach(sep => {
   });
 });
 
-// Generate combinations for DUET 250x250 & 250x50
+// Generate combinations for DUET (250x250 and 250x50)
 separators.forEach(sep => {
-  ['duet', 'duet admission', 'dhaka engineering university'].forEach(ctx => {
-    toolWords.forEach(tw => {
-      keywordRows.push(`"${ctx} 250${sep}250 photo ${tw}".trim(),https://snapsignfit.com/duet-photo-signature-resizer/,duet-resizer,en,university`);
-      keywordRows.push(`"${ctx} 250${sep}50 signature ${tw}".trim(),https://snapsignfit.com/duet-photo-signature-resizer/,duet-resizer,en,university`);
+  ['photo', 'image', 'pic'].forEach(pw => {
+    ['resizer', 'resize', 'maker', 'size', 'online', ''].forEach(tw => {
+      ['duet', 'duet admission', 'dhaka duet'].forEach(ctx => {
+        const kw = `${ctx} 250${sep}250 ${pw} ${tw}`.replace(/\s+/g, ' ').trim();
+        keywordRows.push(`"${kw}",https://snapsignfit.com/duet-photo-signature-resizer/,duet-photo,en,dimension`);
+      });
+    });
+  });
+  ['signature', 'sign', 'sig'].forEach(sw => {
+    ['resizer', 'resize', 'size', 'online', ''].forEach(tw => {
+      ['duet', 'duet admission', 'dhaka duet'].forEach(ctx => {
+        const kw = `${ctx} 250${sep}50 ${sw} ${tw}`.replace(/\s+/g, ' ').trim();
+        keywordRows.push(`"${kw}",https://snapsignfit.com/duet-photo-signature-resizer/,duet-sig,en,dimension`);
+      });
     });
   });
 });
 
-// Bangla phrases generation
-const bnSeparators = ['×', '*', ' বাই ', ' '];
-const bnPhotos = ['ছবি', 'পাসপোর্ট ছবি', 'ছবি রিসাইজ', 'ছবি সাইজ'];
-const bnSigns = ['স্বাক্ষর', 'দস্তখত', 'স্বাক্ষর রিসাইজ', 'সাইন'];
-const bnContexts = ['বিসিএস', 'টেলিটক', 'অলজবস', 'সরকারি চাকরি', 'প্রাইমারি শিক্ষক', 'এনটিআরসিএ', 'ব্যাংক জব', 'মেডিকেল ভর্তি', 'পুলিশ নিয়োগ', 'ই-পাসপোর্ট'];
+// Sector-specific and category permutations
+const sectorMappings = [
+  { keywords: ['bcs', 'bpsc', 'bccs', 'bcs application', 'bcs job'], url: 'https://snapsignfit.com/bcs-photo-signature-resizer/', intent: 'bcs-resizer' },
+  { keywords: ['teletalk', 'teletak', 'alljobs', 'alljobs teletalk', 'alljobs.teletalk.com.bd', 'teletalk sign'], url: 'https://snapsignfit.com/teletalk-photo-signature-resizer/', intent: 'teletalk-resizer' },
+  { keywords: ['primary teacher', 'primary assistant teacher', 'ntrca', 'railway job', 'bangladesh railway', 'food department', 'govt job', 'bd govt job', 'govment form'], url: 'https://snapsignfit.com/government-job-form-photo-resizer/', intent: 'govt-jobs' },
+  { keywords: ['bangladesh bank', 'combined bank', 'bank job', 'bank recruitment', 'sonali bank', 'janata bank', 'agrani bank', 'bankers selection committee'], url: 'https://snapsignfit.com/bank-job-photo-signature-resizer/', intent: 'bank-jobs' },
+  { keywords: ['dghs medical', 'medical admission', 'mbbs admission', 'bds admission', 'nursing admission', 'dgme teletalk', 'dental admission'], url: 'https://snapsignfit.com/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing' },
+  { keywords: ['bangladesh police', 'police constable', 'police si', 'army job', 'sainik', 'navy recruitment', 'air force job', 'defense job'], url: 'https://snapsignfit.com/police-army-navy-photo-resizer/', intent: 'defense-jobs' },
+  { keywords: ['e-passport', 'epassport', 'bangladesh passport', 'passport 45x55', 'indian visa', 'us visa', 'visa photo'], url: 'https://snapsignfit.com/passport-photo-45x55-resizer/', intent: 'passport-visa' },
+  { keywords: ['under 100kb', 'less than 100kb', 'below 100kb', 'reduce photo to 100kb', 'compress photo under 100kb', 'photo 100kb'], url: 'https://snapsignfit.com/photo-size-reducer-under-100kb/', intent: 'compress-photo' },
+  { keywords: ['under 60kb', 'under 50kb', 'signature under 60kb', 'signature under 50kb', 'compress signature to 60kb', 'sign under 60kb'], url: 'https://snapsignfit.com/signature-size-reducer-under-60kb/', intent: 'compress-sig' }
+];
 
-bnSeparators.forEach(sep => {
-  bnPhotos.forEach(pw => {
-    bnContexts.forEach(ctx => {
-      keywordRows.push(`"${ctx} ৩০০${sep}৩০০ ${pw}",https://snapsignfit.com/bn/300x300-photo-resizer/,photo-300x300,bn,dimension`);
+sectorMappings.forEach(sec => {
+  sec.keywords.forEach(kw => {
+    ['photo resizer', 'signature resizer', 'photo size', 'signature size', 'photo resize', 'sign resize', 'resizer online', 'converter', ''].forEach(action => {
+      const phrase = `${kw} ${action}`.trim();
+      keywordRows.push(`"${phrase}",${sec.url},${sec.intent},en,sector`);
     });
   });
 });
 
-bnSeparators.forEach(sep => {
-  bnSigns.forEach(sw => {
+// Common typos and compressed numbers (300300, 30080, 250250, 25050)
+['300300 photo resizer', '30080 signature resizer', '250250 photo resize', '25050 signature resize', '30080 sign resize', '300300 image converter'].forEach(typo => {
+  const url = typo.includes('80') ? 'https://snapsignfit.com/300x80-signature-resizer/' : (typo.includes('50') ? 'https://snapsignfit.com/duet-photo-signature-resizer/' : 'https://snapsignfit.com/300x300-photo-resizer/');
+  keywordRows.push(`"${typo}",${url},dimension,en,typo`);
+});
+
+// Bangla Dimension Permutations (৩০০x৩০০, ৩০০x৮০)
+const bnSeps = ['×', '*', ' বাই ', ' '];
+const bnPhotoWords = ['ছবি', 'ছবি সাইজ', 'ছবি রিসাইজ', 'পাসপোর্ট ছবি', 'ছবি কনভার্টার'];
+const bnSigWords = ['স্বাক্ষর', 'স্বাক্ষর সাইজ', 'স্বাক্ষর রিসাইজ', 'দস্তখত'];
+const bnContexts = ['বিসিএস', 'টেলিটক', 'অলজবস', 'সরকারি চাকরি', 'চাকরির ফরম', 'ভর্তি ফরম', 'অনলাইন', ''];
+
+bnSeps.forEach(sep => {
+  bnPhotoWords.forEach(pw => {
     bnContexts.forEach(ctx => {
-      keywordRows.push(`"${ctx} ৩০০${sep}৮০ ${sw}",https://snapsignfit.com/bn/300x80-signature-resizer/,sig-300x80,bn,dimension`);
+      const kw = `${ctx} ৩০০${sep}৩০০ ${pw}`.replace(/\s+/g, ' ').trim();
+      keywordRows.push(`"${kw}",https://snapsignfit.com/bn/300x300-photo-resizer/,bn-photo-300x300,bn,dimension`);
     });
   });
+  bnSigWords.forEach(sw => {
+    bnContexts.forEach(ctx => {
+      const kw = `${ctx} ৩০০${sep}৮০ ${sw}`.replace(/\s+/g, ' ').trim();
+      keywordRows.push(`"${kw}",https://snapsignfit.com/bn/300x80-signature-resizer/,bn-sig-300x80,bn,dimension`);
+    });
+  });
+});
+
+// DUET Bangla Permutations
+['ডুয়েট', 'ডুয়েট ভর্তি', 'ঢাকা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয়'].forEach(ctx => {
+  ['২৫০×২৫০ ছবি', '২৫০×৫০ স্বাক্ষর', '২৫০*২৫০ ছবি', '২৫০*৫০ স্বাক্ষর', '২৫০ বাই ২৫০ ছবি', '২৫০ বাই ৫০ স্বাক্ষর', 'ভর্তি ফরম ছবি রিসাইজ', 'ছবি ও স্বাক্ষর সাইজ'].forEach(act => {
+    keywordRows.push(`"${ctx} ${act}",https://snapsignfit.com/bn/duet-photo-signature-resizer/,duet-resizer,bn,university`);
+  });
+});
+
+// Sector Bangla Permutations
+const bnSectorMappings = [
+  { contexts: ['প্রাইমারি শিক্ষক নিয়োগ', 'এনটিআরসিএ শিক্ষক নিবন্ধন', 'বাংলাদেশ রেলওয়ে চাকরি', 'খাদ্য অধিদপ্তর'], url: 'https://snapsignfit.com/bn/government-job-form-photo-resizer/', intent: 'govt-jobs' },
+  { contexts: ['বাংলাদেশ ব্যাংক', 'সমন্বিত ব্যাংক', 'ব্যাংক জব নিয়োগ', 'সোনালী ব্যাংক'], url: 'https://snapsignfit.com/bn/bank-job-photo-signature-resizer/', intent: 'bank-jobs' },
+  { contexts: ['মেডিকেল ভর্তি পরীক্ষা', 'এমবিবিএস ভর্তি', 'নার্সিং ভর্তি পরীক্ষা', 'ডেন্টাল ভর্তি'], url: 'https://snapsignfit.com/bn/medical-nursing-admission-photo-resizer/', intent: 'medical-nursing' },
+  { contexts: ['পুলিশ নিয়োগ', 'পুলিশ এসআই', 'সেনাবাহিনী সৈনিক', 'নৌবাহিনী চাকরি'], url: 'https://snapsignfit.com/bn/police-army-navy-photo-resizer/', intent: 'defense-jobs' },
+  { contexts: ['ই পাসপোর্ট ছবি', 'পাসপোর্ট সাইজ ছবি', 'ভিসা ছবি'], url: 'https://snapsignfit.com/bn/passport-photo-45x55-resizer/', intent: 'passport-visa' },
+  { contexts: ['ছবি ১০০ কেবি করা', '১০০ কেবির নিচে ছবি সাইজ', 'ছবির সাইজ ছোট করা'], url: 'https://snapsignfit.com/bn/photo-size-reducer-under-100kb/', intent: 'compress-photo' },
+  { contexts: ['স্বাক্ষর ৬০ কেবি করা', '৫০ কেবির নিচে স্বাক্ষর', 'স্বাক্ষরের সাইজ কমানো'], url: 'https://snapsignfit.com/bn/signature-size-reducer-under-60kb/', intent: 'compress-sig' }
+];
+
+bnSectorMappings.forEach(sec => {
+  sec.contexts.forEach(ctx => {
+    ['ছবি রিসাইজ', 'স্বাক্ষর রিসাইজ', 'ছবি সাইজ', 'স্বাক্ষর সাইজ', 'অনলাইন কনভার্টার'].forEach(act => {
+      keywordRows.push(`"${ctx} ${act}",${sec.url},${sec.intent},bn,sector`);
+    });
+  });
+});
+
+// Phonetic Banglish
+const banglishSeeds = [
+  'chobi resize 300 300', 'shakkhor resize 300 80', 'bcs chobi resize', 'teletalk shakkhor resize',
+  'govt job chobi sign resize', 'mobile diye 300x300 chobi banano', 'phone diye signature resize',
+  'bcs er chobi resize', 'teletalk photo sign size kivabe korbo', 'duet admission chobi sign size',
+  'chobi 300x300 kivabe banabo', 'shakkhor 300x80 mobile diye', 'teletalk pic resizer online'
+];
+banglishSeeds.forEach(bs => {
+  const url = bs.includes('80') || bs.includes('shakkhor') ? 'https://snapsignfit.com/300x80-signature-resizer/' : (bs.includes('duet') ? 'https://snapsignfit.com/duet-photo-signature-resizer/' : 'https://snapsignfit.com/300x300-photo-resizer/');
+  keywordRows.push(`"${bs}",${url},banglish,bn-en,phonetic`);
 });
 
 // Mobile phrases
@@ -566,16 +641,8 @@ bnSeparators.forEach(sep => {
   keywordRows.push(`"${m} 300x300 photo resize",https://snapsignfit.com/mobile-photo-resizer/,mobile-resizer,en,device`);
   keywordRows.push(`"${m} 300x80 signature resize",https://snapsignfit.com/mobile-photo-resizer/,mobile-resizer,en,device`);
   keywordRows.push(`"${m} ৩০০x৩০০ ছবি বানানো",https://snapsignfit.com/bn/mobile-photo-resizer/,mobile-resizer,bn,device`);
+  keywordRows.push(`"${m} ৩০০x৮০ স্বাক্ষর বানানো",https://snapsignfit.com/bn/mobile-photo-resizer/,mobile-resizer,bn,device`);
 });
-
-// Ensure 3000+ rows
-let count = keywordRows.length;
-if (count < 3100) {
-  for (let i = 1; count <= 3200; i++) {
-    keywordRows.push(`"bangladesh job photo resize permutation ${i}",https://snapsignfit.com/government-job-form-photo-resizer/,govt-jobs,en,permutation`);
-    count++;
-  }
-}
 
 fs.writeFileSync(path.join(__dirname, 'keywords.csv'), keywordRows.join('\n'), 'utf8');
 console.log(`Generated ${keywordRows.length} keywords in keywords.csv.`);
