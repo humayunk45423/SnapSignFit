@@ -450,8 +450,16 @@ body.dark .header-container {
   font-size: 11px;
   font-weight: 600;
   color: var(--accent);
-  background-color: rgba(0, 119, 182, 0.1);
+  background-color: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.18);
   border-radius: 999px;
+}
+
+[data-theme="dark"] .header-nav .nav-badge-offline,
+body.dark .header-nav .nav-badge-offline {
+  color: #a5b4fc;
+  background-color: rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.32);
 }
 
 .header-actions {
@@ -3505,35 +3513,35 @@ body.dark .fs-swatch {
   gap: 7px;
   font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #312e81;
+  color: #3730a3;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(99, 102, 241, 0.35);
-  background-color: rgba(99, 102, 241, 0.10);
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  background-color: rgba(99, 102, 241, 0.08);
   width: fit-content;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .hero-badge i {
-  color: #4f46e5;
-  margin-right: 6px;
+  color: currentColor;
+  margin-right: 5px;
   font-size: 0.9em;
 }
 
 [data-theme="dark"] .hero-badge,
 body.dark .hero-badge {
-  color: #ffffff !important;
-  background-color: rgba(99, 102, 241, 0.22) !important;
-  border-color: rgba(165, 180, 252, 0.55) !important;
-  box-shadow: 0 0 14px rgba(99, 102, 241, 0.25) !important;
+  color: #e0e7ff !important;
+  background-color: rgba(99, 102, 241, 0.18) !important;
+  border-color: rgba(165, 180, 252, 0.38) !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2) !important;
 }
 
 :root[data-theme="dark"] .hero-badge i,
 [data-theme="dark"] .hero-badge i,
 body.dark .hero-badge i {
-  color: #a5b4fc !important;
+  color: currentColor !important;
 }
 
 .dot {
@@ -3918,22 +3926,37 @@ body.dark .seg-btn.active {
 .dropzone:hover,
 .dropzone.drag-active {
   border-color: var(--accent);
-  background-color: rgba(0, 119, 182, 0.04);
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+[data-theme="dark"] .dropzone:hover,
+body.dark .dropzone:hover,
+[data-theme="dark"] .dropzone.drag-active,
+body.dark .dropzone.drag-active {
+  border-color: var(--accent);
+  background-color: rgba(99, 102, 241, 0.08);
 }
 
 .dropzone-icon-wrap {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background-color: rgba(0, 119, 182, 0.1);
+  background-color: rgba(37, 99, 235, 0.08);
   color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 119, 182, 0.15);
+  border: 1px solid rgba(37, 99, 235, 0.16);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
   margin-bottom: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="dark"] .dropzone-icon-wrap,
+body.dark .dropzone-icon-wrap {
+  background-color: rgba(99, 102, 241, 0.14);
+  border-color: rgba(99, 102, 241, 0.28);
+  color: #a5b4fc;
 }
 
 .dropzone:hover .dropzone-icon-wrap {
@@ -4022,9 +4045,15 @@ body.dark .seg-btn.active {
   font-size: 12px;
   font-weight: 700;
   color: var(--accent);
-  background-color: rgba(0, 119, 182, 0.08);
+  background-color: rgba(37, 99, 235, 0.08);
   padding: 2px 8px;
   border-radius: 4px;
+}
+
+[data-theme="dark"] .spec-row code,
+body.dark .spec-row code {
+  background-color: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
 }
 
 /* Privacy line */
@@ -4642,7 +4671,7 @@ body.dark .feature-strip-dot {
     width: 42px;
     height: 42px;
     border-radius: 10px;
-    background-color: rgba(0, 119, 182, 0.1);
+    background-color: rgba(37, 99, 235, 0.08);
     color: var(--accent);
     display: flex;
     align-items: center;
@@ -4723,7 +4752,7 @@ body.dark .feature-strip-dot {
   }
 
   .spec-row code {
-    background-color: rgba(0, 119, 182, 0.1);
+    background-color: rgba(37, 99, 235, 0.08);
     color: var(--accent);
     font-size: 10.5px;
     font-weight: 700;
@@ -5062,7 +5091,7 @@ body.dark .feature-strip-dot {
   border-color: var(--accent);
   background-color: var(--surface-2);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 119, 182, 0.12);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
 }
 
 .preset-popup-card.gov-card {
