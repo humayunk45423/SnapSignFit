@@ -81,7 +81,35 @@ export const PRESETS = [
     note: 'US Passport, DS-160 & Diversity Visa photo (2×2 in @ 300 DPI)'
   },
 
-  // --- Category 2: Social & Web ---
+  // --- Category 2: 🎓 DUET Admission (Dhaka University of Engineering & Technology, Gazipur) ---
+  {
+    id: 'duet_photo_250x250',
+    category: 'duet',
+    label: 'DUET Photo 250×250',
+    w: 250,
+    h: 250,
+    kind: 'photo',
+    fit: 'cover',
+    format: 'jpg',
+    maxKB: 100,
+    locked: true,
+    note: 'Dhaka University of Engineering & Technology (DUET), Gazipur undergraduate admission applicant photo (≤ 100 KB)'
+  },
+  {
+    id: 'duet_sig_250x50',
+    category: 'duet',
+    label: 'DUET Signature 250×50',
+    w: 250,
+    h: 50,
+    kind: 'signature',
+    fit: 'contain',
+    format: 'jpg',
+    maxKB: 50,
+    locked: true,
+    note: 'Dhaka University of Engineering & Technology (DUET), Gazipur undergraduate admission applicant signature (≤ 50 KB)'
+  },
+
+  // --- Category 3: Social & Web ---
   {
     id: 'social_ig_profile',
     category: 'social',

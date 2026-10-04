@@ -1294,6 +1294,53 @@ body.dark .preset-card-badge {
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
 }
 
+/* DUET Card and Badge styling */
+.card-duet {
+  border-color: rgba(139, 92, 246, 0.35);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+}
+
+.card-duet:hover {
+  border-color: rgba(139, 92, 246, 0.85);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.14) 0%, rgba(139, 92, 246, 0.08) 100%);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-duet.active {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.18) 0%, rgba(139, 92, 246, 0.12) 100%);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .card-duet,
+body.dark .card-duet {
+  border-color: rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, rgba(55, 48, 163, 0.22) 0%, rgba(15, 23, 42, 0.7) 100%);
+}
+
+[data-theme="dark"] .card-duet:hover,
+body.dark .card-duet:hover {
+  border-color: #a78bfa;
+  box-shadow: 0 0 22px rgba(139, 92, 246, 0.35);
+}
+
+.preset-card-badge.badge-duet,
+.ppc-badge.ppc-badge-duet {
+  color: #4338ca;
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.32);
+}
+
+[data-theme="dark"] .preset-card-badge.badge-duet,
+body.dark .preset-card-badge.badge-duet,
+[data-theme="dark"] .ppc-badge.ppc-badge-duet,
+body.dark .ppc-badge.ppc-badge-duet {
+  color: #ede9fe;
+  background: rgba(139, 92, 246, 0.24);
+  border-color: rgba(196, 181, 253, 0.45);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.22);
+}
+
 /* Animated Bluish-Purple Shifting Gradient for Stars */
 .star-gradient,
 i.fa-star.star-gradient,
@@ -3675,13 +3722,63 @@ body.dark .hero-ctas .btn-preset-pill {
   stroke: #ffffff;
 }
 
+/* DUET Presets Pill Button (Desktop & Base) */
+.hero-ctas #btnDuetPresetsHero,
+.hero-ctas .btn-duet-pill {
+  padding: 11px 22px;
+  height: 46px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%);
+  background-size: 250% 250%;
+  animation: gradientShift 5s ease infinite alternate;
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 3px 14px rgba(79, 70, 229, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.hero-ctas #btnDuetPresetsHero:hover,
+.hero-ctas .btn-duet-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(124, 58, 237, 0.5);
+  filter: brightness(1.08);
+}
+
+.hero-ctas #btnDuetPresetsHero:active,
+.hero-ctas .btn-duet-pill:active {
+  transform: translateY(0) scale(0.98);
+}
+
 /* Hero chip row (preset quick-picks) */
 .chip-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
   width: 100%;
   padding-top: 4px;
+}
+
+.chip-row .chip-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .chip-row .chip {
@@ -3715,6 +3812,23 @@ body.dark .chip-row .chip {
   background-color: rgba(99, 102, 241, 0.16);
   transform: translateY(-2px);
   box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+}
+
+.chip-row .chip.chip-duet {
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+[data-theme="dark"] .chip-row .chip.chip-duet,
+body.dark .chip-row .chip.chip-duet {
+  background-color: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.32);
+}
+
+.chip-row .chip.chip-duet:hover {
+  border-color: #a78bfa;
+  color: #a78bfa;
+  background-color: rgba(139, 92, 246, 0.16);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.28);
 }
 
 .chip-row .chip:active {
@@ -4468,10 +4582,6 @@ body.dark .feature-strip-dot {
     max-width: 100%;
   }
 
-  .hero-ctas {
-    display: none;
-  }
-
   .chip-row {
     display: flex;
     flex-wrap: nowrap;
@@ -5147,14 +5257,18 @@ body.dark .ppc-badge {
     margin-bottom: 4px;
   }
 
-  /* 4. View Presets Button (Mobile): Placed directly beneath headline, above drop box */
+  /* 4. Hero Presets Buttons (Mobile): All Presets on Left, DUET Presets on Right */
   .hero-ctas {
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
+    gap: 10px;
     width: 100%;
-    margin: 8px 0 16px 0;
-    padding: 0;
+    max-width: 380px;
+    margin: 8px auto 16px auto;
+    padding: 0 4px;
+    box-sizing: border-box;
   }
 
   .hero-ctas #heroUploadPhoto,
@@ -5162,25 +5276,44 @@ body.dark .ppc-badge {
     display: none;
   }
 
-  .hero-ctas #btnViewPresetsHero {
+  .hero-ctas #btnViewPresetsHero,
+  .hero-ctas #btnDuetPresetsHero {
     display: inline-flex;
+    flex: 1 1 0;
+    min-width: 0;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 10px 22px;
-    font-size: 13.5px;
+    gap: 6px;
+    padding: 10px 14px;
+    height: 44px;
+    font-size: 13px;
     font-weight: 700;
     border-radius: 999px;
+    white-space: nowrap;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hero-ctas #btnViewPresetsHero {
     background: var(--surface-2);
     border: 1.5px solid var(--border-strong, var(--border));
     color: var(--text);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-    transition: all 0.18s ease;
   }
 
-  .hero-ctas #btnViewPresetsHero:active {
-    transform: scale(0.98);
+  .hero-ctas #btnDuetPresetsHero {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 35%, #2563eb 70%, #6366f1 100%);
+    background-size: 250% 250%;
+    animation: gradientShift 5s ease infinite alternate;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 3px 12px rgba(79, 70, 229, 0.35);
+  }
+
+  .hero-ctas #btnViewPresetsHero:active,
+  .hero-ctas #btnDuetPresetsHero:active {
+    transform: scale(0.97);
   }
 
   /* Feature strip: stack vertically on mobile */

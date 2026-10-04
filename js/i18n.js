@@ -48,6 +48,7 @@ export const translations = {
     choosePresetModalSubtitle: 'Select a size, then pick your photo or signature from your device.',
     presetPopupHint: 'Click a preset → your file picker will open → image is processed automatically.',
     govOfficialBadge: 'Gov Official',
+    duetOfficialBadge: 'DUET Official',
     
     // Upload zone & Hero
     heroBadge: 'MADE FOR BCS, TELETALK & EXAM FORMS',
@@ -56,9 +57,13 @@ export const translations = {
     heroPrivacy: '100% private · runs in your browser · works offline',
     heroBtnUploadPhoto: 'Upload Photo',
     heroBtnUploadSig: 'Upload Signature',
-    heroBtnViewPresets: 'View Presets',
+    heroBtnViewPresets: 'All Presets',
+    heroBtnAllPresets: 'All Presets',
+    heroBtnDuetPresets: 'DUET Presets',
     chipBcsPhoto: 'BCS 300×300',
     chipTeletalkSig: 'Teletalk Sign 300×80',
+    chipDuetPhoto: 'DUET 250×250',
+    chipDuetSig: 'DUET 250×50',
     chipPassport: 'E-Passport 45×55mm',
     chipIgProfile: 'Instagram Profile',
     chipLinkedInProfile: 'LinkedIn Profile',
@@ -86,9 +91,10 @@ export const translations = {
     
     // Categories
     catGov: 'Government & Exam',
+    catDuet: 'DUET Admission',
     catSocial: 'Social & Web',
     catCustom: 'Custom Size',
-    searchPresets: 'Search presets (e.g. 300x300, passport, facebook)...',
+    searchPresets: 'Search presets (e.g. 300x300, passport, duet, facebook)...',
     govNote: 'Sizes vary by form. Always check your form\'s official requirement, or use Custom.',
     
     // Preset cards
@@ -273,6 +279,7 @@ export const translations = {
     choosePresetModalSubtitle: 'যেকোনো মাপ নির্বাচন করুন, তারপর আপনার ডিভাইস থেকে ছবি বা স্বাক্ষর আপলোড করুন।',
     presetPopupHint: 'প্রিসেটে ক্লিক করুন → ফাইল সিলেক্ট করুন → স্বয়ংক্রিয়ভাবে প্রসেস হয়ে যাবে।',
     govOfficialBadge: 'অফিসিয়াল স্পেক',
+    duetOfficialBadge: 'ডুয়েট অফিসিয়াল',
     
     // Upload zone & Hero
     heroBadge: 'বিসিএস, টেলিটক ও পরীক্ষার ফর্ম',
@@ -281,9 +288,13 @@ export const translations = {
     heroPrivacy: '১০০% নিরাপদ · ব্রাউজারে প্রসেস · অফলাইন',
     heroBtnUploadPhoto: 'ছবি আপলোড',
     heroBtnUploadSig: 'স্বাক্ষর আপলোড',
-    heroBtnViewPresets: 'প্রিসেট দেখুন',
+    heroBtnViewPresets: 'সকল প্রিসেট',
+    heroBtnAllPresets: 'সকল প্রিসেট',
+    heroBtnDuetPresets: 'ডুয়েট প্রিসেট',
     chipBcsPhoto: 'বিসিএস ৩০০×৩০০',
     chipTeletalkSig: 'টেলিটক স্বাক্ষর ৩০০×৮০',
+    chipDuetPhoto: 'ডুয়েট ২৫০×২৫০',
+    chipDuetSig: 'ডুয়েট ২৫০×৫০',
     chipPassport: 'ই-পাসপোর্ট ৪৫×৫৫ মিমি',
     chipIgProfile: 'ইন্সটাগ্রাম প্রোফাইল',
     chipLinkedInProfile: 'লিঙ্কডইন প্রোফাইল',
@@ -311,6 +322,7 @@ export const translations = {
     
     // Categories
     catGov: 'সরকারি ও পরীক্ষা',
+    catDuet: 'ডুয়েট ভর্তি পরীক্ষা',
     catSocial: 'সোশ্যাল ও ওয়েব',
     catCustom: 'কাস্টম সাইজ',
     searchPresets: 'প্রিসেট খুঁজুন...',

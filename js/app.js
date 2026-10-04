@@ -197,13 +197,19 @@ class SnapSignFitApp {
       const list = PRESETS.filter(p => p.category === cat);
       list.forEach(preset => {
         const card = document.createElement('div');
-        card.className = `preset-popup-card ${preset.locked ? 'gov-card' : ''}`;
+        card.className = `preset-popup-card ${preset.locked ? (preset.category === 'duet' ? 'gov-card duet-card' : 'gov-card') : ''}`;
         card.setAttribute('role', 'button');
         card.setAttribute('tabindex', '0');
         const kindLabel = t(`kind${preset.kind.charAt(0).toUpperCase() + preset.kind.slice(1)}`) || preset.kind;
-        const badgeHtml = preset.locked
-          ? `<span class="ppc-badge"><i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 4px;"></i>${t('govOfficialBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`
-          : '';
+        let badgeHtml = '';
+        if (preset.locked) {
+          const isDuet = preset.category === 'duet';
+          const icon = isDuet
+            ? '<i class="fa-solid fa-graduation-cap" style="color: #a78bfa; margin-right: 4px;" aria-hidden="true"></i>'
+            : '<i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 4px;"></i>';
+          const badgeText = isDuet ? (t('duetOfficialBadge') || 'DUET Official') : (t('govOfficialBadge') || 'Gov Official');
+          badgeHtml = `<span class="ppc-badge ${isDuet ? 'ppc-badge-duet' : ''}">${icon}${badgeText}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`;
+        }
         card.innerHTML = `
           ${badgeHtml}
           <span class="ppc-kind">${kindLabel}</span>
@@ -282,8 +288,11 @@ class SnapSignFitApp {
       }
     });
 
-    // "View Presets" hero button
+    // "All Presets" hero button
     viewPresetsBtn?.addEventListener('click', () => openPopup('gov'));
+
+    // "DUET Presets" hero button
+    document.getElementById('btnDuetPresetsHero')?.addEventListener('click', () => openPopup('duet'));
 
     // "Govt Presets" nav link
     document.getElementById('navGovPresetsBtn')?.addEventListener('click', () => openPopup('gov'));
@@ -532,9 +541,10 @@ class SnapSignFitApp {
     });
 
     // Preset Category Tabs
-    document.getElementById('tabGov').addEventListener('click', () => this.selectCategory('gov'));
-    document.getElementById('tabSocial').addEventListener('click', () => this.selectCategory('social'));
-    document.getElementById('tabCustom').addEventListener('click', () => this.selectCategory('custom'));
+    document.getElementById('tabGov')?.addEventListener('click', () => this.selectCategory('gov'));
+    document.getElementById('tabDuet')?.addEventListener('click', () => this.selectCategory('duet'));
+    document.getElementById('tabSocial')?.addEventListener('click', () => this.selectCategory('social'));
+    document.getElementById('tabCustom')?.addEventListener('click', () => this.selectCategory('custom'));
 
     // Preset Search
     const searchInput = document.getElementById('presetSearchInput');
@@ -916,13 +926,14 @@ class SnapSignFitApp {
   selectCategory(cat) {
     this.haptic(12);
     this.currentCategory = cat;
-    ['tabGov', 'tabSocial', 'tabCustom'].forEach(id => {
-      document.getElementById(id).classList.remove('active');
+    ['tabGov', 'tabDuet', 'tabSocial', 'tabCustom'].forEach(id => {
+      document.getElementById(id)?.classList.remove('active');
     });
     
-    if (cat === 'gov') document.getElementById('tabGov').classList.add('active');
-    if (cat === 'social') document.getElementById('tabSocial').classList.add('active');
-    if (cat === 'custom') document.getElementById('tabCustom').classList.add('active');
+    if (cat === 'gov') document.getElementById('tabGov')?.classList.add('active');
+    if (cat === 'duet') document.getElementById('tabDuet')?.classList.add('active');
+    if (cat === 'social') document.getElementById('tabSocial')?.classList.add('active');
+    if (cat === 'custom') document.getElementById('tabCustom')?.classList.add('active');
 
     const isGov = cat === 'gov';
     document.getElementById('govNoteBanner').style.display = isGov ? 'block' : 'none';
@@ -952,13 +963,22 @@ class SnapSignFitApp {
 
     filtered.forEach(preset => {
       const card = document.createElement('div');
-      card.className = `preset-card ${preset.locked ? 'card-gov' : ''} ${preset.id === this.currentPreset?.id ? 'active' : ''}`;
+      const isDuet = preset.category === 'duet';
+      card.className = `preset-card ${preset.locked ? (isDuet ? 'card-gov card-duet' : 'card-gov') : ''} ${preset.id === this.currentPreset?.id ? 'active' : ''}`;
       const kindLabel = t(`kind${preset.kind.charAt(0).toUpperCase() + preset.kind.slice(1)}`) || preset.kind;
+      let badgeHtml = '';
+      if (preset.locked) {
+        const icon = isDuet
+          ? '<i class="fa-solid fa-graduation-cap" style="color: #a78bfa; margin-right: 4px;" aria-hidden="true"></i>'
+          : '<i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 4px;"></i>';
+        const badgeText = isDuet ? (t('duetOfficialBadge') || 'DUET Official') : (t('lockedGovBadge') || 'Gov Locked');
+        badgeHtml = `<span class="preset-card-badge ${isDuet ? 'badge-duet' : ''}">${icon}${badgeText}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>`;
+      }
       card.innerHTML = `
         <div>
           <div class="preset-card-header">
             <span class="preset-card-kind">${kindLabel}</span>
-            ${preset.locked ? `<span class="preset-card-badge"><i class="fa-solid fa-star star-gradient" aria-hidden="true" style="margin-right: 4px;"></i>${t('lockedGovBadge')}${preset.maxKB ? ` (≤${preset.maxKB}KB)` : ''}</span>` : ''}
+            ${badgeHtml}
           </div>
           <div class="preset-card-title">${preset.label}</div>
           <div class="preset-card-dims">${preset.w} × ${preset.h} px</div>
@@ -1017,9 +1037,11 @@ class SnapSignFitApp {
     if (!menu) return;
 
     const govPresets = PRESETS.filter(p => p.category === 'gov');
+    const duetPresets = PRESETS.filter(p => p.category === 'duet');
     const socialPresets = PRESETS.filter(p => p.category === 'social');
 
     const govLabel = t('catGov') || 'Government & Exam';
+    const duetLabel = t('catDuet') || 'DUET Admission';
     const socialLabel = t('catSocial') || 'Social & Web';
     const customLabel = t('catCustom') || 'Custom Size';
 
@@ -1047,7 +1069,31 @@ class SnapSignFitApp {
     });
     html += `</div></div>`;
 
-    // 2. Social & Web Group
+    // 2. DUET Admission Group
+    if (duetPresets.length > 0) {
+      html += `<div class="active-preset-menu-group">
+        <div class="active-preset-menu-group-header">
+          <i class="fa-solid fa-graduation-cap" style="color: #a78bfa;" aria-hidden="true"></i>
+          <span>${duetLabel}</span>
+        </div>
+        <div class="active-preset-menu-group-items">`;
+      duetPresets.forEach(p => {
+        const isSelected = this.currentPreset && this.currentPreset.id === p.id;
+        const kbStr = p.maxKB ? `≤${p.maxKB}KB` : '';
+        html += `
+          <div class="active-preset-menu-item ${isSelected ? 'selected' : ''}" role="option" aria-selected="${isSelected}" data-preset-id="${p.id}">
+            <div class="active-preset-item-main">
+              <span class="active-preset-item-name">${p.label}</span>
+              ${kbStr ? `<span class="active-preset-item-badge">${kbStr}</span>` : ''}
+            </div>
+            <span class="active-preset-item-dims">${p.w}×${p.h}</span>
+            ${isSelected ? '<i class="fa-solid fa-check active-preset-item-check" aria-hidden="true"></i>' : ''}
+          </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // 3. Social & Web Group
     html += `<div class="active-preset-menu-group">
       <div class="active-preset-menu-group-header">
         <i class="fa-solid fa-globe" style="color: #38bdf8;" aria-hidden="true"></i>
