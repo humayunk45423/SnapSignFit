@@ -1307,6 +1307,80 @@ class SnapSignFitApp {
     this.manualEditorOpenedForFile = false;
   }
 
+  async autoDetectAndAdjustPreset() {
+    if (!this.sourceData || !this.currentPreset) return;
+    const { workingCanvas, fullCanvas, workingScale } = this.sourceData;
+
+    try {
+      // 1. Fast face detection check
+      const faceDetection = await detectFacesWithLadder(workingCanvas, fullCanvas, workingScale);
+      const hasFace = faceDetection.success && faceDetection.faces && faceDetection.faces.length > 0;
+
+      const currentKind = this.currentPreset.kind;
+
+      // If a face is found but user was on a signature preset -> switch to photo preset
+      if (hasFace && currentKind === 'signature') {
+        let targetPresetId = 'gov_photo_300x300';
+        if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
+          targetPresetId = 'duet_photo_250x250';
+        }
+        const match = PRESETS.find(p => p.id === targetPresetId);
+        if (match) {
+          this.applyPreset(match);
+          this.addChip({
+            id: 'chip-auto-kind',
+            label: t('chipAutoPhoto') || 'Face detected — switched to Photo preset',
+            isUndoable: false
+          });
+        }
+        return;
+      }
+
+      // If no face is found and user was on a photo preset -> check if image is a signature scan
+      if (!hasFace && currentKind === 'photo') {
+        const w = workingCanvas.width;
+        const h = workingCanvas.height;
+        const ctx = workingCanvas.getContext('2d', { willReadFrequently: true });
+        const imgData = ctx.getImageData(0, 0, w, h).data;
+
+        let whiteCount = 0;
+        let darkCount = 0;
+        const total = w * h;
+
+        for (let i = 0; i < imgData.length; i += 4) {
+          const luma = 0.299 * imgData[i] + 0.587 * imgData[i + 1] + 0.114 * imgData[i + 2];
+          if (luma > 185) whiteCount++;
+          else if (luma < 120) darkCount++;
+        }
+
+        const whiteRatio = whiteCount / total;
+        const darkRatio = darkCount / total;
+        const aspect = w / h;
+
+        // Signature on paper: mostly light background (>65%) and sparse dark ink strokes (<22%) or wide aspect (>2.2)
+        const isSignatureLike = (whiteRatio > 0.65 && darkRatio > 0.003 && darkRatio < 0.22) || (aspect > 2.2 && whiteRatio > 0.5);
+
+        if (isSignatureLike) {
+          let targetPresetId = 'gov_sig_300x80';
+          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
+            targetPresetId = 'duet_sig_250x50';
+          }
+          const match = PRESETS.find(p => p.id === targetPresetId);
+          if (match) {
+            this.applyPreset(match);
+            this.addChip({
+              id: 'chip-auto-kind',
+              label: t('chipAutoSig') || 'Signature detected — switched to Signature preset',
+              isUndoable: false
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Auto-detect preset kind error:', e);
+    }
+  }
+
   async handleFileUpload(file) {
     this.setProcessing(true, t('processing'));
     const banner = document.getElementById('globalBanner');
@@ -1321,6 +1395,7 @@ class SnapSignFitApp {
       document.getElementById('how')?.classList.add('hidden');
       document.getElementById('workspaceSection').classList.remove('hidden');
       this.resetUserTransforms();
+      await this.autoDetectAndAdjustPreset();
       await this.runProcessingPipeline({ fromFileUpload: true });
     } catch (err) {
       console.error('Image load failed:', err);
