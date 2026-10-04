@@ -3,6 +3,7 @@ import { createCanvas, stepDownDownscale } from './loader.js';
 import { parseLocalizedNumber, formatLocalizedNumber, getLanguage, t } from './i18n.js';
 import { icon } from './icons.js';
 import { getSegmentationMask } from './bg.js';
+import { extractSignatureMask, classifyImageContent } from './signature.js';
 
 export class ManualEditor {
   constructor(options = {}) {
@@ -1642,7 +1643,17 @@ export class ManualEditor {
     if (!this.step3BaseCanvas) this.commitStep2ToBitmap();
     this.pushMaskHistory();
     try {
-      const mask = await getSegmentationMask(this.step3BaseCanvas);
+      const isSig = this.preset?.kind === 'signature' || classifyImageContent(this.step3BaseCanvas) === 'signature';
+      let mask = null;
+      if (isSig) {
+        mask = extractSignatureMask(this.step3BaseCanvas);
+      } else {
+        mask = await getSegmentationMask(this.step3BaseCanvas);
+        // Fallback: If portrait segmentation returned null or an empty mask (e.g. signature or drawing), use ink extraction
+        if (!mask || this.isMaskVirtuallyEmpty(mask)) {
+          mask = extractSignatureMask(this.step3BaseCanvas);
+        }
+      }
       if (mask && this.maskCanvas) {
         const mCtx = this.maskCanvas.getContext('2d');
         mCtx.clearRect(0, 0, this.maskCanvas.width, this.maskCanvas.height);
@@ -1651,6 +1662,23 @@ export class ManualEditor {
       }
     } catch (err) {
       console.warn('Auto AI segmentation failed in editor brush:', err);
+    }
+  }
+
+  isMaskVirtuallyEmpty(maskCanvas) {
+    if (!maskCanvas || maskCanvas.width <= 0 || maskCanvas.height <= 0) return true;
+    try {
+      const ctx = maskCanvas.getContext('2d', { willReadFrequently: true });
+      const imgData = ctx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+      const data = imgData.data;
+      let visibleCount = 0;
+      const total = maskCanvas.width * maskCanvas.height;
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] > 20) visibleCount++;
+      }
+      return (visibleCount / total) < 0.02; // < 2% visible foreground means portrait AI missed
+    } catch (e) {
+      return false;
     }
   }
 

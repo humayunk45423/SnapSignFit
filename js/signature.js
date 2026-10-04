@@ -290,6 +290,77 @@ export function classifyImageContent(canvas) {
 }
 
 /**
+ * Extracts an alpha mask for signature strokes (foreground ink = 255 alpha, background = 0).
+ * Used by the manual editor brush and AI background removal for signature presets.
+ * 
+ * @param {HTMLCanvasElement} sourceCanvas
+ * @returns {HTMLCanvasElement|null}
+ */
+export function extractSignatureMask(sourceCanvas) {
+  if (!sourceCanvas || sourceCanvas.width <= 0 || sourceCanvas.height <= 0) return null;
+  const w = sourceCanvas.width;
+  const h = sourceCanvas.height;
+  const ctx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const src = imgData.data;
+
+  const gray = new Float32Array(w * h);
+  const minRGB = new Float32Array(w * h);
+  let sumLuma = 0, sumMin = 0;
+
+  for (let i = 0, j = 0; i < src.length; i += 4, j++) {
+    const luma = 0.299 * src[i] + 0.587 * src[i + 1] + 0.114 * src[i + 2];
+    const m = Math.min(src[i], src[i + 1], src[i + 2]);
+    gray[j] = luma;
+    minRGB[j] = m;
+    sumLuma += luma;
+    sumMin += m;
+  }
+
+  const activeGray = (sumMin / (w * h) < sumLuma / (w * h) * 0.9) ? minRGB : gray;
+  const blurRadius = Math.max(8, Math.round(Math.max(w, h) * 0.05));
+  const bgEstimate = boxBlur2D(activeGray, w, h, blurRadius);
+
+  const norm = new Float32Array(w * h);
+  for (let i = 0; i < norm.length; i++) {
+    const bgVal = Math.max(1, bgEstimate[i]);
+    const val = (activeGray[i] / bgVal) * 255;
+    norm[i] = Math.max(0, Math.min(255, val));
+  }
+
+  const marginX = Math.round(w * 0.02);
+  const marginY = Math.round(h * 0.02);
+  let threshold = otsuThreshold(norm, w, h, marginX, marginY);
+
+  const maskCanvas = createCanvas(w, h);
+  const mCtx = maskCanvas.getContext('2d');
+  const mImgData = mCtx.createImageData(w, h);
+  const md = mImgData.data;
+
+  // Soft edge transition band
+  const ramp = Math.max(12, threshold * 0.25);
+
+  for (let i = 0; i < norm.length; i++) {
+    const val = norm[i];
+    let alpha = 0;
+    if (val < threshold) {
+      alpha = Math.min(1, Math.max(0, (threshold - val) / ramp));
+      // Contrast curve
+      alpha = Math.pow(alpha, 0.65);
+    }
+    const byteVal = Math.round(alpha * 255);
+    const idx = i * 4;
+    md[idx] = 255;
+    md[idx + 1] = 255;
+    md[idx + 2] = 255;
+    md[idx + 3] = byteVal;
+  }
+
+  mCtx.putImageData(mImgData, 0, 0);
+  return maskCanvas;
+}
+
+/**
  * Main signature analysis & extraction function
  * Follows all 11 steps of §8
  * 
