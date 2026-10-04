@@ -1224,7 +1224,7 @@ class SnapSignFitApp {
     this.applyPreset(match);
   }
 
-  applyPreset(preset) {
+  applyPreset(preset, { skipProcessing = false } = {}) {
     this.haptic(15);
     this.currentPreset = preset;
     this.hasDownloadedCurrentWork = false;
@@ -1281,7 +1281,7 @@ class SnapSignFitApp {
     this.resetUserTransforms();
     this.updateActivePresetPill(preset);
 
-    if (this.sourceData) {
+    if (this.sourceData && !skipProcessing) {
       this.runProcessingPipeline();
     }
   }
@@ -1333,7 +1333,7 @@ class SnapSignFitApp {
           }
           const match = PRESETS.find(p => p.id === targetPresetId);
           if (match) {
-            this.applyPreset(match);
+            this.applyPreset(match, { skipProcessing: true });
             this.addChip({
               id: 'chip-auto-kind',
               label: t('chipAutoPhoto') || 'Face detected — switched to Photo preset',
@@ -1354,7 +1354,7 @@ class SnapSignFitApp {
         }
         const match = PRESETS.find(p => p.id === targetPresetId);
         if (match) {
-          this.applyPreset(match);
+          this.applyPreset(match, { skipProcessing: true });
           this.addChip({
             id: 'chip-auto-kind',
             label: t('chipAutoSig') || 'Signature detected — switched to Signature preset',
@@ -1368,7 +1368,7 @@ class SnapSignFitApp {
         }
         const match = PRESETS.find(p => p.id === targetPresetId);
         if (match) {
-          this.applyPreset(match);
+          this.applyPreset(match, { skipProcessing: true });
           this.addChip({
             id: 'chip-auto-kind',
             label: t('chipAutoPhoto') || 'Photo detected — switched to Photo preset',
