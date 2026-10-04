@@ -22,6 +22,7 @@ export class ManualEditor {
 
     // Step 1 State (Crop rectangle on sourceCanvas coordinates)
     this.crop = { x: 0, y: 0, w: 100, h: 100 };
+    this.cropRotateDeg = 0; // Pre-crop rotation in Step 1 (-180..+180)
     this.autoDetectedCrop = null;
 
     // Committed crop bitmap for Step 2
@@ -249,6 +250,14 @@ export class ManualEditor {
               </div>
             </div>
 
+            <!-- Global Editor Options (placed on top, just below Output Preview) -->
+            <div class="editor-options-row">
+              <label class="editor-checkbox-label">
+                <input type="checkbox" id="allowPaddingCheck">
+                <span data-i18n="allowPadding">Allow padding outside image</span>
+              </label>
+            </div>
+
             <!-- STEP 1 CONTROLS (Crop, Rotate, Zoom) -->
             <div class="editor-step1-panel" id="step1Controls">
               <!-- Rotation Slider for Step 1 -->
@@ -423,14 +432,6 @@ export class ManualEditor {
               </div>
             </div>
 
-            <!-- Options -->
-            <div class="editor-options-row">
-              <label class="editor-checkbox-label">
-                <input type="checkbox" id="allowPaddingCheck">
-                <span data-i18n="allowPadding">Allow padding outside image</span>
-              </label>
-            </div>
-
             <!-- Bottom Actions -->
             <div class="editor-actions-row">
               <button type="button" class="btn btn-outline" id="btnResetAuto" data-i18n="resetCrop">Reset to Auto</button>
@@ -513,23 +514,23 @@ export class ManualEditor {
     el.querySelector('#btnApplyEditor').addEventListener('click', () => this.apply());
     el.querySelector('#btnResetAuto').addEventListener('click', () => this.resetToAuto());
 
-    // Step 1 Rotate Slider + Input
+    // Step 1 Rotate Slider + Input (Dedicated to Step 1 pre-crop rotation)
     const step1RotSlider = el.querySelector('#step1RotateSlider');
     const step1RotInput = el.querySelector('#step1RotateInput');
     if (step1RotSlider) {
       step1RotSlider.addEventListener('input', (e) => {
-        this.straightenDeg = parseFloat(e.target.value) || 0;
-        this.updateStraightenInputDisplay();
+        this.cropRotateDeg = parseFloat(e.target.value) || 0;
+        this.updateStep1RotateInputDisplay();
         this.requestRender();
       });
     }
     if (step1RotInput) {
       this.bindNumericInput(step1RotInput, {
-        getVal: () => this.straightenDeg,
+        getVal: () => this.cropRotateDeg,
         setVal: (v) => {
-          this.straightenDeg = Math.max(-180, Math.min(180, Math.round(v * 10) / 10));
-          if (step1RotSlider) step1RotSlider.value = this.straightenDeg;
-          this.updateStraightenInputDisplay();
+          this.cropRotateDeg = Math.max(-180, Math.min(180, Math.round(v * 10) / 10));
+          if (step1RotSlider) step1RotSlider.value = this.cropRotateDeg;
+          this.updateStep1RotateInputDisplay();
           this.requestRender();
         },
         step: 0.1,
@@ -1005,14 +1006,18 @@ export class ManualEditor {
     });
   }
 
+  updateStep1RotateInputDisplay() {
+    const formatted = `${this.cropRotateDeg.toFixed(1)}°`;
+    const inp1 = this.overlayEl.querySelector('#step1RotateInput');
+    if (inp1 && document.activeElement !== inp1) inp1.value = formatted;
+    const slider1 = this.overlayEl.querySelector('#step1RotateSlider');
+    if (slider1 && document.activeElement !== slider1) slider1.value = this.cropRotateDeg;
+  }
+
   updateStraightenInputDisplay() {
     const formatted = `${this.straightenDeg.toFixed(1)}°`;
     const inp = this.overlayEl.querySelector('#straightenInput');
     if (inp && document.activeElement !== inp) inp.value = formatted;
-    const inp1 = this.overlayEl.querySelector('#step1RotateInput');
-    if (inp1 && document.activeElement !== inp1) inp1.value = formatted;
-    const slider1 = this.overlayEl.querySelector('#step1RotateSlider');
-    if (slider1 && document.activeElement !== slider1) slider1.value = this.straightenDeg;
     const slider2 = this.overlayEl.querySelector('#straightenSlider');
     if (slider2 && document.activeElement !== slider2) slider2.value = this.straightenDeg;
     const txt = this.overlayEl.querySelector('#straightenValText');
@@ -1183,14 +1188,14 @@ export class ManualEditor {
       pCtx.fillStyle = this.bgColor;
       pCtx.fillRect(0, 0, clampedW, clampedH);
     }
-    if (this.straightenDeg !== 0) {
+    if (this.cropRotateDeg !== 0) {
       const imgW = this.sourceCanvas.width;
       const imgH = this.sourceCanvas.height;
       const srcCx = imgW / 2;
       const srcCy = imgH / 2;
       pCtx.save();
       pCtx.translate(-x + srcCx, -y + srcCy);
-      pCtx.rotate((this.straightenDeg * Math.PI) / 180);
+      pCtx.rotate((this.cropRotateDeg * Math.PI) / 180);
       pCtx.drawImage(this.sourceCanvas, -srcCx, -srcCy);
       pCtx.restore();
     } else {
@@ -1252,8 +1257,9 @@ export class ManualEditor {
     this.transparent = options.transparent || false;
 
     // Reset / restore initial transforms
+    this.cropRotateDeg = options.cropRotateDeg || 0;
     this.rotation = options.rotation || 0;
-    this.straightenDeg = options.straightenDeg || 0;
+    this.straightenDeg = options.straightenDeg || (options.step2Transform ? options.step2Transform.straightenDeg || 0 : 0);
     this.step2Zoom = 1.0;
     this.step2PanX = 0;
     this.step2PanY = 0;
@@ -1293,6 +1299,8 @@ export class ManualEditor {
     }
 
     this.overlayEl.querySelector('#allowPaddingCheck').checked = this.allowPadding;
+    const step1RotSlider = this.overlayEl.querySelector('#step1RotateSlider');
+    if (step1RotSlider) step1RotSlider.value = this.cropRotateDeg;
     this.overlayEl.querySelector('#straightenSlider').value = this.straightenDeg;
     this.overlayEl.querySelector('#editorZoomSlider').value = this.step2Zoom;
     this.overlayEl.querySelector('#brushSizeSlider').value = this.brushSize;
@@ -1301,6 +1309,7 @@ export class ManualEditor {
     if (step1ScaleSlider) step1ScaleSlider.value = 100;
     const step1ScaleInput = this.overlayEl.querySelector('#step1CropScaleInput');
     if (step1ScaleInput) step1ScaleInput.value = '100%';
+    this.updateStep1RotateInputDisplay();
     this.updateStraightenInputDisplay();
     this.updateZoomInputDisplay();
     this.updateBrushSizeInputDisplay();
@@ -1645,6 +1654,7 @@ export class ManualEditor {
 
     this.onApply({
       crop: this.crop,
+      cropRotateDeg: this.cropRotateDeg,
       rotation: this.rotation,
       straightenDeg: this.straightenDeg,
       flipH: this.flipH,
@@ -1666,6 +1676,7 @@ export class ManualEditor {
   }
 
   resetToAuto() {
+    this.cropRotateDeg = 0;
     this.rotation = 0;
     this.straightenDeg = 0;
     this.step2Zoom = 1.0;
@@ -1678,8 +1689,15 @@ export class ManualEditor {
     this.step3Zoom = 1.0;
     this.step3PanX = 0;
     this.step3PanY = 0;
+    const step1RotSlider = this.overlayEl.querySelector('#step1RotateSlider');
+    if (step1RotSlider) step1RotSlider.value = 0;
+    const step1ScaleSlider = this.overlayEl.querySelector('#step1CropScaleSlider');
+    if (step1ScaleSlider) step1ScaleSlider.value = 100;
+    const step1ScaleInput = this.overlayEl.querySelector('#step1CropScaleInput');
+    if (step1ScaleInput) step1ScaleInput.value = '100%';
     this.overlayEl.querySelector('#straightenSlider').value = 0;
     this.overlayEl.querySelector('#editorZoomSlider').value = 1.0;
+    this.updateStep1RotateInputDisplay();
     this.updateStraightenInputDisplay();
     this.updateZoomInputDisplay();
 
@@ -2137,13 +2155,13 @@ export class ManualEditor {
     this.displayOffsetX = offsetX;
     this.displayOffsetY = offsetY;
 
-    // 1. Draw source image (rotated around its center if straightenDeg is set)
+    // 1. Draw source image (rotated around its center if cropRotateDeg is set)
     ctx.save();
     const cx = offsetX + (imgW * scale) / 2;
     const cy = offsetY + (imgH * scale) / 2;
     ctx.translate(cx, cy);
-    if (this.straightenDeg !== 0) {
-      ctx.rotate((this.straightenDeg * Math.PI) / 180);
+    if (this.cropRotateDeg !== 0) {
+      ctx.rotate((this.cropRotateDeg * Math.PI) / 180);
     }
     ctx.drawImage(this.sourceCanvas, -(imgW * scale) / 2, -(imgH * scale) / 2, imgW * scale, imgH * scale);
     ctx.restore();
@@ -2361,7 +2379,26 @@ export class ManualEditor {
 
       if (this.currentStep === 1) {
         const { x, y, w, h } = this.crop;
-        pCtx.drawImage(this.sourceCanvas, x, y, w, h, 0, 0, this.targetW, this.targetH);
+        const clampedW = Math.max(1, Math.round(w));
+        const clampedH = Math.max(1, Math.round(h));
+        if (this.cropRotateDeg !== 0) {
+          const tempPatch = createCanvas(clampedW, clampedH);
+          const tCtx = tempPatch.getContext('2d');
+          tCtx.imageSmoothingEnabled = true;
+          tCtx.imageSmoothingQuality = 'medium';
+          const imgW = this.sourceCanvas.width;
+          const imgH = this.sourceCanvas.height;
+          const srcCx = imgW / 2;
+          const srcCy = imgH / 2;
+          tCtx.save();
+          tCtx.translate(-x + srcCx, -y + srcCy);
+          tCtx.rotate((this.cropRotateDeg * Math.PI) / 180);
+          tCtx.drawImage(this.sourceCanvas, -srcCx, -srcCy);
+          tCtx.restore();
+          pCtx.drawImage(tempPatch, 0, 0, clampedW, clampedH, 0, 0, this.targetW, this.targetH);
+        } else {
+          pCtx.drawImage(this.sourceCanvas, x, y, w, h, 0, 0, this.targetW, this.targetH);
+        }
       } else if (this.currentStep === 2) {
         if (!this.croppedCanvas) this.commitCropToBitmap();
         const bmp = this.croppedCanvas;

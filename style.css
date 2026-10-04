@@ -3421,6 +3421,25 @@ body.dark .fs-swatch {
 }
 
 .editor-options-row {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.editor-options-row .editor-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 500;
+  color: var(--text);
+  user-select: none;
   font-size: 12px;
 }
 
