@@ -3,7 +3,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const HOST = 'snapsignfit.com';
+const HOST = 'snapsignfit.vercel.app';
 const KEY = '11d61596f2644fae9eb11c606562095f';
 const KEY_LOCATION = `https://${HOST}/${KEY}.txt`;
 
