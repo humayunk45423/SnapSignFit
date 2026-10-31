@@ -71,12 +71,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
-  <link rel="stylesheet" href="./style.css">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/svg+xml" href="./snapsignfit_logo.svg">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/snapsignfit_logo.svg">
   <!-- Vendored Core Libraries -->
-  <script src="./vendor/pako.min.js"></script>
-  <script src="./vendor/UPNG.js"></script>
+  <script src="/vendor/pako.min.js"></script>
+  <script src="/vendor/UPNG.js"></script>
 </head>
 
 <body>
@@ -125,7 +125,7 @@
   <header class="site-header">
     <div class="header-container">
       <div class="brand-wrapper">
-        <img src="./snapsignfit_logo.svg" alt="SnapSignFit Logo" class="brand-logo" aria-hidden="true">
+        <img src="/snapsignfit_logo.svg" alt="SnapSignFit Logo" class="brand-logo" aria-hidden="true">
         <div class="brand-info">
           <h1 data-i18n="siteName">SnapSignFit</h1>
           <div class="brand-tagline" data-i18n="tagline">Snap it. Fit it.</div>
@@ -190,6 +190,15 @@
     <span id="globalBannerText">An unexpected issue occurred.</span>
     <button type="button" class="btn btn-outline btn-sm" id="bannerManualBtn" data-i18n="adjustManually">Adjust
       Manually</button>
+  </div>
+
+  <!-- Global Drag & Drop Overlay -->
+  <div id="globalDragOverlay" class="global-drag-overlay hidden" aria-hidden="true">
+    <div class="global-drag-box">
+      <div class="global-drag-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+      <div class="global-drag-title" data-i18n="dropAnywhereTitle">Drop your photo or signature anywhere</div>
+      <div class="global-drag-sub" data-i18n="dropAnywhereSub">Release to instantly format &amp; compress</div>
+    </div>
   </div>
 
   <main class="main-content">
@@ -667,12 +676,12 @@
   <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Modules -->
-  <script type="module" src="./js/editor-pan.js"></script>
-  <script type="module" src="./js/hero.js"></script>
-  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="/js/editor-pan.js"></script>
+  <script type="module" src="/js/hero.js"></script>
+  <script type="module" src="/js/app.js"></script>
 
   <!-- PWA Service Worker Registration -->
-  <script src="./js/register-sw.js"></script>
+  <script src="/js/register-sw.js"></script>
 
 </body>
 

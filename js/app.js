@@ -73,7 +73,13 @@ class SnapSignFitApp {
     this.renderPresetsGrid();
     this.populateActivePresetDropdown();
     this.attachDOMEvents();
-    this.applyPreset(PRESETS[0]);
+    const embeddedWrapper = document.querySelector('.embedded-tool-wrapper[data-default-preset]');
+    const defaultPresetId = embeddedWrapper?.getAttribute('data-default-preset');
+    const initialPreset = (defaultPresetId && PRESETS.find(p => p.id === defaultPresetId)) || PRESETS[0];
+    if (initialPreset && initialPreset.category) {
+      this.currentCategory = initialPreset.category;
+    }
+    this.applyPreset(initialPreset);
     window.addEventListener('resize', () => this.fitActivePresetPillText());
 
     // Safety net & space-pan support for preview viewports
@@ -463,22 +469,22 @@ class SnapSignFitApp {
     const cameraInput = document.getElementById('cameraInput');
     const dropzone = document.getElementById('dropzone');
 
-    document.getElementById('btnChooseFile').addEventListener('click', () => {
+    document.getElementById('btnChooseFile')?.addEventListener('click', () => {
       if (fileInput) fileInput.value = '';
       fileInput?.click();
     });
-    document.getElementById('btnTakePhoto').addEventListener('click', () => {
+    document.getElementById('btnTakePhoto')?.addEventListener('click', () => {
       if (cameraInput) cameraInput.value = '';
       cameraInput?.click();
     });
 
-    fileInput.addEventListener('change', (e) => {
+    fileInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         this.handleFileUpload(e.target.files[0]);
       }
     });
 
-    cameraInput.addEventListener('change', (e) => {
+    cameraInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         this.handleFileUpload(e.target.files[0]);
       }
@@ -519,15 +525,22 @@ class SnapSignFitApp {
     });
 
     // Drag and Drop
-    dropzone.addEventListener('dragover', (e) => {
+    dropzone?.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.classList.add('drag-active');
     });
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-active'));
-    dropzone.addEventListener('drop', (e) => {
+    dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('drag-active'));
+    dropzone?.addEventListener('drop', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       dropzone.classList.remove('drag-active');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const overlay = document.getElementById('globalDragOverlay');
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+        this.haptic([20, 40, 20]);
         this.handleFileUpload(e.dataTransfer.files[0]);
       }
     });
@@ -553,19 +566,19 @@ class SnapSignFitApp {
 
     // Preset Search
     const searchInput = document.getElementById('presetSearchInput');
-    searchInput.addEventListener('input', (e) => this.filterPresets(e.target.value));
+    searchInput?.addEventListener('input', (e) => this.filterPresets(e.target.value));
 
     // Custom Size Form
     const updateCustomPreset = () => {
-      const rawW = parseInt(document.getElementById('customW').value) || 300;
-      const rawH = parseInt(document.getElementById('customH').value) || 300;
+      const rawW = parseInt(document.getElementById('customW')?.value) || 300;
+      const rawH = parseInt(document.getElementById('customH')?.value) || 300;
       const w = Math.max(1, Math.min(8000, rawW));
       const h = Math.max(1, Math.min(8000, rawH));
-      const unit = document.getElementById('customUnit').value;
-      const rawDpi = parseInt(document.getElementById('customDpi').value) || 300;
+      const unit = document.getElementById('customUnit')?.value || 'px';
+      const rawDpi = parseInt(document.getElementById('customDpi')?.value) || 300;
       const dpi = Math.max(72, Math.min(1200, rawDpi));
-      const kind = document.getElementById('customKind').value;
-      const fit = document.getElementById('customFit').value;
+      const kind = document.getElementById('customKind')?.value || 'photo';
+      const fit = document.getElementById('customFit')?.value || 'cover';
 
       const pxW = Math.max(1, Math.min(8000, unitToPixels(w, unit, dpi)));
       const pxH = Math.max(1, Math.min(8000, unitToPixels(h, unit, dpi)));
@@ -590,30 +603,31 @@ class SnapSignFitApp {
     };
 
     ['customW', 'customH', 'customDpi', 'customKind', 'customFit'].forEach(id => {
-      document.getElementById(id).addEventListener('change', updateCustomPreset);
+      document.getElementById(id)?.addEventListener('change', updateCustomPreset);
     });
 
-    document.getElementById('customUnit').addEventListener('change', (e) => {
+    document.getElementById('customUnit')?.addEventListener('change', (e) => {
       const isPixel = e.target.value === 'px';
-      document.getElementById('dpiGroup').style.display = isPixel ? 'none' : 'flex';
+      const dpiGroup = document.getElementById('dpiGroup');
+      if (dpiGroup) dpiGroup.style.display = isPixel ? 'none' : 'flex';
       updateCustomPreset();
     });
 
-    document.getElementById('btnSaveCustomPreset').addEventListener('click', () => {
+    document.getElementById('btnSaveCustomPreset')?.addEventListener('click', () => {
       saveCustomPreset(this.currentPreset);
       this.showToast(t('presetSaved'), 'success');
     });
 
     // Settings Bar Controls
     const formatSelect = document.getElementById('exportFormatSelect');
-    formatSelect.addEventListener('change', (e) => {
+    formatSelect?.addEventListener('change', (e) => {
       this.customOptions.format = e.target.value;
       this.hasDownloadedCurrentWork = false;
       this.runExportGuarantee();
     });
 
     const maxSizeSelect = document.getElementById('exportMaxSizeSelect');
-    maxSizeSelect.addEventListener('change', (e) => {
+    maxSizeSelect?.addEventListener('change', (e) => {
       let val = parseInt(e.target.value);
       // Strictly enforce Gov lock
       const maxLimit = this.currentPreset?.locked ? (this.currentPreset.maxKB || 99) : 2000;
@@ -627,7 +641,7 @@ class SnapSignFitApp {
     });
 
     const fitSelect = document.getElementById('exportFitSelect');
-    fitSelect.addEventListener('change', (e) => {
+    fitSelect?.addEventListener('change', (e) => {
       this.customOptions.fit = e.target.value;
       this.hasDownloadedCurrentWork = false;
       this.runProcessingPipeline();
@@ -660,21 +674,21 @@ class SnapSignFitApp {
     }
 
     const thickenSlider = document.getElementById('sigThickenSlider');
-    thickenSlider.addEventListener('input', (e) => {
+    thickenSlider?.addEventListener('input', (e) => {
       this.customOptions.thickenPx = parseInt(e.target.value) || 0;
       this.hasDownloadedCurrentWork = false;
       this.runProcessingPipeline();
     });
 
     const keepColorCheck = document.getElementById('sigKeepColorCheck');
-    keepColorCheck.addEventListener('change', (e) => {
+    keepColorCheck?.addEventListener('change', (e) => {
       this.customOptions.keepInkColor = e.target.checked;
       this.hasDownloadedCurrentWork = false;
       this.runProcessingPipeline();
     });
 
     const autoDetectCheck = document.getElementById('autoDetectCheck');
-    autoDetectCheck.addEventListener('change', (e) => {
+    autoDetectCheck?.addEventListener('change', (e) => {
       this.customOptions.autoDetect = e.target.checked;
       this.hasDownloadedCurrentWork = false;
       this.resetUserTransforms();
@@ -740,9 +754,9 @@ class SnapSignFitApp {
       }
     });
 
-    document.getElementById('btnOpenEditor').addEventListener('click', () => this.openManualEditor());
-    document.getElementById('btnDownload').addEventListener('click', () => this.triggerDownload());
-    document.getElementById('btnCopyClipboard').addEventListener('click', () => this.copyToClipboard());
+    document.getElementById('btnOpenEditor')?.addEventListener('click', () => this.openManualEditor());
+    document.getElementById('btnDownload')?.addEventListener('click', () => this.triggerDownload());
+    document.getElementById('btnCopyClipboard')?.addEventListener('click', () => this.copyToClipboard());
 
     const activePresetPill = document.getElementById('activePresetPill');
     const activePresetMenu = document.getElementById('activePresetDropdownMenu');
@@ -941,12 +955,13 @@ class SnapSignFitApp {
     if (cat === 'custom') document.getElementById('tabCustom')?.classList.add('active');
 
     const isGov = cat === 'gov';
-    document.getElementById('govNoteBanner').style.display = isGov ? 'block' : 'none';
+    const govBanner = document.getElementById('govNoteBanner');
+    if (govBanner) govBanner.style.display = isGov ? 'block' : 'none';
 
     const isCustom = cat === 'custom';
-    document.getElementById('customPanel').classList.toggle('hidden', !isCustom);
-    document.getElementById('presetsGrid').classList.toggle('hidden', isCustom);
-    document.getElementById('presetsSearchBar').classList.toggle('hidden', isCustom);
+    document.getElementById('customPanel')?.classList.toggle('hidden', !isCustom);
+    document.getElementById('presetsGrid')?.classList.toggle('hidden', isCustom);
+    document.getElementById('presetsSearchBar')?.classList.toggle('hidden', isCustom);
 
     if (!isCustom) {
       this.renderPresetsGrid();
@@ -959,6 +974,7 @@ class SnapSignFitApp {
 
   renderPresetsGrid(filterQuery = '') {
     const grid = document.getElementById('presetsGrid');
+    if (!grid) return;
     grid.innerHTML = '';
 
     const list = PRESETS.filter(p => p.category === this.currentCategory);
@@ -1230,6 +1246,7 @@ class SnapSignFitApp {
   }
 
   applyPreset(preset, { skipProcessing = false } = {}) {
+    if (!preset) return;
     this.haptic(15);
     this.currentPreset = preset;
     this.hasDownloadedCurrentWork = false;
@@ -1237,50 +1254,72 @@ class SnapSignFitApp {
     this.customOptions.fit = preset.fit || 'cover';
     this.customOptions.maxKB = preset.maxKB || (preset.locked ? 99 : 100);
 
+    // Sync Hero segmented tabs & spec readout if present
+    const isSig = preset.kind === 'signature';
+    const heroSeg = document.getElementById('heroSegTabs');
+    const heroTabPhoto = document.getElementById('heroTabPhoto');
+    const heroTabSig = document.getElementById('heroTabSig');
+    const heroSpecName = document.getElementById('heroSpecName');
+    const heroSpecValue = document.getElementById('heroSpecValue');
+    if (heroSeg && heroTabPhoto && heroTabSig) {
+      heroSeg.setAttribute('data-state', isSig ? 'right' : 'left');
+      heroTabPhoto.classList.toggle('active', !isSig);
+      heroTabPhoto.setAttribute('aria-selected', !isSig ? 'true' : 'false');
+      heroTabSig.classList.toggle('active', isSig);
+      heroTabSig.setAttribute('aria-selected', isSig ? 'true' : 'false');
+    }
+    if (heroSpecName && heroSpecValue) {
+      heroSpecName.textContent = `${preset.label} Spec`;
+      heroSpecValue.textContent = `${preset.w}×${preset.h} px${preset.maxKB ? ` (≤ ${preset.maxKB >= 99 && preset.maxKB <= 100 ? 100 : preset.maxKB} KB)` : ''}`;
+    }
+
     // Sync settings bar UI
-    document.getElementById('exportFormatSelect').value = this.customOptions.format;
-    document.getElementById('exportFitSelect').value = this.customOptions.fit;
+    const fmtSel = document.getElementById('exportFormatSelect');
+    if (fmtSel) fmtSel.value = this.customOptions.format;
+    const fitSel = document.getElementById('exportFitSelect');
+    if (fitSel) fitSel.value = this.customOptions.fit;
 
     // Configure Max Size Select according to Gov locked status
     const maxSizeSelect = document.getElementById('exportMaxSizeSelect');
-    maxSizeSelect.innerHTML = '';
+    if (maxSizeSelect) {
+      maxSizeSelect.innerHTML = '';
 
-    if (preset.locked) {
-      const pKB = preset.maxKB || 99;
-      if (pKB <= 50) {
-        maxSizeSelect.innerHTML = `
-          <option value="50" selected>50 KB (Gov locked)</option>
-        `;
-      } else if (pKB <= 60) {
-        maxSizeSelect.innerHTML = `
-          <option value="50">50 KB</option>
-          <option value="60" selected>60 KB (Gov locked)</option>
-        `;
+      if (preset.locked) {
+        const pKB = preset.maxKB || 99;
+        if (pKB <= 50) {
+          maxSizeSelect.innerHTML = `
+            <option value="50" selected>50 KB (Gov locked)</option>
+          `;
+        } else if (pKB <= 60) {
+          maxSizeSelect.innerHTML = `
+            <option value="50">50 KB</option>
+            <option value="60" selected>60 KB (Gov locked)</option>
+          `;
+        } else {
+          maxSizeSelect.innerHTML = `
+            <option value="50">50 KB</option>
+            <option value="60">60 KB</option>
+            <option value="99" selected>100 KB (Gov locked)</option>
+          `;
+        }
       } else {
         maxSizeSelect.innerHTML = `
           <option value="50">50 KB</option>
           <option value="60">60 KB</option>
-          <option value="99" selected>100 KB (Gov locked)</option>
+          <option value="100" selected>100 KB</option>
+          <option value="200">200 KB</option>
+          <option value="500">500 KB</option>
+          <option value="1000">1 MB</option>
+          <option value="2000">2 MB</option>
+          <option value="0">No limit</option>
         `;
       }
-    } else {
-      maxSizeSelect.innerHTML = `
-        <option value="50">50 KB</option>
-        <option value="60">60 KB</option>
-        <option value="100" selected>100 KB</option>
-        <option value="200">200 KB</option>
-        <option value="500">500 KB</option>
-        <option value="1000">1 MB</option>
-        <option value="2000">2 MB</option>
-        <option value="0">No limit</option>
-      `;
+      maxSizeSelect.value = String(this.customOptions.maxKB);
     }
-    maxSizeSelect.value = String(this.customOptions.maxKB);
 
     // Show/hide signature specific options
-    const isSig = preset.kind === 'signature';
-    document.getElementById('sigThickenGroup').classList.toggle('hidden', !isSig);
-    document.getElementById('sigKeepColorGroup').classList.toggle('hidden', !isSig);
+    document.getElementById('sigThickenGroup')?.classList.toggle('hidden', !isSig);
+    document.getElementById('sigKeepColorGroup')?.classList.toggle('hidden', !isSig);
 
     this.renderPresetsGrid();
     this.resetUserTransforms();
@@ -1319,23 +1358,33 @@ class SnapSignFitApp {
 
     try {
       const currentKind = this.currentPreset.kind;
+      const isDuetContext = this.currentCategory === 'duet' || this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet');
 
-      // 1. ALWAYS run MediaPipe face detection FIRST with our robust multi-pass ladder
+      // 1. Run fast pixel/spatial content classification first
+      const detectedKind = classifyImageContent(workingCanvas);
+
+      // 2. Run MediaPipe face detection with multi-pass ladder
       let hasFace = false;
       try {
         const faceDetection = await detectFacesWithLadder(workingCanvas, fullCanvas, workingScale);
-        hasFace = faceDetection && faceDetection.success && (faceDetection.faces?.length > 0 || (faceDetection.detectedAngle && faceDetection.detectedAngle !== 0));
+        if (faceDetection && faceDetection.success) {
+          const faces = faceDetection.faces || [];
+          if (detectedKind === 'signature') {
+            // If pixel/spatial classifier says this is a signature/text document on paper,
+            // only accept a face if it has unmistakable high confidence (>= 0.78)
+            hasFace = faces.some(f => (f.score || 0) >= 0.78);
+          } else {
+            hasFace = faces.length > 0 || (faceDetection.detectedAngle && faceDetection.detectedAngle !== 0);
+          }
+        }
       } catch (e) {
         hasFace = false;
       }
 
-      // If a verified face is present -> 100% certainty of human portrait/photo
+      // 3. If a verified human face is present -> 100% certainty of human portrait/photo
       if (hasFace) {
         if (currentKind === 'signature') {
-          let targetPresetId = 'gov_photo_300x300';
-          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
-            targetPresetId = 'duet_photo_250x250';
-          }
+          const targetPresetId = isDuetContext ? 'duet_photo_250x250' : 'gov_photo_300x300';
           const match = PRESETS.find(p => p.id === targetPresetId);
           if (match) {
             this.applyPreset(match, { skipProcessing: true });
@@ -1349,17 +1398,10 @@ class SnapSignFitApp {
         return; // Firmly lock into Photo preset, never evaluate as signature!
       }
 
-      // 2. If NO face was detected, test content classification
-      const detectedKind = classifyImageContent(workingCanvas);
-      const isWidePaper = (workingCanvas.width / workingCanvas.height) >= 1.35;
-
+      // 4. If NO face was detected, route based on content classification (supports any aspect ratio of signature/text paper)
       if (detectedKind === 'signature') {
-        // Only switch away from a Photo preset if the image is distinctly a signature
-        if (currentKind === 'photo' && isWidePaper) {
-          let targetPresetId = 'gov_sig_300x80';
-          if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
-            targetPresetId = 'duet_sig_250x50';
-          }
+        if (currentKind !== 'signature') {
+          const targetPresetId = isDuetContext ? 'duet_sig_250x50' : 'gov_sig_300x80';
           const match = PRESETS.find(p => p.id === targetPresetId);
           if (match) {
             this.applyPreset(match, { skipProcessing: true });
@@ -1371,10 +1413,7 @@ class SnapSignFitApp {
           }
         }
       } else if (detectedKind === 'photo' && currentKind === 'signature') {
-        let targetPresetId = 'gov_photo_300x300';
-        if (this.currentPreset.category === 'duet' || this.currentPreset.id?.includes('duet')) {
-          targetPresetId = 'duet_photo_250x250';
-        }
+        const targetPresetId = isDuetContext ? 'duet_photo_250x250' : 'gov_photo_300x300';
         const match = PRESETS.find(p => p.id === targetPresetId);
         if (match) {
           this.applyPreset(match, { skipProcessing: true });
@@ -1391,6 +1430,8 @@ class SnapSignFitApp {
   }
 
   async handleFileUpload(file) {
+    if (!file || this._uploadInProgress) return;
+    this._uploadInProgress = true;
     this.setProcessing(true, t('processing'));
     const banner = document.getElementById('globalBanner');
     if (banner) banner.classList.add('hidden');
@@ -1398,11 +1439,14 @@ class SnapSignFitApp {
     try {
       this.sourceData = await loadImageFile(file);
       this.hasDownloadedCurrentWork = false;
+      this.activeChips = [];
       document.body.classList.add('has-image');
       document.querySelector('.main-content')?.classList.add('has-image');
       document.getElementById('hero')?.classList.add('hidden');
       document.getElementById('how')?.classList.add('hidden');
-      document.getElementById('workspaceSection').classList.remove('hidden');
+      document.querySelector('.seo-hero')?.classList.add('hidden');
+      document.querySelector('.seo-guide')?.classList.add('hidden');
+      document.getElementById('workspaceSection')?.classList.remove('hidden');
       this.resetUserTransforms();
       await this.autoDetectAndAdjustPreset();
       await this.runProcessingPipeline({ fromFileUpload: true });
@@ -1416,6 +1460,7 @@ class SnapSignFitApp {
       if (bannerText) bannerText.textContent = msg;
       banner?.classList.remove('hidden');
     } finally {
+      this._uploadInProgress = false;
       this.setProcessing(false);
     }
   }
@@ -1447,7 +1492,7 @@ class SnapSignFitApp {
     if (!this.sourceData) return;
     this.setProcessing(true);
     this.activeWarnings = [];
-    this.activeChips = [];
+    this.activeChips = fromFileUpload ? this.activeChips.filter(c => c.id === 'chip-auto-kind') : [];
 
     // 15-second watchdog timer to guarantee controls never stay stuck (B5)
     let watchdogDone = false;
@@ -1670,6 +1715,7 @@ class SnapSignFitApp {
         } else {
           computedCrop = computeFaceAwareCrop(faces, activeFull.width, activeFull.height, targetW, targetH, kind);
         }
+      } else {
         // No face found
         if (kind === 'photo') {
           this.activeWarnings.push('warnNoFace');
@@ -2041,7 +2087,9 @@ class SnapSignFitApp {
       document.querySelector('.main-content')?.classList.add('has-image');
       document.getElementById('hero')?.classList.add('hidden');
       document.getElementById('how')?.classList.add('hidden');
-      document.getElementById('workspaceSection').classList.remove('hidden');
+      document.querySelector('.seo-hero')?.classList.add('hidden');
+      document.querySelector('.seo-guide')?.classList.add('hidden');
+      document.getElementById('workspaceSection')?.classList.remove('hidden');
       await this.runProcessingPipeline();
 
       console.log('[Session] 100% of user progress and manual edits restored successfully');
@@ -2102,6 +2150,8 @@ class SnapSignFitApp {
     document.querySelector('.main-content')?.classList.remove('has-image');
     document.getElementById('hero')?.classList.remove('hidden');
     document.getElementById('how')?.classList.remove('hidden');
+    document.querySelector('.seo-hero')?.classList.remove('hidden');
+    document.querySelector('.seo-guide')?.classList.remove('hidden');
 
     await clearSession();
 
@@ -2135,7 +2185,13 @@ class SnapSignFitApp {
     if (workspace) workspace.classList.add('hidden');
 
     this.selectCategory('gov');
-    this.applyPreset(PRESETS[0]);
+    const embeddedWrapper = document.querySelector('.embedded-tool-wrapper[data-default-preset]');
+    const defaultPresetId = embeddedWrapper?.getAttribute('data-default-preset');
+    const initialPreset = (defaultPresetId && PRESETS.find(p => p.id === defaultPresetId)) || PRESETS[0];
+    if (initialPreset && initialPreset.category) {
+      this.currentCategory = initialPreset.category;
+    }
+    this.applyPreset(initialPreset);
   }
 
   async copyToClipboard() {

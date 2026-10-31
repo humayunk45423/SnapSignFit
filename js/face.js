@@ -5,6 +5,7 @@ import { classifyImageContent } from './signature.js';
 
 let faceDetectorInstance = null;
 let isModelLoading = false;
+let modelLoadingPromise = null;
 let modelLoadFailed = false;
 
 /**
@@ -13,43 +14,51 @@ let modelLoadFailed = false;
 export async function getFaceDetector(onProgress) {
   if (faceDetectorInstance) return faceDetectorInstance;
   if (modelLoadFailed) return null;
+  if (modelLoadingPromise) return modelLoadingPromise;
 
   isModelLoading = true;
   if (onProgress) onProgress('loadingModel');
 
-  try {
-    const { FilesetResolver, FaceDetector } = await import('../vendor/mediapipe/vision_bundle.mjs');
-    const wasmResolver = await FilesetResolver.forVisionTasks('./vendor/mediapipe/wasm');
-
+  modelLoadingPromise = (async () => {
     try {
-      faceDetectorInstance = await FaceDetector.createFromOptions(wasmResolver, {
-        baseOptions: {
-          modelAssetPath: './vendor/mediapipe/blaze_face_short_range.tflite',
-          delegate: 'GPU'
-        },
-        runningMode: 'IMAGE',
-        minDetectionConfidence: 0.35
-      });
-    } catch (gpuError) {
-      console.warn('FaceDetector GPU delegate failed, falling back to CPU:', gpuError);
-      faceDetectorInstance = await FaceDetector.createFromOptions(wasmResolver, {
-        baseOptions: {
-          modelAssetPath: './vendor/mediapipe/blaze_face_short_range.tflite',
-          delegate: 'CPU'
-        },
-        runningMode: 'IMAGE',
-        minDetectionConfidence: 0.35
-      });
-    }
+      const { FilesetResolver, FaceDetector } = await import('../vendor/mediapipe/vision_bundle.mjs');
+      const wasmUrl = new URL('../vendor/mediapipe/wasm', import.meta.url).href;
+      const modelUrl = new URL('../vendor/mediapipe/blaze_face_short_range.tflite', import.meta.url).href;
+      const wasmResolver = await FilesetResolver.forVisionTasks(wasmUrl);
 
-    isModelLoading = false;
-    return faceDetectorInstance;
-  } catch (err) {
-    console.error('Failed to load MediaPipe FaceDetector:', err);
-    modelLoadFailed = true;
-    isModelLoading = false;
-    return null;
-  }
+      try {
+        faceDetectorInstance = await FaceDetector.createFromOptions(wasmResolver, {
+          baseOptions: {
+            modelAssetPath: modelUrl,
+            delegate: 'GPU'
+          },
+          runningMode: 'IMAGE',
+          minDetectionConfidence: 0.35
+        });
+      } catch (gpuError) {
+        console.warn('FaceDetector GPU delegate failed, falling back to CPU:', gpuError);
+        faceDetectorInstance = await FaceDetector.createFromOptions(wasmResolver, {
+          baseOptions: {
+            modelAssetPath: modelUrl,
+            delegate: 'CPU'
+          },
+          runningMode: 'IMAGE',
+          minDetectionConfidence: 0.35
+        });
+      }
+
+      isModelLoading = false;
+      return faceDetectorInstance;
+    } catch (err) {
+      console.error('Failed to load MediaPipe FaceDetector:', err);
+      modelLoadFailed = true;
+      isModelLoading = false;
+      modelLoadingPromise = null;
+      return null;
+    }
+  })();
+
+  return modelLoadingPromise;
 }
 
 /**
@@ -192,7 +201,7 @@ export function validateFaceCandidate(face, canvas) {
     return false;
   }
 
-  // 3. Pixel Texture & Document/Blank Paper Rejection Check
+  // 3. Pixel Texture & Document/Signature/Text Rejection Check
   try {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     const clampedX = Math.max(0, Math.min(canvas.width - 1, Math.floor(x)));
@@ -209,6 +218,7 @@ export function validateFaceCandidate(face, canvas) {
     let skinCount = 0;
     let brightPaperCount = 0;
     let darkInkCount = 0;
+    let midToneOrganicCount = 0;
 
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
@@ -216,14 +226,28 @@ export function validateFaceCandidate(face, canvas) {
       const b = data[i + 2];
 
       const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-      if (luma > 200 && Math.abs(r - g) < 18 && Math.abs(g - b) < 18) {
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      const sat = max === 0 ? 0 : (max - min) / max;
+
+      // Detect white, off-white, or warm indoor paper background
+      const isPaper = (luma > 165 && Math.abs(r - g) < 28 && Math.abs(g - b) < 32 && (r - b) < 45) ||
+                      (luma > 140 && sat < 0.16);
+      const isInk = (luma < 110) ||
+                    (b > r + 15 && b > g + 10 && luma < 175) ||
+                    (r > g + 35 && r > b + 35 && luma < 165);
+
+      if (isPaper) {
         brightPaperCount++;
-      } else if (luma < 90) {
+      } else if (isInk) {
         darkInkCount++;
+      } else if (luma >= 95 && luma <= 185) {
+        midToneOrganicCount++;
       }
 
-      // Multi-spectral skin tone detection (color photos)
-      if (r > g && g > b && (r - g) > 8 && (r - b) > 12 && r > 55 && b < 210) {
+      // True chromatic skin tone detection (rejects warm indoor paper)
+      if (!isPaper && sat >= 0.15 && luma >= 45 && luma <= 220 &&
+          r > g && g >= b && (r - g) >= 10 && (r - b) >= 18) {
         skinCount++;
       }
     }
@@ -231,10 +255,33 @@ export function validateFaceCandidate(face, canvas) {
     const paperRatio = brightPaperCount / totalPixels;
     const skinRatio = skinCount / totalPixels;
     const inkRatio = darkInkCount / totalPixels;
+    const midToneRatio = midToneOrganicCount / totalPixels;
+    const bimodalPaperInk = paperRatio + inkRatio;
 
-    // Only reject if overwhelmingly empty white paper document (> 85% pure paper with very sparse ink < 5%)
-    if (paperRatio > 0.85 && skinRatio < 0.015 && inkRatio < 0.05) {
+    // A: Reject empty or near-empty paper
+    if (paperRatio > 0.72 && skinRatio < 0.02) {
       return false;
+    }
+
+    // B: Reject bimodal ink-on-paper (signatures, cursive loops, text blocks, stamps)
+    // Real faces (even B&W) have continuous mid-tone shading across cheeks/forehead, not binary paper + ink strokes
+    if (bimodalPaperInk > 0.78 && skinRatio < 0.03 && midToneRatio < 0.22) {
+      return false;
+    }
+
+    // C: If the candidate box has significant paper (> 42%) and virtually no skin (< 2.5%),
+    // require high BlazeFace confidence + organic midtones (prevents false face boxes on handwriting)
+    if (paperRatio > 0.42 && skinRatio < 0.025 && (face.score < 0.78 || midToneRatio < 0.25)) {
+      return false;
+    }
+
+    // D: Whole-canvas document/signature check — if the overall image is a signature/text document,
+    // reject any face candidate that lacks unmistakable human skin or extreme confidence
+    if (skinRatio < 0.04 && face.score < 0.82) {
+      const wholeKind = classifyImageContent(canvas);
+      if (wholeKind === 'signature') {
+        return false;
+      }
     }
 
     return true;

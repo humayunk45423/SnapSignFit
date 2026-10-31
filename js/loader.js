@@ -88,7 +88,7 @@ async function loadHeic2Any() {
   if (heic2anyLoaded && window.heic2any) return window.heic2any;
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = './vendor/heic2any.min.js';
+    script.src = new URL('../vendor/heic2any.min.js', import.meta.url).href;
     script.onload = () => {
       heic2anyLoaded = true;
       resolve(window.heic2any);
@@ -107,7 +107,7 @@ async function loadUTIF() {
     // Pako first if not present
     const loadPako = window.pako ? Promise.resolve() : new Promise((res, rej) => {
       const ps = document.createElement('script');
-      ps.src = './vendor/pako.min.js';
+      ps.src = new URL('../vendor/pako.min.js', import.meta.url).href;
       ps.onload = res;
       ps.onerror = rej;
       document.head.appendChild(ps);
@@ -115,7 +115,7 @@ async function loadUTIF() {
 
     loadPako.then(() => {
       const script = document.createElement('script');
-      script.src = './vendor/UTIF.js';
+      script.src = new URL('../vendor/UTIF.js', import.meta.url).href;
       script.onload = () => resolve(window.UTIF);
       script.onerror = () => reject(new Error('Failed to load TIFF decoder module.'));
       document.head.appendChild(script);

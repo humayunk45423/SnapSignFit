@@ -228,39 +228,60 @@ export function classifyImageContent(canvas) {
 
   // Ultra-fast adaptive stride: sample up to 65,536 well-distributed pixels for sub-millisecond execution
   const stride = Math.max(1, Math.floor(Math.sqrt(total / 65536)));
-  const stepBytes = stride * 4;
 
   let sumRg = 0, sumYb = 0, sumRgSq = 0, sumYbSq = 0;
   let skinToneCount = 0;
   let highSatCount = 0;
   let brightPaperCount = 0;
   let darkInkCount = 0;
+  let transparentCount = 0;
   let sampleCount = 0;
+
+  // 16x16 spatial grid to measure contiguous solid object mass (portrait head/torso vs thin pen/text strokes)
+  const GRID = 16;
+  const cellTotal = new Int32Array(GRID * GRID);
+  const cellNonPaper = new Int32Array(GRID * GRID);
 
   for (let y = 0; y < h; y += stride) {
     const rowOffset = y * w * 4;
+    const gy = Math.min(GRID - 1, Math.floor((y / h) * GRID));
     for (let x = 0; x < w; x += stride) {
       const i = rowOffset + x * 4;
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
+      const a = data[i + 3];
+
+      const gx = Math.min(GRID - 1, Math.floor((x / w) * GRID));
+      const cellIdx = gy * GRID + gx;
+      cellTotal[cellIdx]++;
+      sampleCount++;
+
+      // Transparent background pixels (e.g. PNG digital signatures or transparent text stickers)
+      if (a < 64) {
+        transparentCount++;
+        brightPaperCount++;
+        continue;
+      }
 
       const luma = 0.299 * r + 0.587 * g + 0.114 * b;
       const max = Math.max(r, g, b);
       const min = Math.min(r, g, b);
       const sat = max === 0 ? 0 : (max - min) / max;
 
-      // Detect white/off-white/ruled paper surfaces (including ambient indoor shadows)
-      const isPaper = (luma > 165 && Math.abs(r - g) < 32 && Math.abs(g - b) < 32) ||
-                      (luma > 130 && sat < 0.18);
+      // Detect white/off-white/cream/ruled paper surfaces (including warm indoor phone camera shadows)
+      const isPaper = (luma > 155 && sat < 0.24 && Math.abs(r - g) < 28 && (r - b) < 46) ||
+                      (luma > 125 && sat < 0.15);
       if (isPaper) {
         brightPaperCount++;
+      } else {
+        cellNonPaper[cellIdx]++;
       }
 
-      // Detect dark ink, black gel pen, blue ballpoint pen, or red signature ink
-      const isDarkInk = (luma < 115);
-      const isBlueInk = (b > r + 15 && b > g + 10 && luma < 175);
-      const isRedInk = (r > g + 35 && r > b + 35 && luma < 165);
+      // Detect dark ink, black gel pen, blue ballpoint pen, red ink, or anti-aliased stroke edges
+      const isDarkInk = (luma < 125);
+      const isBlueInk = (b > r + 14 && b > g + 8 && luma < 185);
+      const isRedInk = (r > g + 32 && r > b + 32 && luma < 170);
       if (isDarkInk || isBlueInk || isRedInk) {
         darkInkCount++;
       }
@@ -272,22 +293,36 @@ export function classifyImageContent(canvas) {
       sumRgSq += rg * rg;
       sumYbSq += yb * yb;
 
-      // Multi-spectral human skin tone heuristics (Fitzpatrick I through VI)
-      const isSkin = (
-        (r > g && g > b && (r - g) > 10 && (r - b) > 14 && r > 65 && b < 195) ||
-        (r > 120 && g > 80 && b > 55 && (r - g) >= 15 && (g - b) >= 5) ||
-        (r > 70 && g > 45 && b > 30 && r > g && g > b && (r - b) >= 20)
-      );
-      if (isSkin) {
-        skinToneCount++;
+      // Multi-spectral human skin tone heuristics (only on non-paper pixels so warm indoor paper is never miscounted as skin)
+      if (!isPaper) {
+        const isSkin = sat >= 0.16 && luma >= 45 && luma <= 218 && r > g && g >= b && (
+          ((r - g) >= 12 && (r - b) >= 20 && r > 75 && b < 190) ||
+          (r > 135 && g > 85 && b > 55 && (r - g) >= 16 && (g - b) >= 8 && sat <= 0.65)
+        );
+        if (isSkin) {
+          skinToneCount++;
+        }
       }
 
-      if (sat > 0.28 && max > 45) highSatCount++;
-      sampleCount++;
+      if (sat > 0.30 && max > 50) highSatCount++;
     }
   }
 
   if (sampleCount === 0) return 'photo';
+
+  // Compute spatial solidity: how many grid cells are densely filled (> 72% non-paper)?
+  // Human portraits have a solid head/hair/torso block (solidCellRatio >= 0.10), whereas signatures and text-based pictures have thin strokes surrounded by paper.
+  let activeCells = 0;
+  let solidCells = 0;
+  for (let c = 0; c < GRID * GRID; c++) {
+    if (cellTotal[c] > 0) {
+      activeCells++;
+      if (cellNonPaper[c] / cellTotal[c] > 0.72) {
+        solidCells++;
+      }
+    }
+  }
+  const solidCellRatio = activeCells > 0 ? solidCells / activeCells : 0;
 
   const meanRg = sumRg / sampleCount;
   const meanYb = sumYb / sampleCount;
@@ -299,20 +334,33 @@ export function classifyImageContent(canvas) {
   const satRatio = highSatCount / sampleCount;
   const paperRatio = brightPaperCount / sampleCount;
   const inkRatio = darkInkCount / sampleCount;
+  const transparentRatio = transparentCount / sampleCount;
+  const bimodalRatio = paperRatio + inkRatio;
   const aspect = w / h;
 
-  // 1. Definite Photos: tall/portrait aspect, human skin tones, rich organic color, or dense dark clothing/hair
-  if (aspect < 1.05 || skinRatio > 0.025 || (colorfulness > 18 && satRatio > 0.08) || inkRatio > 0.20) {
-    return 'photo';
-  }
-
-  // 2. Wide aspect ratio signatures (standard horizontal paper or transparent signature crops)
-  if (aspect >= 1.35 && skinRatio < 0.015 && paperRatio > 0.60 && inkRatio > 0.0005 && inkRatio < 0.15) {
+  // 1. Transparent PNG with ink/text strokes and low skin -> Definite Signature / Text graphic
+  if (transparentRatio > 0.35 && inkRatio > 0.0003 && inkRatio < 0.40 && skinRatio < 0.02) {
     return 'signature';
   }
 
-  // 3. Document / Paper with ink writing on white or light paper surface (must be predominantly paper with sparse strokes)
-  if (aspect >= 1.15 && paperRatio > 0.70 && inkRatio > 0.0005 && inkRatio < 0.12 && colorfulness < 15 && skinRatio < 0.010) {
+  // 2. Wide banner aspect ratio (>= 1.75, e.g. 300x80, 250x50, cropped signature strip, text banner)
+  if (aspect >= 1.75 && paperRatio >= 0.40 && inkRatio > 0.0003 && inkRatio < 0.40 && skinRatio < 0.03 && solidCellRatio < 0.25) {
+    return 'signature';
+  }
+
+  // 3. Definite Photos: significant human skin tones, rich multi-color scene, or large contiguous solid subject mass
+  if (skinRatio > 0.035 || (colorfulness > 24 && satRatio > 0.12) || solidCellRatio > 0.22 || inkRatio > 0.38) {
+    return 'photo';
+  }
+
+  // 4. Signatures & Text-Based Pictures on Paper (works for ANY aspect ratio: 16:9, 4:3, 1:1, or 3:4 phone photo of paper)
+  // Characterized by a predominantly paper background (>= 52%), bimodal paper+ink distribution (>= 76%), low skin, and low contiguous solid mass
+  if (paperRatio >= 0.52 && bimodalRatio >= 0.76 && inkRatio >= 0.0003 && inkRatio <= 0.35 && skinRatio < 0.025 && solidCellRatio < 0.12 && colorfulness < 24) {
+    return 'signature';
+  }
+
+  // 5. Shaded / dimly lit phone photo of paper with handwriting or text
+  if (aspect >= 1.15 && paperRatio >= 0.45 && bimodalRatio >= 0.70 && inkRatio >= 0.0005 && inkRatio <= 0.25 && skinRatio < 0.018 && solidCellRatio < 0.08 && colorfulness < 18) {
     return 'signature';
   }
 
@@ -540,8 +588,9 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   const keptComponents = [];
 
   for (const c of components) {
-    // Rule A: Drop long straight border/ruled components spanning > 60% of image width
-    if (c.w > w * 0.60 && c.h < h * 0.12) {
+    // Rule A: Only drop ultra-thin straight border/ruled notebook lines spanning > 78% of image width
+    // Never drop actual cursive signatures or text lines, nor drop if it is the sole large component
+    if (c.w > w * 0.78 && c.h <= Math.max(4, Math.round(h * 0.015)) && (c.w / Math.max(1, c.h)) > 40 && largeComps.length > 1) {
       continue;
     }
 
@@ -563,6 +612,12 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     }
 
     keptComponents.push(c);
+  }
+
+  // Fallback: if all components were filtered out by rules, keep the largest components so valid signatures never vanish
+  if (keptComponents.length === 0 && components.length > 0) {
+    const sorted = [...components].sort((a, b) => b.count - a.count);
+    keptComponents.push(...sorted.slice(0, Math.min(5, sorted.length)));
   }
 
   // Populate keptMask

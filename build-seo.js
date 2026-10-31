@@ -11,16 +11,23 @@ const pagesData = JSON.parse(fs.readFileSync(path.join(__dirname, 'pages.json'),
 // 2. Read template elements from index.html (the interactive tool shell)
 const rootIndexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 
+// Extract Workspace Section & Modals from index.html so every SEO intent page has full interactive processing
+const wsMatch = rootIndexHtml.match(/<!-- Workspace \(Visible after image loaded\) -->[\s\S]*?<\/section>/);
+const workspaceSectionHtml = wsMatch ? wsMatch[0] : '';
+const modalsMatch = rootIndexHtml.match(/<!-- Discard Confirmation Modal Dialog -->[\s\S]*?<div id="toastContainer"[^>]*><\/div>/);
+const modalsHtml = modalsMatch ? modalsMatch[0] : '';
+
 // Extract interactive tool components from index.html
 function getToolShell(lang = 'en', defaultPreset = 'gov_photo_300x300') {
+  const isSigDefault = defaultPreset.includes('sig');
   return `
     <!-- Embedded SnapSignFit Client-Side Tool Core -->
     <div class="embedded-tool-wrapper" data-default-preset="${defaultPreset}" data-lang="${lang}">
       <div class="hero-card">
-        <div class="seg" id="heroSegTabs" data-state="left" role="tablist">
+        <div class="seg" id="heroSegTabs" data-state="${isSigDefault ? 'right' : 'left'}" role="tablist">
           <span class="seg-slider" aria-hidden="true"></span>
-          <button type="button" class="seg-btn active" id="heroTabPhoto" role="tab" aria-selected="true"><span>${lang === 'bn' ? 'ছবি (৩০০×৩০০)' : 'Photo (300×300)'}</span></button>
-          <button type="button" class="seg-btn" id="heroTabSig" role="tab" aria-selected="false"><span>${lang === 'bn' ? 'স্বাক্ষর (৩০০×৮০)' : 'Signature (300×80)'}</span></button>
+          <button type="button" class="seg-btn ${!isSigDefault ? 'active' : ''}" id="heroTabPhoto" role="tab" aria-selected="${!isSigDefault ? 'true' : 'false'}"><span>${lang === 'bn' ? 'ছবি (৩০০×৩০০)' : 'Photo (300×300)'}</span></button>
+          <button type="button" class="seg-btn ${isSigDefault ? 'active' : ''}" id="heroTabSig" role="tab" aria-selected="${isSigDefault ? 'true' : 'false'}"><span>${lang === 'bn' ? 'স্বাক্ষর (৩০০×৮০)' : 'Signature (300×80)'}</span></button>
         </div>
 
         <div class="dropzone" id="dropzone" tabindex="0" role="region" aria-label="Image upload dropzone">
@@ -44,6 +51,7 @@ function getToolShell(lang = 'en', defaultPreset = 'gov_photo_300x300') {
           </div>
           <div class="dropzone-hint">${lang === 'bn' ? 'JPG, PNG, WebP, GIF, BMP, AVIF, HEIC সাপোর্ট করে (সর্বোচ্চ ৪০ এমবি)' : 'Supports JPG, PNG, WebP, GIF, BMP, AVIF, SVG, HEIC (up to 40 MB)'}</div>
           <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tif,.tiff,.avif,.svg" class="hidden">
+          <input type="file" id="cameraInput" accept="image/*" capture="user" class="hidden">
         </div>
       </div>
     </div>
@@ -228,6 +236,21 @@ ${JSON.stringify(faqJson, null, 2)}
     </div>
   </header>
 
+  <!-- Global Error Banner -->
+  <div id="globalBanner" class="global-banner hidden" role="alert" aria-live="assertive">
+    <span id="globalBannerText">An unexpected issue occurred.</span>
+    <button type="button" class="btn btn-outline btn-sm" id="bannerManualBtn" data-i18n="adjustManually">Adjust Manually</button>
+  </div>
+
+  <!-- Global Drag & Drop Overlay -->
+  <div id="globalDragOverlay" class="global-drag-overlay hidden" aria-hidden="true">
+    <div class="global-drag-box">
+      <div class="global-drag-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+      <div class="global-drag-title" data-i18n="dropAnywhereTitle">Drop your photo or signature anywhere</div>
+      <div class="global-drag-sub" data-i18n="dropAnywhereSub">Release to instantly format &amp; compress</div>
+    </div>
+  </div>
+
   <main class="main-content">
     <!-- Hero / Main Intent Section -->
     <section class="seo-hero" style="padding: clamp(24px, 4vw, 48px) 0; max-width: 1080px; margin: 0 auto; width: 100%;">
@@ -344,6 +367,8 @@ ${JSON.stringify(faqJson, null, 2)}
       </div>
 
     </section>
+
+    ${workspaceSectionHtml}
   </main>
 
   <!-- Site Footer with Mandatory Disclaimer -->
@@ -364,8 +389,13 @@ ${JSON.stringify(faqJson, null, 2)}
     </div>
   </footer>
 
+  ${modalsHtml}
+
   <!-- Core App Scripts -->
+  <script type="module" src="/js/editor-pan.js"></script>
+  <script type="module" src="/js/hero.js"></script>
   <script type="module" src="/js/app.js"></script>
+  <script src="/js/register-sw.js"></script>
 </body>
 </html>`;
 }
@@ -390,7 +420,8 @@ if (!fs.existsSync(bnHomeDir)) fs.mkdirSync(bnHomeDir, { recursive: true });
 const bnHubHtml = rootIndexHtml
   .replace('<html lang="en"', '<html lang="bn"')
   .replace('<link rel="canonical" href="https://snapsignfit.vercel.app/">', '<link rel="canonical" href="https://snapsignfit.vercel.app/bn/">')
-  .replace('data-lang="en"', 'data-lang="bn"');
+  .replace('data-lang="en"', 'data-lang="bn"')
+  .replace(/(href|src)="\.\//g, '$1="/');
 
 fs.writeFileSync(path.join(bnHomeDir, 'index.html'), bnHubHtml, 'utf8');
 
