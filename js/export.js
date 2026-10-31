@@ -70,7 +70,7 @@ export async function loadUPNG() {
   return new Promise((resolve, reject) => {
     const loadPako = window.pako ? Promise.resolve() : new Promise((res, rej) => {
       const ps = document.createElement('script');
-      ps.src = './vendor/pako.min.js';
+      ps.src = new URL('../vendor/pako.min.js', import.meta.url).href;
       ps.onload = res;
       ps.onerror = rej;
       document.head.appendChild(ps);
@@ -78,7 +78,7 @@ export async function loadUPNG() {
 
     loadPako.then(() => {
       const script = document.createElement('script');
-      script.src = './vendor/UPNG.js';
+      script.src = new URL('../vendor/UPNG.js', import.meta.url).href;
       script.onload = () => {
         upngLoaded = true;
         resolve(window.UPNG);

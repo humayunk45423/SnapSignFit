@@ -1,16 +1,158 @@
-// js/app.js - Main Application Orchestrator, UI Events, and Auto-Processing Pipeline
-import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations } from './i18n.js';
+// js/app.js - Main Application Orchestrator, Hero Controller, Session Persistence & Auto-Processing Pipeline
+import { CONFIG, t, initLanguage, setLanguage, getLanguage, updateDOMTranslations, icon } from './i18n.js';
 import { PRESETS, getSavedCustomPresets, saveCustomPreset, unitToPixels } from './presets.js';
 import { loadImageFile, createCanvas, flattenAlpha } from './loader.js';
-import { detectFacesWithLadder, selectPrimaryFace, computePassportCrop, computePortraitFallbackCrop, checkFaceQuality, rotateCanvas } from './face.js';
-import { calculateEyeTilt, rotateWithEdgeReplication, autoEnhanceCanvas, detectSignaturePaperTilt } from './orient.js';
+import {
+  detectFacesWithLadder, selectPrimaryFace, computePassportCrop, computePortraitFallbackCrop,
+  checkFaceQuality, rotateCanvas, calculateEyeTilt, rotateWithEdgeReplication, autoEnhanceCanvas,
+  detectSignaturePaperTilt, computeSaliencyCrop, computeFaceAwareCrop, renderFitMode
+} from './face.js';
 import { processSignature, classifyImageContent } from './signature.js';
-import { computeSaliencyCrop, computeFaceAwareCrop, renderFitMode } from './smartcrop.js';
 import { ManualEditor } from './editor.js';
 import { exportWithGuarantee, triggerDownload, copyToClipboard } from './export.js';
 import { removeBackgroundToWhite } from './bg.js';
-import { saveSessionCanvas, loadSessionCanvas, removeSessionCanvas, clearSession, saveSessionState, loadSessionState } from './session.js';
-import { icon } from './icons.js';
+
+// --- Session Persistence (IndexedDB for canvases + localStorage for state) ---
+const DB_NAME = 'SnapSignFitSession';
+const DB_VERSION = 1;
+const STORE_IMAGE = 'sessionImage';
+const LS_KEY = 'snapsignfit_session_v1';
+let _db = null;
+
+function openDB() {
+  if (_db) return Promise.resolve(_db);
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_IMAGE)) {
+        db.createObjectStore(STORE_IMAGE);
+      }
+    };
+    req.onsuccess = (e) => { _db = e.target.result; resolve(_db); };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveSessionCanvas(key, canvas) {
+  if (!canvas) return;
+  try {
+    const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+    if (!blob) return;
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_IMAGE, 'readwrite');
+      tx.objectStore(STORE_IMAGE).put(blob, key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.warn(`[Session] Failed to save canvas '${key}':`, err);
+  }
+}
+
+async function removeSessionCanvas(key) {
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_IMAGE, 'readwrite');
+      tx.objectStore(STORE_IMAGE).delete(key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.warn(`[Session] Failed to remove canvas '${key}':`, err);
+  }
+}
+
+async function loadSessionCanvas(key) {
+  try {
+    const db = await openDB();
+    const blob = await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_IMAGE, 'readonly');
+      const req = tx.objectStore(STORE_IMAGE).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+    if (!blob) return null;
+    const img = await new Promise((resolve) => {
+      const el = new Image();
+      const url = URL.createObjectURL(blob);
+      el.onload = () => { URL.revokeObjectURL(url); resolve(el); };
+      el.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      el.src = url;
+    });
+    if (!img) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    return canvas;
+  } catch (err) {
+    console.warn(`[Session] Failed to load canvas '${key}':`, err);
+    return null;
+  }
+}
+
+async function clearSession() {
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
+  try {
+    const db = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_IMAGE, 'readwrite');
+      tx.objectStore(STORE_IMAGE).clear();
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.warn('[Session] Failed to clear session canvases:', err);
+  }
+}
+
+function saveSessionState(state) {
+  try {
+    const serialisable = {
+      presetId: state.presetId,
+      category: state.category,
+      fileName: state.fileName,
+      customOptions: state.customOptions,
+      userTransforms: {
+        crop: state.userTransforms?.crop || null,
+        cropRotateDeg: state.userTransforms?.cropRotateDeg || 0,
+        rotation: state.userTransforms?.rotation || 0,
+        straightenDeg: state.userTransforms?.straightenDeg || 0,
+        flipH: state.userTransforms?.flipH || false,
+        flipV: state.userTransforms?.flipV || false,
+        allowPadding: state.userTransforms?.allowPadding || false,
+        step2Transform: state.userTransforms?.step2Transform || null,
+        hasTransformedCanvas: Boolean(state.userTransforms?.transformedCanvas),
+        hasMaskCanvas: Boolean(state.userTransforms?.maskCanvas),
+        hasCroppedCanvas: Boolean(state.userTransforms?.croppedCanvas)
+      },
+      autoFixes: state.autoFixes || { rotationDeg: 0, tiltDeg: 0, enhanced: false },
+      timestamp: Date.now()
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(serialisable));
+  } catch (err) {
+    console.warn('[Session] Failed to save state:', err);
+  }
+}
+
+function loadSessionState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const state = JSON.parse(raw);
+    if (!state.timestamp || Date.now() - state.timestamp > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(LS_KEY);
+      return null;
+    }
+    return state;
+  } catch (err) {
+    console.warn('[Session] Failed to load state:', err);
+    return null;
+  }
+}
 
 
 class SnapSignFitApp {
@@ -33,6 +175,7 @@ class SnapSignFitApp {
     // User settings
     this.userTransforms = {
       crop: null,
+      cropRotateDeg: 0,
       rotation: 0,
       straightenDeg: 0,
       flipH: false,
@@ -1333,6 +1476,7 @@ class SnapSignFitApp {
   resetUserTransforms() {
     this.userTransforms = {
       crop: null,
+      cropRotateDeg: 0,
       rotation: 0,
       straightenDeg: 0,
       flipH: false,
@@ -1526,6 +1670,7 @@ class SnapSignFitApp {
     if (kind === 'signature') {
       const hasCustomEdits = this.userTransforms.transformedCanvas && (
         this.userTransforms.maskCanvas !== null ||
+        this.userTransforms.cropRotateDeg !== 0 ||
         this.userTransforms.rotation !== 0 ||
         this.userTransforms.straightenDeg !== 0 ||
         (this.userTransforms.step2Transform?.zoom && this.userTransforms.step2Transform.zoom !== 1.0) ||
@@ -1949,6 +2094,7 @@ class SnapSignFitApp {
       this.userTransforms.crop || this.lastComputedCrop,
       this.currentPreset,
       {
+        cropRotateDeg: this.userTransforms.cropRotateDeg || 0,
         rotation: this.userTransforms.rotation,
         straightenDeg: this.userTransforms.straightenDeg,
         flipH: this.userTransforms.flipH,
@@ -1965,6 +2111,7 @@ class SnapSignFitApp {
     this.haptic(20);
     this.userTransforms = {
       crop: state.crop,
+      cropRotateDeg: state.cropRotateDeg || 0,
       rotation: state.rotation,
       straightenDeg: state.straightenDeg,
       flipH: state.flipH,
@@ -2045,6 +2192,7 @@ class SnapSignFitApp {
       if (state.userTransforms) {
         this.userTransforms = {
           crop: state.userTransforms.crop || null,
+          cropRotateDeg: state.userTransforms.cropRotateDeg || 0,
           rotation: state.userTransforms.rotation || 0,
           straightenDeg: state.userTransforms.straightenDeg || 0,
           flipH: state.userTransforms.flipH || false,
@@ -2212,16 +2360,121 @@ class SnapSignFitApp {
   }
 }
 
-// Initialize Application when DOM is ready
-function initSnapSignFit() {
-  if (!window.app) {
-    window.app = new SnapSignFitApp();
+// Initialize Hero controls, Application, and Service Worker when DOM is ready
+function initHeroControls() {
+  const $ = id => document.getElementById(id);
+  const fileInput = $('fileInput');
+  let currentKind = 'photo';
+
+  function setKind(kind, dispatchPreset = true) {
+    currentKind = kind;
+    const photo = kind === 'photo';
+    const seg = $('heroSegTabs') || $('heroTabPhoto')?.closest('.seg');
+    if (seg) seg.setAttribute('data-state', photo ? 'left' : 'right');
+    $('heroTabPhoto')?.classList.toggle('active', photo);
+    $('heroTabPhoto')?.setAttribute('aria-selected', photo);
+    $('heroTabSig')?.classList.toggle('active', !photo);
+    $('heroTabSig')?.setAttribute('aria-selected', !photo);
+    const specName = $('heroSpecName');
+    const specValue = $('heroSpecValue');
+    const isBn = document.documentElement.lang === 'bn';
+    if (specName) {
+      specName.setAttribute('data-i18n', photo ? 'specBcsPhoto' : 'specTeletalkSig');
+      specName.textContent = isBn ? (photo ? 'বিসিএস ছবির স্পেক' : 'টেলিটক স্বাক্ষরের স্পেক') : (photo ? 'BCS Photo Spec' : 'Teletalk Signature Spec');
+    }
+    if (specValue) {
+      specValue.setAttribute('data-i18n', photo ? 'specBcsPhotoVal' : 'specTeletalkSigVal');
+      specValue.textContent = isBn ? (photo ? '৩০০×৩০০ px (≤ ১০০ KB)' : '৩০০×৮০ px (≤ ৬০ KB)') : (photo ? '300×300 px (≤ 100 KB)' : '300×80 px (≤ 60 KB)');
+    }
+    if (dispatchPreset) {
+      document.dispatchEvent(new CustomEvent('snapsignfit:preset', {
+        detail: photo
+          ? { w: 300, h: 300, maxKB: 99, kind: 'photo', preset: 'gov_photo_300x300' }
+          : { w: 300, h: 80, maxKB: 60, kind: 'signature', preset: 'gov_sig_300x80' }
+      }));
+    }
+  }
+
+  $('heroUploadPhoto')?.addEventListener('click', () => {
+    navigator.vibrate?.(15);
+    setKind('photo', true);
+    if (fileInput) fileInput.value = '';
+    fileInput?.click();
+  });
+  $('heroUploadSig')?.addEventListener('click', () => {
+    navigator.vibrate?.(15);
+    setKind('signature', true);
+    if (fileInput) fileInput.value = '';
+    fileInput?.click();
+  });
+  $('heroTabPhoto')?.addEventListener('click', () => {
+    navigator.vibrate?.(12);
+    setKind('photo', true);
+  });
+  $('heroTabSig')?.addEventListener('click', () => {
+    navigator.vibrate?.(12);
+    setKind('signature', true);
+  });
+  window.addEventListener('snapsignfit:lang', () => {
+    const activeKind = window.app?.currentPreset?.kind === 'signature' ? 'signature' : currentKind;
+    setKind(activeKind, false);
+  });
+
+  document.querySelectorAll('#presetChips .chip').forEach(c => c.addEventListener('click', () => {
+    const { w, h, kb, preset } = c.dataset;
+    navigator.vibrate?.(15);
+    const kind = +h <= 100 ? 'signature' : 'photo';
+    setKind(kind, false);
+    document.dispatchEvent(new CustomEvent('snapsignfit:preset', {
+      detail: { w: +w, h: +h, maxKB: +kb, kind, preset: preset || undefined }
+    }));
+    if (fileInput) fileInput.value = '';
+    fileInput?.click();
+  }));
+}
+
+function initServiceWorker() {
+  if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        for (const reg of regs) reg.unregister();
+      });
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+    } else {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          reg.update();
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  window.location.reload();
+                }
+              });
+            }
+          });
+        }).catch(() => {});
+      });
+    }
   }
 }
 
-if (document.readyState === 'loading') {
-  window.addEventListener('DOMContentLoaded', initSnapSignFit);
-} else {
-  initSnapSignFit();
+function initSnapSignFit() {
+  if (!window.app) {
+    initHeroControls();
+    window.app = new SnapSignFitApp();
+    initServiceWorker();
+  }
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initSnapSignFit);
+  } else {
+    initSnapSignFit();
+  }
 }
 

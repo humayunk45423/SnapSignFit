@@ -1,30 +1,24 @@
 // sw.js - SnapSignFit Service Worker: safe network-first for HTML, cache-first for vendor assets
-const CACHE_VERSION = 'snapsignfit-v23';
-const VENDOR_CACHE = 'snapsignfit-vendor-v23';
+const CACHE_VERSION = 'snapsignfit-v24';
+const VENDOR_CACHE = 'snapsignfit-vendor-v24';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/bn/index.html',
+  '/bn/',
   '/style.css',
   '/snapsignfit_logo.svg',
   '/manifest.json',
-  '/manifest.webmanifest',
   '/js/app.js',
-  '/js/hero.js',
   '/js/editor.js',
-  '/js/editor-pan.js',
   '/js/export.js',
   '/js/face.js',
-  '/js/orient.js',
   '/js/i18n.js',
   '/js/loader.js',
   '/js/presets.js',
   '/js/signature.js',
-  '/js/smartcrop.js',
   '/js/bg.js',
-  '/js/icons.js',
   '/vendor/pako.min.js',
   '/vendor/UPNG.js'
 ];
@@ -32,8 +26,7 @@ const PRECACHE_ASSETS = [
 // Vendor assets - large files cached on first access
 const VENDOR_PATTERNS = [
   '/vendor/mediapipe/',
-  '/vendor/jsquash-jpeg/',
-  '/vendor/opencv/'
+  '/vendor/jsquash-jpeg/'
 ];
 
 self.addEventListener('install', event => {

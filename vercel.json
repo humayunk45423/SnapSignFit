@@ -1,5 +1,19 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/bn", "destination": "/pages/bn/index.html" },
+    { "source": "/bn/", "destination": "/pages/bn/index.html" },
+    { "source": "/bn/:slug", "destination": "/pages/bn/:slug/index.html" },
+    { "source": "/bn/:slug/", "destination": "/pages/bn/:slug/index.html" },
+    {
+      "source": "/:slug(300x300-photo-resizer|300x80-signature-resizer|bcs-photo-signature-resizer|teletalk-photo-signature-resizer|duet-photo-signature-resizer|government-job-form-photo-resizer|bank-job-photo-signature-resizer|medical-nursing-admission-photo-resizer|police-army-navy-photo-resizer|passport-photo-45x55-resizer|photo-size-reducer-under-100kb|signature-size-reducer-under-60kb|mobile-photo-resizer)",
+      "destination": "/pages/:slug/index.html"
+    },
+    {
+      "source": "/:slug(300x300-photo-resizer|300x80-signature-resizer|bcs-photo-signature-resizer|teletalk-photo-signature-resizer|duet-photo-signature-resizer|government-job-form-photo-resizer|bank-job-photo-signature-resizer|medical-nursing-admission-photo-resizer|police-army-navy-photo-resizer|passport-photo-45x55-resizer|photo-size-reducer-under-100kb|signature-size-reducer-under-60kb|mobile-photo-resizer)/",
+      "destination": "/pages/:slug/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

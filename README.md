@@ -37,9 +37,8 @@ When an image is dropped into SnapSignFit, it flows through a sequential compute
 
 ```mermaid
 graph TD
-    Upload[User Drops or Uploads Image] --> Loader[loader.js: Decode EXIF, HEIC, TIFF, WebP, PNG, JPG]
-    Loader --> Orient[orient.js: Correct EXIF Sensor Orientation]
-    Orient --> Classifier[signature.js: classifyImageContent]
+    Upload[User Drops or Uploads Image] --> Loader[loader.js: Decode EXIF, HEIC, TIFF, WebP, PNG, JPG & Auto-Orient]
+    Loader --> Classifier[signature.js: classifyImageContent]
     
     Classifier -- "Document / Signature / Handwritten Paper" --> SigPipeline[Signature Processing Pipeline]
     Classifier -- "Natural Photo / Portrait" --> FacePipeline[Face Detection & Verification Pipeline]
@@ -56,7 +55,7 @@ graph TD
         FacePipeline --> BlazeFace[face.js: MediaPipe BlazeFace Detection Ladder]
         BlazeFace --> FaceVal{validateFaceCandidate: Anatomy & Skin Check}
         FaceVal -- "Valid Face Confirmed" --> PassportMath[computePassportCrop: ICAO/ISO Head Alignment]
-        FaceVal -- "No Face / Object / Graphic" --> Saliency[smartcrop.js: Visual Saliency & Center Crop]
+        FaceVal -- "No Face / Object / Graphic" --> Saliency[face.js: Visual Saliency & Center Crop]
         PassportMath --> AutoPresetPhoto[Set Preset: Photo 300x300 or DUET 250x250]
         Saliency --> AutoPresetPhoto
     end
@@ -80,19 +79,15 @@ Every file in the `js/` directory has a dedicated, single-responsibility role de
 
 | File | Purpose & Responsibilities | Core Technologies |
 | :--- | :--- | :--- |
-| [`js/app.js`](./js/app.js) | **Main Orchestrator & Reactive State Machine**: Manages file lifecycle, DOM events, UI feedback chips, preset selection, zoom/pan synchronizers, and guarantee ladder triggers. | Vanilla ES6 JavaScript |
+| [`js/app.js`](./js/app.js) | **Main Orchestrator, Reactive State Machine & Session Cache**: Manages file lifecycle, DOM events, UI feedback chips, preset selection, zoom/pan synchronizers, IndexedDB/localStorage session persistence, and guarantee ladder triggers. | Vanilla ES6 JavaScript / IndexedDB |
 | [`js/signature.js`](./js/signature.js) | **Signature & Document Computer Vision Engine**: Features `classifyImageContent()` (Hasler-Süsstrunk color entropy & skin metric), separable `boxBlur2D` illumination correction, Otsu thresholding, and `extractSignatureMask()` for brush isolation. | Pure JavaScript / HTML5 Canvas API |
-| [`js/face.js`](./js/face.js) | **Biometric Face Detection & Anatomy Validator**: Loads MediaPipe BlazeFace with GPU/CPU fallback, multi-pass retry ladder ($0^\circ, 90^\circ, 180^\circ, 270^\circ$, scaled), and strict `validateFaceCandidate()` to reject handwriting and false positives. | MediaPipe Tasks Vision (WASM/TFLite) |
+| [`js/face.js`](./js/face.js) | **Biometric Face Detection, Anatomy Validator & Smart Cropper**: Loads MediaPipe BlazeFace with GPU/CPU fallback, multi-pass retry ladder ($0^\circ, 90^\circ, 180^\circ, 270^\circ$, scaled), strict `validateFaceCandidate()`, and visual saliency fallback cropper. | MediaPipe Tasks Vision (WASM/TFLite) |
 | [`js/bg.js`](./js/bg.js) | **AI Background Segmentation & Colorizer**: Loads MediaPipe Selfie Segmenter to isolate human portraits and blend edges cleanly against solid white, blue, gray, red, or custom backdrops. | MediaPipe Image Segmenter WASM |
-| [`js/editor.js`](./js/editor.js) | **3-Step Manual Photo Editor**: Full Photoshop-style editing modal supporting (1) Aspect-locked bounding crop, (2) Sub-degree rotation & fine straighten with checkered canvas, and (3) Eraser/Restore Brush with smart AI Auto Remove. | HTML5 Canvas 2D Context |
-| [`js/editor-pan.js`](./js/editor-pan.js) | **Gestures, Pan & Zoom Subsystem**: Handles high-DPI canvas coordinates, multi-touch pinch-to-zoom, mouse wheel zooming, and edge clamping. | Pointer Events API |
+| [`js/editor.js`](./js/editor.js) | **3-Step Manual Photo Editor & Pan/Zoom Subsystem**: Full Photoshop-style editing modal supporting (1) Aspect-locked bounding crop & pre-crop rotation, (2) Sub-degree rotation & fine straighten with checkered canvas, (3) Eraser/Restore Brush with AI Auto Remove, and high-DPI pointer/touch pan & zoom. | HTML5 Canvas 2D Context / Pointer Events |
 | [`js/export.js`](./js/export.js) | **Export Engine & Size Guarantee**: Employs a binary search ladder over JPEG/WebP compression to guarantee output files never exceed target maximums (e.g. $\le 99\text{ KB}$ or $\le 60\text{ KB}$). | JSquash MozJPEG WASM / WebP / UPNG |
-| [`js/loader.js`](./js/loader.js) | **Multi-Format Image Loader & Resizer**: Decodes standard images plus iPhone HEIC/HEIF and TIFF files, applying memory-safe step-down canvas downscaling. | heic2any / UTIF.js / OffscreenCanvas |
-| [`js/orient.js`](./js/orient.js) | **EXIF Orientation Parser**: Reads raw JPEG metadata tags (TIFF headers 0x0112) to auto-correct images rotated by camera orientation sensors. | DataView Binary Buffer Parsing |
-| [`js/smartcrop.js`](./js/smartcrop.js) | **Visual Saliency & Fallback Cropper**: Content-aware visual salience fallback for non-face images using Laplacian edge-energy and rule-of-thirds composition. | Image Edge Convolution |
+| [`js/loader.js`](./js/loader.js) | **Multi-Format Image Loader, EXIF Parser & Resizer**: Decodes standard images plus iPhone HEIC/HEIF and TIFF files, parses raw JPEG EXIF orientation tags (`0x0112`), and applies memory-safe step-down canvas downscaling. | heic2any / UTIF.js / DataView |
 | [`js/presets.js`](./js/presets.js) | **Presets Catalog**: Catalog of dimensions, byte limits, crop aspect ratios, and notes for Government, DUET, Exam, Passport, and Social presets. | Structured JSON Constants |
-| [`js/session.js`](./js/session.js) | **Offline State & Session Cache**: Automatically saves and restores working canvases and user edits across browser reloads using IndexedDB and localStorage. | IndexedDB API / LocalStorage |
-| [`js/i18n.js`](./js/i18n.js) | **Internationalization Engine**: Dual-language engine (English & Bengali) with localized numeral formatting (`০, ১, ২...`) and contextual warnings. | Intl API / DOM Mutation |
+| [`js/i18n.js`](./js/i18n.js) | **Internationalization & Icon Engine**: Dual-language engine (English & Bengali) with localized numeral formatting (`০, ১, ২...`), contextual warnings, and inline Lucide vector icons. | Intl API / DOM Mutation |
 | [`sw.js`](./sw.js) | **PWA Offline Service Worker**: Cache-first service worker ensuring instant loading and full offline capability anywhere. | Service Worker API / Cache Storage |
 
 ---
@@ -143,20 +138,20 @@ To run SnapSignFit locally:
    cd SnapSignFit
    ```
 
-2. **Start a local static server**:
+2. **Start the local development server**:
    ```bash
-   # Using Node.js
-   npx serve .
+   # Using npm (recommended — includes clean SEO URL rewrites)
+   npm start
    
    # Or using Python 3
    python -m http.server 8080
    ```
 
 3. **Open in browser**:
-   Navigate to `http://localhost:8080` in Chrome, Edge, Safari, or Firefox.
+   Navigate to `http://localhost:3000` (or `http://localhost:8080`) in Chrome, Edge, Safari, or Firefox.
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE). All third-party libraries retain their original permissive open-source licenses detailed in [`THIRD-PARTY-LICENSES.md`](./THIRD-PARTY-LICENSES.md).
+This project is licensed under the MIT License. All third-party libraries (`@mediapipe/tasks-vision` Apache-2.0, `@jsquash/jpeg` Apache-2.0/BSD, `UPNG.js` & `UTIF.js` MIT, `pako` MIT, `heic2any` MIT, `Lucide` ISC) retain their respective open-source licenses.

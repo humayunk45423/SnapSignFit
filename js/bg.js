@@ -15,12 +15,14 @@ export async function getSegmenter() {
   isSegmenterLoading = true;
   try {
     const { FilesetResolver, ImageSegmenter } = await import('../vendor/mediapipe/vision_bundle.mjs');
-    const wasmResolver = await FilesetResolver.forVisionTasks('./vendor/mediapipe/wasm');
+    const wasmUrl = new URL('../vendor/mediapipe/wasm', import.meta.url).href;
+    const modelUrl = new URL('../vendor/mediapipe/selfie_segmenter.tflite', import.meta.url).href;
+    const wasmResolver = await FilesetResolver.forVisionTasks(wasmUrl);
 
     try {
       segmenterInstance = await ImageSegmenter.createFromOptions(wasmResolver, {
         baseOptions: {
-          modelAssetPath: './vendor/mediapipe/selfie_segmenter.tflite',
+          modelAssetPath: modelUrl,
           delegate: 'GPU'
         },
         runningMode: 'IMAGE',
@@ -31,7 +33,7 @@ export async function getSegmenter() {
       console.warn('ImageSegmenter GPU delegate failed, falling back to CPU:', gpuError);
       segmenterInstance = await ImageSegmenter.createFromOptions(wasmResolver, {
         baseOptions: {
-          modelAssetPath: './vendor/mediapipe/selfie_segmenter.tflite',
+          modelAssetPath: modelUrl,
           delegate: 'CPU'
         },
         runningMode: 'IMAGE',

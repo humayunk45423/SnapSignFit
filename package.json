@@ -2,13 +2,13 @@
   "name": "snapsignfit",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build-seo.js",
   "scripts": {
-    "start": "node serve.cjs",
-    "test": "playwright test",
+    "start": "node build-seo.js --serve",
+    "test": "playwright test --config \"F:/Me & My Docs/1. Recent Projects/SnaSignFit extra files/SnapSignFit_Extra_Files/playwright.config.js\"",
     "build:seo": "node build-seo.js",
     "check": "node build-seo.js",
-    "ping:indexnow": "node ping-indexnow.js"
+    "ping:indexnow": "node build-seo.js --ping"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +17,6 @@
   "dependencies": {
     "@jsquash/jpeg": "^1.6.0",
     "@mediapipe/tasks-vision": "^1.0.1",
-    "@techstark/opencv-js": "^5.0.0-release.1",
     "heic2any": "^0.0.4",
     "pako": "^3.0.2",
     "upng-js": "^2.1.0",

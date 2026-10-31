@@ -1,12 +1,90 @@
-// build-seo.js - Masterpiece SEO static site generator & R1-R20 Release Gate Validator
+// build-seo.js - Unified SEO Static Site Generator, R1-R20 Release Gate Validator, Dev Server (--serve) & IndexNow Submitter (--ping)
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const https = require('https');
 
 const BASE_URL = 'https://snapsignfit.vercel.app';
 const INDEXNOW_KEY = '11d61596f2644fae9eb11c606562095f';
+const PAGES_DIR = path.join(__dirname, 'pages');
+if (!fs.existsSync(PAGES_DIR)) fs.mkdirSync(PAGES_DIR, { recursive: true });
 
-// 1. Load Data
-const pagesData = JSON.parse(fs.readFileSync(path.join(__dirname, 'pages.json'), 'utf8'));
+// 1. Load Data (from pages/pages.json)
+const pagesJsonPath = fs.existsSync(path.join(PAGES_DIR, 'pages.json'))
+  ? path.join(PAGES_DIR, 'pages.json')
+  : path.join(__dirname, 'pages.json');
+const pagesData = JSON.parse(fs.readFileSync(pagesJsonPath, 'utf8'));
+
+// CLI Mode 1: --serve (Local Dev Server with transparent /pages/ routing)
+if (process.argv.includes('--serve')) {
+  const PORT = process.env.PORT || 3000;
+  const MIME_TYPES = {
+    '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript', '.mjs': 'application/javascript',
+    '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.bmp': 'image/bmp',
+    '.tiff': 'image/tiff', '.tif': 'image/tiff', '.heic': 'image/heic', '.wasm': 'application/wasm',
+    '.tflite': 'application/octet-stream', '.woff2': 'font/woff2', '.woff': 'font/woff', '.webmanifest': 'application/manifest+json'
+  };
+  http.createServer((req, res) => {
+    let reqPath = decodeURI(req.url.split('?')[0]);
+    if (reqPath.startsWith('/subpath')) reqPath = reqPath.slice('/subpath'.length);
+    if (!reqPath || reqPath === '/') reqPath = '/index.html';
+
+    let filePath = path.join(__dirname, reqPath);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+      filePath = path.join(filePath, 'index.html');
+    }
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      let pageFallback = path.join(PAGES_DIR, reqPath);
+      if (fs.existsSync(pageFallback) && fs.statSync(pageFallback).isDirectory()) {
+        pageFallback = path.join(pageFallback, 'index.html');
+      }
+      if (fs.existsSync(pageFallback) && fs.statSync(pageFallback).isFile()) {
+        filePath = pageFallback;
+      }
+    }
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+      return;
+    }
+    const ext = path.extname(filePath).toLowerCase();
+    res.writeHead(200, {
+      'Content-Type': MIME_TYPES[ext] || 'application/octet-stream',
+      'Access-Control-Allow-Origin': '*'
+    });
+    fs.createReadStream(filePath).pipe(res);
+  }).listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+  return;
+}
+
+// CLI Mode 2: --ping (IndexNow submission for all 28 URLs)
+if (process.argv.includes('--ping')) {
+  const HOST = 'snapsignfit.vercel.app';
+  const urlList = [`https://${HOST}/`, `https://${HOST}/bn/`];
+  pagesData.forEach(p => {
+    urlList.push(`https://${HOST}/${p.slug}/`);
+    urlList.push(`https://${HOST}/bn/${p.slug}/`);
+  });
+  const payload = JSON.stringify({
+    host: HOST,
+    key: INDEXNOW_KEY,
+    keyLocation: `https://${HOST}/${INDEXNOW_KEY}.txt`,
+    urlList
+  });
+  console.log(`Submitting ${urlList.length} URLs to IndexNow (api.indexnow.org)...`);
+  const req = https.request({
+    hostname: 'api.indexnow.org', port: 443, path: '/indexnow', method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(payload) }
+  }, res => {
+    console.log(`IndexNow Response Status: ${res.statusCode} ${res.statusMessage}`);
+    res.on('data', d => process.stdout.write(d));
+  });
+  req.on('error', err => console.error('[ERROR] IndexNow ping failed:', err.message));
+  req.write(payload);
+  req.end();
+  return;
+}
 
 // 2. Read template elements from index.html (the interactive tool shell)
 const rootIndexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
@@ -194,7 +272,7 @@ function generatePageHtml(page, lang = 'en') {
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/style.css">
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/svg+xml" href="/snapsignfit_logo.svg">
 
   <!-- Structured Data JSON-LD -->
@@ -391,20 +469,17 @@ ${JSON.stringify(faqJson, null, 2)}
 
   ${modalsHtml}
 
-  <!-- Core App Scripts -->
-  <script type="module" src="/js/editor-pan.js"></script>
-  <script type="module" src="/js/hero.js"></script>
+  <!-- Core App Script -->
   <script type="module" src="/js/app.js"></script>
-  <script src="/js/register-sw.js"></script>
 </body>
 </html>`;
 }
 
-// 4. Generate All HTML Pages
-console.log('Generating static HTML pages for all 13 intents...');
+// 4. Generate All HTML Pages inside pages/
+console.log('Generating static HTML pages for all 13 intents in pages/...');
 pagesData.forEach(page => {
-  const enDir = path.join(__dirname, page.slug);
-  const bnDir = path.join(__dirname, 'bn', page.slug);
+  const enDir = path.join(PAGES_DIR, page.slug);
+  const bnDir = path.join(PAGES_DIR, 'bn', page.slug);
 
   if (!fs.existsSync(enDir)) fs.mkdirSync(enDir, { recursive: true });
   if (!fs.existsSync(bnDir)) fs.mkdirSync(bnDir, { recursive: true });
@@ -413,8 +488,8 @@ pagesData.forEach(page => {
   fs.writeFileSync(path.join(bnDir, 'index.html'), generatePageHtml(page, 'bn'), 'utf8');
 });
 
-// Also create /bn/index.html (Bangla Home Hub)
-const bnHomeDir = path.join(__dirname, 'bn');
+// Also create pages/bn/index.html (Bangla Home Hub)
+const bnHomeDir = path.join(PAGES_DIR, 'bn');
 if (!fs.existsSync(bnHomeDir)) fs.mkdirSync(bnHomeDir, { recursive: true });
 
 const bnHubHtml = rootIndexHtml
@@ -494,26 +569,41 @@ fs.writeFileSync(path.join(__dirname, 'robots.txt'), robotsTxt, 'utf8');
 console.log('Generating IndexNow key file...');
 fs.writeFileSync(path.join(__dirname, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY, 'utf8');
 
-// 8. Generate manifest.webmanifest
-console.log('Generating manifest.webmanifest...');
+// 8. Generate unified manifest.json
+console.log('Generating manifest.json...');
 const manifestJson = {
   "name": "SnapSignFit — Photo & Signature Resizer",
   "short_name": "SnapSignFit",
-  "description": "Resize photos and signatures to exact dimensions (300x300, 300x80, 250x250) under KB limits.",
+  "description": "Resize photos and signatures to exact dimensions (300x300, 300x80, 250x250, 250x50) under KB limits. 100% client-side, works offline.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#0f172a",
   "theme_color": "#2563eb",
+  "orientation": "any",
   "icons": [
     {
       "src": "/snapsignfit_logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["utilities", "productivity"],
+  "lang": "en"
 };
-fs.writeFileSync(path.join(__dirname, 'manifest.webmanifest'), JSON.stringify(manifestJson, null, 2), 'utf8');
+fs.writeFileSync(path.join(__dirname, 'manifest.json'), JSON.stringify(manifestJson, null, 2), 'utf8');
 
 // 9. Generate 404.html
 console.log('Generating 404.html...');
@@ -858,8 +948,12 @@ for (const row of keywordRows) {
   }
 }
 
-fs.writeFileSync(path.join(__dirname, 'keywords.csv'), uniqueRows.join('\n'), 'utf8');
-console.log(`Generated ${uniqueRows.length} unique keywords in keywords.csv.`);
+const extraFilesDir = path.resolve(__dirname, '..', 'SnaSignFit extra files', 'SnapSignFit_Extra_Files');
+const keywordsOutputPath = fs.existsSync(extraFilesDir)
+  ? path.join(extraFilesDir, 'keywords.csv')
+  : path.join(PAGES_DIR, 'keywords.csv');
+fs.writeFileSync(keywordsOutputPath, uniqueRows.join('\n'), 'utf8');
+console.log(`Generated ${uniqueRows.length} unique keywords in ${keywordsOutputPath}.`);
 
 // 11. Run Automated Release Gates (R1 - R20)
 console.log('\n=== RUNNING R1 - R20 RELEASE GATES ===');
@@ -876,7 +970,7 @@ function assertGate(gateId, condition, message) {
 
 // R1: No keyword stuffing
 pagesData.forEach(p => {
-  const enHtml = fs.readFileSync(path.join(__dirname, p.slug, 'index.html'), 'utf8');
+  const enHtml = fs.readFileSync(path.join(PAGES_DIR, p.slug, 'index.html'), 'utf8');
   assertGate(`R1 [${p.slug}]`, !enHtml.includes('<code>300x300</code>, <code>'), 'No comma-separated keyword chip lists');
 });
 
@@ -899,7 +993,7 @@ pagesData.forEach(p => {
 
 // R6: JSON-LD schemas validity
 pagesData.forEach(p => {
-  const enHtml = fs.readFileSync(path.join(__dirname, p.slug, 'index.html'), 'utf8');
+  const enHtml = fs.readFileSync(path.join(PAGES_DIR, p.slug, 'index.html'), 'utf8');
   const jsonMatches = enHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g);
   assertGate(`R6 [${p.slug}]`, jsonMatches && jsonMatches.length >= 4, 'Valid JSON-LD schemas present (Breadcrumb, WebApp, HowTo, FAQ)');
 });
@@ -909,7 +1003,7 @@ assertGate('R7', fs.existsSync(path.join(__dirname, 'sitemap.xml')), 'sitemap.xm
 
 // R8: Static non-JS content completeness
 pagesData.forEach(p => {
-  const enHtml = fs.readFileSync(path.join(__dirname, p.slug, 'index.html'), 'utf8');
+  const enHtml = fs.readFileSync(path.join(PAGES_DIR, p.slug, 'index.html'), 'utf8');
   assertGate(`R8 [${p.slug}]`, enHtml.includes('<table') && enHtml.includes('<h1') && enHtml.includes('Frequently Asked Questions'), 'H1, Spec Table, and FAQs are real static HTML');
 });
 
@@ -922,7 +1016,7 @@ assertGate('R13', fs.existsSync(path.join(__dirname, 'robots.txt')), 'robots.txt
 
 // R14: Visible disclaimer on every page
 pagesData.forEach(p => {
-  const enHtml = fs.readFileSync(path.join(__dirname, p.slug, 'index.html'), 'utf8');
+  const enHtml = fs.readFileSync(path.join(PAGES_DIR, p.slug, 'index.html'), 'utf8');
   assertGate(`R14 [${p.slug}]`, enHtml.includes('Not affiliated with, endorsed by, or connected to Teletalk'), 'Visible non-affiliation disclaimer present in footer');
 });
 

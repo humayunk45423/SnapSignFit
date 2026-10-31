@@ -1,32 +1,35 @@
 {
-  "name": "SnapSignFit",
+  "name": "SnapSignFit — Photo & Signature Resizer",
   "short_name": "SnapSignFit",
-  "description": "Resize photos and signatures to exact pixel size and file size. 100% client-side, works offline.",
+  "description": "Resize photos and signatures to exact dimensions (300x300, 300x80, 250x250, 250x50) under KB limits. 100% client-side, works offline.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#6366f1",
+  "theme_color": "#2563eb",
   "orientation": "any",
   "icons": [
     {
-      "src": "./snapsignfit_logo.svg",
+      "src": "/snapsignfit_logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "./assets/icon-192.png",
+      "src": "/assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./assets/icon-512.png",
+      "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["utilities", "productivity"],
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
   "lang": "en"
 }

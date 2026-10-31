@@ -1,6 +1,6 @@
-// js/face.js - MediaPipe Face Detection, multi-pass retry ladder, quality checks, and passport crop math
+// js/face.js - MediaPipe Face Detection, Orientation/Tilt, Auto-Enhance, and Smart/Passport Crop Math
 import { CONFIG } from './i18n.js';
-import { createCanvas } from './loader.js';
+import { createCanvas, stepDownDownscale } from './loader.js';
 import { classifyImageContent } from './signature.js';
 
 let faceDetectorInstance = null;
@@ -697,4 +697,509 @@ export function checkFaceQuality(face, imgW, imgH, canvas) {
   }
 
   return warnings;
+}
+
+
+/**
+ * Calculate eye tilt angle in degrees from keypoints
+ * @param {Array<{x: number, y: number}>} keypoints 
+ * @returns {number} Angle in degrees (-45..+45)
+ */
+export function calculateEyeTilt(keypoints) {
+  if (!keypoints || keypoints.length < 2) return 0;
+  const rightEye = keypoints[0];
+  const leftEye = keypoints[1];
+  if (!rightEye || !leftEye) return 0;
+
+  const dx = leftEye.x - rightEye.x;
+  const dy = leftEye.y - rightEye.y;
+  const angleRad = Math.atan2(dy, dx);
+  const angleDeg = (angleRad * 180) / Math.PI;
+
+  // Only correct significant head tilt (>= 5° and <= 30°).
+  // Natural subtle head pose and landmark noise (< 5°) should never rotate the photo.
+  if (Math.abs(angleDeg) >= 5 && Math.abs(angleDeg) <= 30) {
+    return Math.round(angleDeg * 10) / 10;
+  }
+  return 0;
+}
+
+/**
+ * Rotate canvas with edge-replicated background to avoid black corners
+ */
+export function rotateWithEdgeReplication(canvas, deg) {
+  if (Math.abs(deg) < 0.05) return canvas;
+
+  const rad = (deg * Math.PI) / 180;
+  const sin = Math.abs(Math.sin(rad));
+  const cos = Math.abs(Math.cos(rad));
+  const w = canvas.width;
+  const h = canvas.height;
+  const newW = Math.round(w * cos + h * sin);
+  const newH = Math.round(w * sin + h * cos);
+
+  const out = createCanvas(newW, newH);
+  const ctx = out.getContext('2d');
+
+  // Fill base with clean neutral color - never draw unrotated image underneath (fixes B2 ghosting)
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, newW, newH);
+
+  // Draw rotated source
+  ctx.save();
+  ctx.translate(newW / 2, newH / 2);
+  ctx.rotate(rad);
+  ctx.drawImage(canvas, -w / 2, -h / 2);
+  ctx.restore();
+
+  return out;
+}
+
+/**
+ * Auto-enhance contrast and brightness
+ */
+export function autoEnhanceCanvas(canvas, faceBox = null) {
+  const w = canvas.width;
+  const h = canvas.height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+
+  const hist = new Uint32Array(256);
+  const totalPixels = w * h;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const luma = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+    hist[luma]++;
+  }
+
+  const lowThresh = Math.floor(totalPixels * 0.005);
+  const highThresh = Math.floor(totalPixels * 0.995);
+
+  let lowVal = 0;
+  let highVal = 255;
+  let acc = 0;
+
+  for (let i = 0; i < 256; i++) {
+    acc += hist[i];
+    if (acc >= lowThresh && lowVal === 0) {
+      lowVal = i;
+    }
+    if (acc >= highThresh) {
+      highVal = i;
+      break;
+    }
+  }
+
+  let meanLuma = 0;
+  if (faceBox) {
+    const fx = Math.max(0, Math.floor(faceBox.x));
+    const fy = Math.max(0, Math.floor(faceBox.y));
+    const fw = Math.min(w - fx, Math.floor(faceBox.w));
+    const fh = Math.min(h - fy, Math.floor(faceBox.h));
+    let faceSum = 0;
+    let faceCount = 0;
+
+    for (let y = fy; y < fy + fh; y += 2) {
+      for (let x = fx; x < fx + fw; x += 2) {
+        const idx = (y * w + x) * 4;
+        faceSum += 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+        faceCount++;
+      }
+    }
+    meanLuma = faceSum / (faceCount || 1);
+  } else {
+    let sum = 0;
+    for (let i = 0; i < 256; i++) sum += i * hist[i];
+    meanLuma = sum / totalPixels;
+  }
+
+  const isNarrow = (highVal - lowVal) < 180;
+  const isOffLuma = meanLuma < 65 || meanLuma > 190;
+
+  if (!isNarrow && !isOffLuma) {
+    return { canvas, applied: false };
+  }
+
+  let gamma = 1.0;
+  if (meanLuma > 10 && meanLuma < 240) {
+    gamma = Math.log(120 / 255) / Math.log(meanLuma / 255);
+    gamma = Math.max(0.65, Math.min(1.45, gamma));
+  }
+
+  const lut = new Uint8Array(256);
+  const range = Math.max(1, highVal - lowVal);
+
+  for (let i = 0; i < 256; i++) {
+    let stretched = ((i - lowVal) / range) * 255;
+    stretched = Math.max(0, Math.min(255, stretched));
+    const normalized = Math.pow(stretched / 255, 1 / gamma) * 255;
+    lut[i] = Math.max(0, Math.min(255, Math.round(normalized)));
+  }
+
+  const enhancedCanvas = createCanvas(w, h);
+  const enhCtx = enhancedCanvas.getContext('2d');
+  const outData = enhCtx.createImageData(w, h);
+  const dst = outData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    dst[i] = lut[data[i]];
+    dst[i + 1] = lut[data[i + 1]];
+    dst[i + 2] = lut[data[i + 2]];
+    dst[i + 3] = data[i + 3];
+  }
+
+  enhCtx.putImageData(outData, 0, 0);
+  return { canvas: enhancedCanvas, applied: true };
+}
+
+/**
+ * Detect paper tilt from lines / scan edges for signatures (§6)
+ */
+export function detectSignaturePaperTilt(canvas, components) {
+  if (!components || components.length === 0) return 0;
+
+  const w = canvas.width;
+  let candidateLine = null;
+  let maxLineWidth = 0;
+
+  for (const comp of components) {
+    const aspect = comp.w / Math.max(1, comp.h);
+    if ((comp.w > w * 0.55 || aspect > 12.0) && comp.points && comp.points.length > 100) {
+      if (comp.w > maxLineWidth) {
+        maxLineWidth = comp.w;
+        candidateLine = comp;
+      }
+    }
+  }
+
+  if (!candidateLine) return 0;
+
+  const pts = candidateLine.points;
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+  const n = pts.length;
+
+  for (let i = 0; i < n; i++) {
+    const x = pts[i].x;
+    const y = pts[i].y;
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  }
+
+  const denom = (n * sumXX - sumX * sumX);
+  if (denom === 0) return 0;
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+
+  let residualSq = 0;
+  for (let i = 0; i < n; i++) {
+    const expectedY = slope * pts[i].x + intercept;
+    const diff = pts[i].y - expectedY;
+    residualSq += diff * diff;
+  }
+  const meanResidual = Math.sqrt(residualSq / n);
+  if (meanResidual > 3.0) {
+    return 0;
+  }
+
+  const angleDeg = (Math.atan(slope) * 180) / Math.PI;
+  if (Math.abs(angleDeg) >= 2.5 && Math.abs(angleDeg) <= 10) {
+    return Math.round(angleDeg * 10) / 10;
+  }
+
+  return 0;
+}
+
+/**
+ * Sobel gradient energy + local color contrast on downscaled thumbnail (<= 256px)
+ */
+function computeSaliencyMap(canvas) {
+  const maxDim = 256;
+  const scale = Math.min(1, maxDim / Math.max(canvas.width, canvas.height));
+  const sw = Math.max(16, Math.round(canvas.width * scale));
+  const sh = Math.max(16, Math.round(canvas.height * scale));
+
+  const thumb = createCanvas(sw, sh);
+  const tCtx = thumb.getContext('2d', { willReadFrequently: true });
+  tCtx.drawImage(canvas, 0, 0, sw, sh);
+  const data = tCtx.getImageData(0, 0, sw, sh).data;
+
+  const luma = new Float32Array(sw * sh);
+  const sat = new Float32Array(sw * sh);
+
+  for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    luma[j] = 0.299 * r + 0.587 * g + 0.114 * b;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    sat[j] = max === 0 ? 0 : (max - min) / 255;
+  }
+
+  const energy = new Float32Array(sw * sh);
+  for (let y = 1; y < sh - 1; y++) {
+    for (let x = 1; x < sw - 1; x++) {
+      const idx = y * sw + x;
+
+      const gx =
+        -1 * luma[(y - 1) * sw + (x - 1)] + 1 * luma[(y - 1) * sw + (x + 1)] +
+        -2 * luma[y * sw + (x - 1)]       + 2 * luma[y * sw + (x + 1)] +
+        -1 * luma[(y + 1) * sw + (x - 1)] + 1 * luma[(y + 1) * sw + (x + 1)];
+
+      const gy =
+        -1 * luma[(y - 1) * sw + (x - 1)] - 2 * luma[(y - 1) * sw + x] - 1 * luma[(y - 1) * sw + (x + 1)] +
+         1 * luma[(y + 1) * sw + (x - 1)] + 2 * luma[(y + 1) * sw + x] + 1 * luma[(y + 1) * sw + (x + 1)];
+
+      const grad = Math.hypot(gx, gy);
+      energy[idx] = grad * (1 + sat[idx] * 0.5);
+    }
+  }
+
+  return { energy, sw, sh, scale };
+}
+
+/**
+ * Slide target aspect window across multi-scales (100% down to 70%)
+ * to find the crop rectangle that maximizes saliency with center bias
+ */
+export function computeSaliencyCrop(canvas, targetW, targetH) {
+  const { energy, sw, sh, scale } = computeSaliencyMap(canvas);
+  const targetAspect = targetW / targetH;
+
+  const integral = new Float64Array((sw + 1) * (sh + 1));
+  const intW = sw + 1;
+
+  for (let y = 0; y < sh; y++) {
+    let rowSum = 0;
+    for (let x = 0; x < sw; x++) {
+      rowSum += energy[y * sw + x];
+      integral[(y + 1) * intW + (x + 1)] = integral[y * intW + (x + 1)] + rowSum;
+    }
+  }
+
+  function getRectSum(x1, y1, x2, y2) {
+    const rx1 = Math.max(0, Math.min(sw, Math.round(x1)));
+    const ry1 = Math.max(0, Math.min(sh, Math.round(y1)));
+    const rx2 = Math.max(0, Math.min(sw, Math.round(x2)));
+    const ry2 = Math.max(0, Math.min(sh, Math.round(y2)));
+    return (
+      integral[ry2 * intW + rx2] -
+      integral[ry1 * intW + rx2] -
+      integral[ry2 * intW + rx1] +
+      integral[ry1 * intW + rx1]
+    );
+  }
+
+  let bestScore = -1;
+  let bestRect = null;
+  const scales = [1.0, 0.9, 0.8, 0.7];
+
+  for (const s of scales) {
+    let winW, winH;
+    if (sw / sh > targetAspect) {
+      winH = Math.round(sh * s);
+      winW = Math.round(winH * targetAspect);
+    } else {
+      winW = Math.round(sw * s);
+      winH = Math.round(winW / targetAspect);
+    }
+
+    if (winW > sw || winH > sh || winW < 8 || winH < 8) continue;
+
+    const stepX = Math.max(1, Math.floor((sw - winW) / 12));
+    const stepY = Math.max(1, Math.floor((sh - winH) / 12));
+
+    for (let y = 0; y <= sh - winH; y += stepY) {
+      for (let x = 0; x <= sw - winW; x += stepX) {
+        const sum = getRectSum(x, y, x + winW, y + winH);
+        const winArea = winW * winH;
+        const avgEnergy = sum / winArea;
+
+        const cx = x + winW / 2;
+        const cy = y + winH / 2;
+        const distFromCenter = Math.hypot((cx - sw / 2) / sw, (cy - sh / 2) / sh);
+        const centerBias = 1.0 - distFromCenter * 0.15;
+
+        const score = avgEnergy * centerBias;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestRect = { x, y, w: winW, h: winH };
+        }
+      }
+    }
+  }
+
+  if (!bestRect) {
+    if (canvas.width / canvas.height > targetAspect) {
+      const h = canvas.height;
+      const w = Math.round(h * targetAspect);
+      return { x: Math.round((canvas.width - w) / 2), y: 0, w, h };
+    } else {
+      const w = canvas.width;
+      const h = Math.round(w / targetAspect);
+      return { x: 0, y: Math.round((canvas.height - h) / 2), w, h };
+    }
+  }
+
+  return {
+    x: Math.round(bestRect.x / scale),
+    y: Math.round(bestRect.y / scale),
+    w: Math.round(bestRect.w / scale),
+    h: Math.round(bestRect.h / scale)
+  };
+}
+
+/**
+ * Compute face-aware crop for general images & avatars (§9)
+ */
+export function computeFaceAwareCrop(faces, imgW, imgH, targetW, targetH, kind = 'image') {
+  const targetAspect = targetW / targetH;
+
+  if (kind === 'avatar' && faces.length > 0) {
+    const f = faces[0];
+    const cropH = f.box.h / 0.5;
+    const cropW = cropH * targetAspect;
+    const cx = f.box.x + f.box.w / 2;
+    const cy = f.box.y + f.box.h / 2;
+
+    let x = cx - cropW / 2;
+    let y = cy - cropH / 2;
+
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x + cropW > imgW) x = imgW - cropW;
+    if (y + cropH > imgH) y = imgH - cropH;
+
+    return {
+      x: Math.round(Math.max(0, x)),
+      y: Math.round(Math.max(0, y)),
+      w: Math.round(Math.min(imgW, cropW)),
+      h: Math.round(Math.min(imgH, cropH))
+    };
+  }
+
+  let minX = faces[0].box.x;
+  let maxX = faces[0].box.x + faces[0].box.w;
+  let minY = faces[0].box.y;
+  let maxY = faces[0].box.y + faces[0].box.h;
+
+  for (let i = 1; i < faces.length; i++) {
+    const b = faces[i].box;
+    if (b.x < minX) minX = b.x;
+    if (b.x + b.w > maxX) maxX = b.x + b.w;
+    if (b.y < minY) minY = b.y;
+    if (b.y + b.h > maxY) maxY = b.y + b.h;
+  }
+
+  const unionW = maxX - minX;
+  const unionH = maxY - minY;
+  const cx = minX + unionW / 2;
+  const cy = minY + unionH / 2;
+
+  let cropH = unionH * 2.0;
+  let cropW = cropH * targetAspect;
+
+  if (cropW < unionW * 1.4) {
+    cropW = unionW * 1.4;
+    cropH = cropW / targetAspect;
+  }
+
+  if (cropW > imgW || cropH > imgH) {
+    const scale = Math.min(imgW / cropW, imgH / cropH);
+    cropW *= scale;
+    cropH *= scale;
+  }
+
+  let x = cx - cropW / 2;
+  let y = cy - cropH * 0.40;
+
+  if (x < 0) x = 0;
+  if (y < 0) y = 0;
+  if (x + cropW > imgW) x = imgW - cropW;
+  if (y + cropH > imgH) y = imgH - cropH;
+
+  return {
+    x: Math.round(Math.max(0, x)),
+    y: Math.round(Math.max(0, y)),
+    w: Math.round(Math.min(imgW, cropW)),
+    h: Math.round(Math.min(imgH, cropH))
+  };
+}
+
+/**
+ * Render image with chosen fit mode: 'cover' | 'contain' | 'stretch'
+ */
+export function renderFitMode(sourceCanvas, targetW, targetH, options = {}) {
+  const {
+    fit = 'cover',
+    cropRect = null,
+    bgColor = '#ffffff',
+    blurredBg = false,
+    transparent = false
+  } = options;
+
+  const out = createCanvas(targetW, targetH);
+  const ctx = out.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  if (!transparent) {
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, targetW, targetH);
+  }
+
+  if (fit === 'stretch') {
+    ctx.drawImage(sourceCanvas, 0, 0, targetW, targetH);
+    return out;
+  }
+
+  if (fit === 'contain') {
+    if (blurredBg) {
+      ctx.save();
+      ctx.filter = 'blur(16px)';
+      ctx.drawImage(sourceCanvas, -10, -10, targetW + 20, targetH + 20);
+      ctx.restore();
+    }
+
+    const scale = Math.min(targetW / sourceCanvas.width, targetH / sourceCanvas.height);
+    const dw = Math.round(sourceCanvas.width * scale);
+    const dh = Math.round(sourceCanvas.height * scale);
+    const dx = Math.round((targetW - dw) / 2);
+    const dy = Math.round((targetH - dh) / 2);
+
+    ctx.drawImage(sourceCanvas, dx, dy, dw, dh);
+    return out;
+  }
+
+  const rect = {
+    x: Math.round(cropRect?.x || 0),
+    y: Math.round(cropRect?.y || 0),
+    w: Math.max(1, Math.round(cropRect?.w || sourceCanvas.width)),
+    h: Math.max(1, Math.round(cropRect?.h || sourceCanvas.height))
+  };
+
+  const cropCanvas = createCanvas(rect.w, rect.h);
+  const cCtx = cropCanvas.getContext('2d');
+  if (sourceCanvas.width > 0 && sourceCanvas.height > 0 && rect.w > 0 && rect.h > 0) {
+    cCtx.drawImage(
+      sourceCanvas,
+      rect.x, rect.y, rect.w, rect.h,
+      0, 0, rect.w, rect.h
+    );
+  }
+
+  const downscaled = (rect.w > targetW * 1.5 || rect.h > targetH * 1.5)
+    ? stepDownDownscale(cropCanvas, targetW, targetH)
+    : cropCanvas;
+
+  if (downscaled && downscaled.width > 0 && downscaled.height > 0) {
+    ctx.drawImage(downscaled, 0, 0, targetW, targetH);
+  }
+  return out;
 }

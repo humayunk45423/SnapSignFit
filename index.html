@@ -12,7 +12,7 @@
         } else {
           document.documentElement.setAttribute('data-theme', 'light');
         }
-        var savedLang = localStorage.getItem('snapsignfit_lang') || 'en';
+        var savedLang = localStorage.getItem('snapsignfit_lang') || document.documentElement.lang || 'en';
         document.documentElement.lang = savedLang;
         document.documentElement.setAttribute('data-lang', savedLang);
       } catch (e) {}
@@ -103,7 +103,7 @@
       <i class="fa-solid fa-triangle-exclamation banner-icon" aria-hidden="true"></i>
       <div class="banner-text">
         <strong data-i18n="fileWarningTitle">Opened directly from local file (file:///)?</strong>
-        <span data-i18n="fileWarningDesc">Modern browsers block JavaScript ES Modules on local files. To test locally, double-click <code>start.bat</code> in the project folder or open via <code>localhost</code>.</span>
+        <span data-i18n="fileWarningDesc">Modern browsers block JavaScript ES Modules on local files. To test locally, run <code>npm start</code> in the project folder or open via <code>localhost</code>.</span>
       </div>
       <button type="button" class="banner-dismiss" id="dismissFileWarning" aria-label="Dismiss warning">&times;</button>
     </div>
@@ -175,7 +175,7 @@
   <script>
     (function () {
       try {
-        var lang = localStorage.getItem('snapsignfit_lang') || 'en';
+        var lang = localStorage.getItem('snapsignfit_lang') || document.documentElement.lang || 'en';
         var theme = localStorage.getItem('snapsignfit_theme') || 'light';
         var langBtn = document.getElementById('langToggleBtn');
         if (langBtn) langBtn.setAttribute('data-state', lang === 'en' ? 'right' : 'left');
@@ -190,15 +190,6 @@
     <span id="globalBannerText">An unexpected issue occurred.</span>
     <button type="button" class="btn btn-outline btn-sm" id="bannerManualBtn" data-i18n="adjustManually">Adjust
       Manually</button>
-  </div>
-
-  <!-- Global Drag & Drop Overlay -->
-  <div id="globalDragOverlay" class="global-drag-overlay hidden" aria-hidden="true">
-    <div class="global-drag-box">
-      <div class="global-drag-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-      <div class="global-drag-title" data-i18n="dropAnywhereTitle">Drop your photo or signature anywhere</div>
-      <div class="global-drag-sub" data-i18n="dropAnywhereSub">Release to instantly format &amp; compress</div>
-    </div>
   </div>
 
   <main class="main-content">
@@ -597,7 +588,6 @@
   </main>
 
   <!-- Footer -->
-  <!-- Footer -->
   <footer class="site-footer" id="privacy">
     <div class="footer-content">
       <div class="footer-left">
@@ -675,13 +665,8 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Modules -->
-  <script type="module" src="./js/editor-pan.js"></script>
-  <script type="module" src="./js/hero.js"></script>
+  <!-- Core App Module -->
   <script type="module" src="./js/app.js"></script>
-
-  <!-- PWA Service Worker Registration -->
-  <script src="./js/register-sw.js"></script>
 
 </body>
 

@@ -1,7 +1,6 @@
 // js/editor.js - Three-Step Photoshop-Style Manual Crop, Straighten & Background Brush Editor
 import { createCanvas, stepDownDownscale } from './loader.js';
-import { parseLocalizedNumber, formatLocalizedNumber, getLanguage, t } from './i18n.js';
-import { icon } from './icons.js';
+import { parseLocalizedNumber, formatLocalizedNumber, getLanguage, t, icon } from './i18n.js';
 import { getSegmentationMask } from './bg.js';
 import { extractSignatureMask, classifyImageContent } from './signature.js';
 import { PRESETS } from './presets.js';
@@ -3079,5 +3078,154 @@ export class ManualEditor {
         this.requestRender();
       }
     }
+  }
+}
+
+
+// Space/middle-mouse/hand-tool pan for the Manual Crop modal
+const SEL_CANVAS    = '.editor-interactive-canvas';
+const SEL_CONTAINER = '.editor-viewport-container';
+const SEL_MODAL     = '.editor-modal-overlay';
+
+let space = false, handTool = false, panning = false;
+let ox = 0, oy = 0, sx = 0, sy = 0, bx = 0, by = 0;
+let step3StartPanX = 0, step3StartPanY = 0;
+
+const panCanvas    = () => document.querySelector(SEL_CANVAS);
+const panContainer = () => document.querySelector(SEL_CONTAINER);
+const modalOpen = () => {
+  const m = document.querySelector(SEL_MODAL);
+  return !!m && !m.classList.contains('hidden') && getComputedStyle(m).display !== 'none';
+};
+const isTyping = t => /^(INPUT|TEXTAREA|SELECT)$/.test(t?.tagName) && t.type !== 'range' && t.type !== 'checkbox';
+const active = () => space || handTool;
+const isBrushTab = () => window.__manualEditor?.currentStep === 3 || !!document.querySelector('#tabStep3.active');
+
+function applyPan() {
+  const c = panCanvas(); if (!c) return;
+  c.style.translate = `${ox}px ${oy}px`;
+}
+function clampPan() {
+  const c = panCanvas(), box = panContainer(); if (!c || !box) return;
+  const cr = c.getBoundingClientRect(), br = box.getBoundingClientRect();
+  const dx = (cr.left - ox), dy = (cr.top - oy);
+  const minX = br.left + 60 - (dx + cr.width),  maxX = br.right  - 60 - dx;
+  const minY = br.top  + 60 - (dy + cr.height), maxY = br.bottom - 60 - dy;
+  ox = Math.min(Math.max(ox, minX), maxX);
+  oy = Math.min(Math.max(oy, minY), maxY);
+}
+export function resetEditorPan() {
+  ox = oy = 0;
+  applyPan();
+  if (window.__manualEditor && window.__manualEditor.currentStep === 3) {
+    window.__manualEditor.step3PanX = 0;
+    window.__manualEditor.step3PanY = 0;
+    window.__manualEditor.requestRender();
+  }
+}
+export function setHandTool(on) {
+  handTool = !!on; paintCursor();
+}
+if (typeof window !== 'undefined') {
+  window.__editorPan = {
+    reset: resetEditorPan,
+    setHandTool,
+    isActive:  () => space || handTool,
+    isPanning: () => panning
+  };
+}
+
+function paintCursor() {
+  const c = panCanvas(); if (!c) return;
+  c.classList.toggle('is-space-held', active() && !panning);
+  c.classList.toggle('is-panning', panning);
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', e => {
+    if (!modalOpen()) return;
+    if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') {
+      e.preventDefault();
+      return;
+    }
+    if ((e.code === 'Space' || e.key === ' ' || e.keyCode === 32) && !isTyping(e.target)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (document.activeElement && document.activeElement !== document.body) {
+        document.activeElement.blur();
+      }
+      if (!space) { space = true; paintCursor(); }
+    }
+  }, { capture: true });
+
+  window.addEventListener('keyup', e => {
+    if (!modalOpen()) return;
+    if (e.key === 'Alt' || e.code === 'AltLeft' || e.code === 'AltRight') {
+      e.preventDefault();
+      if (document.activeElement && document.activeElement !== document.body) {
+        document.activeElement.blur();
+      }
+      return;
+    }
+    if (e.code === 'Space' || e.key === ' ' || e.keyCode === 32) {
+      space = false; panning = false; paintCursor();
+    }
+  }, { capture: true });
+
+  window.addEventListener('blur', () => { space = false; panning = false; paintCursor(); });
+
+  const pt = e => (e.touches?.[0] ?? e);
+
+  for (const type of ['pointerdown', 'mousedown', 'touchstart']) {
+    window.addEventListener(type, e => {
+      if (!modalOpen() || !panContainer()?.contains(e.target)) return;
+      const middle = e.button === 1;
+      if (!(active() || middle)) return;
+      if (e.touches && e.touches.length > 1) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const p = pt(e);
+      panning = true; sx = p.clientX; sy = p.clientY; bx = ox; by = oy;
+      if (isBrushTab() && window.__manualEditor) {
+        step3StartPanX = window.__manualEditor.step3PanX || 0;
+        step3StartPanY = window.__manualEditor.step3PanY || 0;
+        ox = 0; oy = 0; applyPan();
+      }
+      paintCursor();
+    }, { capture: true, passive: false });
+  }
+
+  for (const type of ['pointermove', 'mousemove', 'touchmove']) {
+    window.addEventListener(type, e => {
+      if (!panning) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const p = pt(e);
+      if (isBrushTab() && window.__manualEditor) {
+        window.__manualEditor.step3PanX = step3StartPanX + (p.clientX - sx);
+        window.__manualEditor.step3PanY = step3StartPanY + (p.clientY - sy);
+        window.__manualEditor.requestRender();
+      } else {
+        ox = bx + (p.clientX - sx);
+        oy = by + (p.clientY - sy);
+        clampPan(); applyPan();
+      }
+    }, { capture: true, passive: false });
+  }
+
+  for (const type of ['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchcancel']) {
+    window.addEventListener(type, e => {
+      if (!panning) return;
+      e.stopImmediatePropagation();
+      panning = false; paintCursor();
+    }, { capture: true });
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('.editor-step-tab, #btnResetAuto, #btnEditorReset, [data-editor-reset]')) resetEditorPan();
+  });
+  if (document.body) {
+    new MutationObserver(() => { if (!modalOpen()) resetEditorPan(); })
+      .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
   }
 }
