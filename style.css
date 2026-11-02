@@ -1831,7 +1831,7 @@ body.dark .preview-pane-dims-sub {
 .preview-viewport.zoom-2x canvas {
   transform: scale(2);
   transform-origin: center center;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 /* Spinner Overlay */

@@ -140,6 +140,12 @@ function convertToGrayscale(canvas) {
  * Binary search for best JPEG / WebP quality fitting within maxBytes
  */
 async function binarySearchQuality(canvas, mimeType, maxBytes, minQ = 0.30, maxQ = 1.0, iterations = 10) {
+  // Fast path: test maximum quality (1.0) first so small canvases/signatures get true 100% quality
+  const topBlob = await canvasToBlob(canvas, mimeType, maxQ);
+  if (topBlob && topBlob.size <= maxBytes) {
+    return { blob: topBlob, quality: maxQ };
+  }
+
   let low = minQ;
   let high = maxQ;
   let bestBlob = null;
@@ -169,6 +175,161 @@ async function binarySearchQuality(canvas, mimeType, maxBytes, minQ = 0.30, maxQ
   }
 
   return { blob: bestBlob, quality: bestQuality };
+}
+
+/**
+ * Standard CRC32 table for valid PNG ancilliary chunk generation
+ */
+let crc32Table = null;
+function computeCrc32(bytes, start, end) {
+  if (!crc32Table) {
+    crc32Table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) {
+        c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      }
+      crc32Table[n] = c >>> 0;
+    }
+  }
+  let crc = 0xFFFFFFFF;
+  for (let i = start; i < end; i++) {
+    crc = crc32Table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+/**
+ * Ensures signature exports encoded at 100% quality land in the 41.5 KB – 47.8 KB sweet spot
+ * (strictly < 49,000 bytes / < 50 KB and < maxBytes) rather than 5–10 KB, using standard-compliant
+ * container segments (JFIF COM 0xFFFE, PNG tEXt, or RIFF WebP JUNK) with zero 0xFF marker bytes.
+ */
+async function ensureSignatureSweetSpotSize(blob, format, maxBytes, presetKind) {
+  if (!blob || presetKind !== 'signature') return blob;
+
+  // Sweet spot range: 41.5 KB to 47.8 KB (strictly under 49,000 bytes / 50 KB, or scaled if user picked a smaller maxBytes)
+  const hardCeiling = Math.min(47800, Math.floor(maxBytes * 0.94));
+  const sweetMin = Math.min(41500, Math.floor(maxBytes * 0.82));
+  if (blob.size >= sweetMin || hardCeiling <= blob.size + 32) {
+    return blob;
+  }
+
+  // Deterministic sweet-spot target based on natural image complexity
+  const span = Math.max(1, hardCeiling - sweetMin);
+  const targetSize = sweetMin + ((blob.size * 6151) % span);
+  const needed = targetSize - blob.size;
+  if (needed < 16) return blob;
+
+  try {
+    const srcBuf = await blob.arrayBuffer();
+    const src = new Uint8Array(srcBuf);
+
+    if (format === 'jpg' || format === 'jpeg') {
+      // Verify JPEG SOI (0xFF 0xD8)
+      if (src.length < 4 || src[0] !== 0xFF || src[1] !== 0xD8) return blob;
+      // Insert COM (0xFF 0xFE) segment right after APP0 JFIF header (if present) so bytes 0..19 stay standard JFIF
+      let insertPos = 2;
+      if (src[2] === 0xFF && src[3] === 0xE0 && src.length >= 6) {
+        const app0Len = (src[4] << 8) | src[5];
+        if (2 + 2 + app0Len <= src.length - 2) {
+          insertPos = 2 + 2 + app0Len;
+        }
+      }
+
+      const payloadLen = Math.min(65531, Math.max(4, needed - 4));
+      const segLen = payloadLen + 2; // Includes the 2 length bytes
+      const out = new Uint8Array(src.length + 4 + payloadLen);
+
+      out.set(src.subarray(0, insertPos), 0);
+      out[insertPos] = 0xFF;
+      out[insertPos + 1] = 0xFE; // Standard JPEG Comment marker (never SOF2 0xFFC2)
+      out[insertPos + 2] = (segLen >> 8) & 0xFF;
+      out[insertPos + 3] = segLen & 0xFF;
+
+      // Fill payload strictly with printable ASCII (0x30..0x7A) — zero 0xFF bytes guaranteed
+      const padStart = insertPos + 4;
+      for (let i = 0; i < payloadLen; i++) {
+        out[padStart + i] = 0x30 + ((i * 31 + 17) % 74);
+      }
+      out.set(src.subarray(insertPos), padStart + payloadLen);
+      return new Blob([out], { type: 'image/jpeg' });
+    }
+
+    if (format === 'png') {
+      // Insert standard PNG tEXt chunk immediately before the 12-byte IEND chunk
+      if (src.length < 24) return blob;
+      const iendPos = src.length - 12;
+      if (src[iendPos + 4] !== 0x49 || src[iendPos + 5] !== 0x45 || src[iendPos + 6] !== 0x4E || src[iendPos + 7] !== 0x44) {
+        return blob;
+      }
+      const payloadLen = Math.max(8, needed - 12);
+      const out = new Uint8Array(src.length + 12 + payloadLen);
+      out.set(src.subarray(0, iendPos), 0);
+
+      // 4-byte big-endian length
+      out[iendPos] = (payloadLen >>> 24) & 0xFF;
+      out[iendPos + 1] = (payloadLen >>> 16) & 0xFF;
+      out[iendPos + 2] = (payloadLen >>> 8) & 0xFF;
+      out[iendPos + 3] = payloadLen & 0xFF;
+      // "tEXt" chunk type
+      out[iendPos + 4] = 0x74;
+      out[iendPos + 5] = 0x45;
+      out[iendPos + 6] = 0x58;
+      out[iendPos + 7] = 0x74;
+      // Keyword "Comment\0" + printable ASCII
+      const dataStart = iendPos + 8;
+      const key = [0x43, 0x6F, 0x6D, 0x6D, 0x65, 0x6E, 0x74, 0x00];
+      for (let i = 0; i < payloadLen; i++) {
+        out[dataStart + i] = i < key.length ? key[i] : (0x30 + ((i * 29) % 74));
+      }
+      // 4-byte CRC32 over type + data
+      const crc = computeCrc32(out, iendPos + 4, dataStart + payloadLen);
+      const crcPos = dataStart + payloadLen;
+      out[crcPos] = (crc >>> 24) & 0xFF;
+      out[crcPos + 1] = (crc >>> 16) & 0xFF;
+      out[crcPos + 2] = (crc >>> 8) & 0xFF;
+      out[crcPos + 3] = crc & 0xFF;
+
+      out.set(src.subarray(iendPos), crcPos + 4);
+      return new Blob([out], { type: 'image/png' });
+    }
+
+    if (format === 'webp') {
+      // Append standard RIFF JUNK chunk (even byte length) and update RIFF header size
+      if (src.length < 12 || src[0] !== 0x52 || src[1] !== 0x49 || src[2] !== 0x46 || src[3] !== 0x46) {
+        return blob;
+      }
+      let payloadLen = Math.max(4, needed - 8);
+      if (payloadLen % 2 !== 0) payloadLen--;
+      const evenSrcLen = (src.length % 2 === 0) ? src.length : src.length + 1;
+      const out = new Uint8Array(evenSrcLen + 8 + payloadLen);
+      out.set(src, 0);
+      const chunkPos = evenSrcLen;
+      // "JUNK" fourCC
+      out[chunkPos] = 0x4A;
+      out[chunkPos + 1] = 0x55;
+      out[chunkPos + 2] = 0x4E;
+      out[chunkPos + 3] = 0x4B;
+      // 4-byte little-endian chunk size
+      out[chunkPos + 4] = payloadLen & 0xFF;
+      out[chunkPos + 5] = (payloadLen >>> 8) & 0xFF;
+      out[chunkPos + 6] = (payloadLen >>> 16) & 0xFF;
+      out[chunkPos + 7] = (payloadLen >>> 24) & 0xFF;
+      for (let i = 0; i < payloadLen; i++) {
+        out[chunkPos + 8 + i] = 0x30 + ((i * 23) % 74);
+      }
+      // Update RIFF container size (total file length - 8) in little-endian at offset 4
+      const riffSize = out.length - 8;
+      out[4] = riffSize & 0xFF;
+      out[5] = (riffSize >>> 8) & 0xFF;
+      out[6] = (riffSize >>> 16) & 0xFF;
+      out[7] = (riffSize >>> 24) & 0xFF;
+      return new Blob([out], { type: 'image/webp' });
+    }
+  } catch (e) {
+    console.warn('Sweet spot size adjustment skipped:', e);
+  }
+  return blob;
 }
 
 /**
@@ -360,7 +521,7 @@ export async function exportWithGuarantee(exactCanvas, targetW, targetH, options
 
   // Attempt 1
   let res = await runLadderAttempt(chosenFormat);
-  finalBlob = res.blob;
+  finalBlob = await ensureSignatureSweetSpotSize(res.blob, res.format, maxBytes, presetKind);
   chosenFormat = res.format;
   if (res.notices) notices.push(...res.notices);
 
@@ -371,7 +532,7 @@ export async function exportWithGuarantee(exactCanvas, targetW, targetH, options
   if (!verification.valid) {
     console.warn('First export attempt verification failed:', verification.error, 'retrying once...');
     res = await runLadderAttempt('jpg'); // Fallback to JPG on retry
-    finalBlob = res.blob;
+    finalBlob = await ensureSignatureSweetSpotSize(res.blob, res.format, maxBytes, presetKind);
     chosenFormat = res.format;
     if (res.notices) notices.push(...res.notices);
     verification = await verifyExportBlob(finalBlob, targetW, targetH, maxBytes, locked);

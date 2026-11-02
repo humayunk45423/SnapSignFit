@@ -1153,13 +1153,9 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   const availH = targetH - padH * 2;
   const scale = Math.min(availW / Math.max(1, cropW), availH / Math.max(1, cropH));
 
-  // Automatic scale-aware stroke preservation + user thicken slider
-  const autoDilate = (!useFullImage && scale < 0.42) ? (scale < 0.20 ? 2 : 1) : 0;
-  const effectiveDilate = thickenPx + autoDilate;
-  let finalMask = keptMask;
-  if (effectiveDilate > 0) {
-    finalMask = dilateMask(keptMask, w, h, effectiveDilate);
-  }
+  // Use a soft spatial ROI halo around keptMask so natural anti-aliased stroke edges are preserved without blocky binary clipping
+  const roiRadius = Math.max(2, thickenPx + 2);
+  const roiMask = dilateMask(keptMask, w, h, roiRadius);
 
   // Safety: if crop region is zero, return fallback
   if (cropW <= 0 || cropH <= 0) {
@@ -1177,12 +1173,15 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     };
   }
 
-  // Step 8: Adaptive high-contrast ink composition
-  // Normalize stroke darkness against the 25th percentile of the actual pen ink (inkCoreNorm)
-  // so dimly-lit ballpoint pen signatures render with crisp, rich, solid ink opacity instead of faint gray!
+  // Step 8: Studio-grade continuous-tone anti-aliased ink composition
+  // Normalize stroke darkness against the 25th percentile of actual pen ink (inkCoreNorm)
+  // while preserving smooth sub-pixel anti-aliased edges and natural pen-pressure shading detail!
   const inkCoreNorm = inkNorms[Math.floor(inkNorms.length * 0.25)] ?? (threshold * 0.65);
-  const solidFloorNorm = Math.min(threshold - 8, inkCoreNorm + (threshold - inkCoreNorm) * 0.35);
-  const softCeilingNorm = Math.max(solidFloorNorm + 8, threshold + 6);
+  const solidFloorNorm = Math.min(threshold - 10, inkCoreNorm + (threshold - inkCoreNorm) * 0.32);
+  const softCeilingNorm = Math.min(244, Math.max(solidFloorNorm + 14, threshold + 12));
+
+  // Continuous grayscale stroke strengthening when downscaling or when user sets thickenPx > 0
+  const autoSoftErodeWeight = (!useFullImage && scale < 0.42) ? (scale < 0.22 ? 0.55 : 0.35) : 0;
 
   const patchCanvas = createCanvas(Math.max(1, cropW), Math.max(1, cropH));
   const patchCtx = patchCanvas.getContext('2d');
@@ -1196,7 +1195,7 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
       const sIdx = sy * w + sx;
       const pIdx = (py * cropW + px) * 4;
 
-      if (!finalMask[sIdx]) {
+      if (!roiMask[sIdx]) {
         pData[pIdx] = 0;
         pData[pIdx + 1] = 0;
         pData[pIdx + 2] = 0;
@@ -1204,24 +1203,57 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
         continue;
       }
 
-      // Compute adaptive antialiased alpha (1.0 in stroke core, smooth ramp at stroke edges)
-      const nVal = Math.min(norm[sIdx], threshold - 2);
+      // Compute continuous local norm (with optional smooth grayscale erosion for thickenPx or scale preservation)
+      let effectiveNorm = norm[sIdx];
+      if (thickenPx > 0) {
+        let minN = effectiveNorm;
+        for (let dy = -thickenPx; dy <= thickenPx; dy++) {
+          const ny = sy + dy;
+          if (ny < 0 || ny >= h) continue;
+          const rOff = ny * w;
+          for (let dx = -thickenPx; dx <= thickenPx; dx++) {
+            const nx = sx + dx;
+            if (nx < 0 || nx >= w) continue;
+            if (norm[rOff + nx] < minN) minN = norm[rOff + nx];
+          }
+        }
+        effectiveNorm = minN;
+      } else if (autoSoftErodeWeight > 0) {
+        let min4 = effectiveNorm;
+        if (sx > 0 && norm[sIdx - 1] < min4) min4 = norm[sIdx - 1];
+        if (sx + 1 < w && norm[sIdx + 1] < min4) min4 = norm[sIdx + 1];
+        if (sy > 0 && norm[sIdx - w] < min4) min4 = norm[sIdx - w];
+        if (sy + 1 < h && norm[sIdx + w] < min4) min4 = norm[sIdx + w];
+        effectiveNorm = effectiveNorm * (1 - autoSoftErodeWeight) + min4 * autoSoftErodeWeight;
+      }
+
+      if (effectiveNorm >= softCeilingNorm) {
+        pData[pIdx] = 0;
+        pData[pIdx + 1] = 0;
+        pData[pIdx + 2] = 0;
+        pData[pIdx + 3] = 0;
+        continue;
+      }
+
+      // Smooth cubic Hermite (smoothstep) ramp from softCeilingNorm (0.0) to solidFloorNorm (1.0)
       let alpha = 1.0;
-      if (nVal > solidFloorNorm) {
-        const t = (softCeilingNorm - nVal) / Math.max(1, softCeilingNorm - solidFloorNorm);
-        alpha = Math.max(0.28, Math.min(1.0, Math.pow(Math.max(0, t), 0.65)));
+      if (effectiveNorm > solidFloorNorm) {
+        const t = Math.max(0, Math.min(1, (softCeilingNorm - effectiveNorm) / Math.max(1, softCeilingNorm - solidFloorNorm)));
+        alpha = t * t * (3 - 2 * t);
       }
 
       if (keepInkColor) {
-        // Slightly boost color contrast so colored ink isn't washed out by indoor glare
-        pData[pIdx] = Math.max(0, Math.round(src[sIdx * 4] * 0.82));
-        pData[pIdx + 1] = Math.max(0, Math.round(src[sIdx * 4 + 1] * 0.82));
-        pData[pIdx + 2] = Math.max(0, Math.round(src[sIdx * 4 + 2] * 0.82));
+        // Preserve natural colored pen shading while boosting contrast slightly against indoor glare
+        pData[pIdx] = Math.max(0, Math.round(src[sIdx * 4] * 0.84));
+        pData[pIdx + 1] = Math.max(0, Math.round(src[sIdx * 4 + 1] * 0.84));
+        pData[pIdx + 2] = Math.max(0, Math.round(src[sIdx * 4 + 2] * 0.84));
       } else {
-        // Crisp studio-black ink (#111111)
-        pData[pIdx] = 17;
-        pData[pIdx + 1] = 17;
-        pData[pIdx + 2] = 17;
+        // Preserve subtle natural pen-pressure shading (10..32) inside the stroke core for realistic studio ink detail
+        const coreRatio = Math.max(0, Math.min(1, effectiveNorm / Math.max(1, solidFloorNorm)));
+        const inkTone = Math.round(10 + coreRatio * 22);
+        pData[pIdx] = inkTone;
+        pData[pIdx + 1] = inkTone;
+        pData[pIdx + 2] = inkTone;
       }
       pData[pIdx + 3] = Math.round(alpha * 255);
     }
@@ -1254,17 +1286,17 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     outCtx.drawImage(downscaledPatch, destX, destY, destW, destH);
   }
 
-  // Post-downscale contrast sharpening pass on outCanvas (ensures sub-pixel downscaled strokes stay crisp and dark)
+  // Gentle core-only contrast curve on outCanvas that preserves smooth anti-aliased edge pixels (luma 195..254)
   if (!transparent && !keepInkColor) {
     const outImg = outCtx.getImageData(0, 0, targetW, targetH);
     const od = outImg.data;
     for (let i = 0; i < od.length; i += 4) {
       const luma = 0.299 * od[i] + 0.587 * od[i + 1] + 0.114 * od[i + 2];
-      if (luma < 245) {
-        // Darken mid-gray downscaled stroke pixels toward crisp ink
-        const darkness = (255 - luma) / 255;
-        const boostedDarkness = Math.min(1, Math.pow(darkness, 0.68) * 1.35);
-        const val = Math.max(15, Math.round(255 * (1 - boostedDarkness)));
+      if (luma < 205) {
+        // Deepen stroke core smoothly while leaving outer anti-aliased gray edge transition untouched
+        const t = (205 - luma) / 205;
+        const darken = Math.round(t * 28);
+        const val = Math.max(10, Math.round(luma - darken));
         od[i] = val;
         od[i + 1] = val;
         od[i + 2] = val;
