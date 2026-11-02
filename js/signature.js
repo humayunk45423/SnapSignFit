@@ -1179,11 +1179,10 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   }
 
   // Step 8: Studio-grade continuous-tone anti-aliased ink composition & optical de-lighting
-  // Normalize stroke darkness against the 25th percentile of actual pen ink (inkCoreNorm)
-  // while preserving smooth sub-pixel anti-aliased edges and natural pen-pressure shading detail!
-  const inkCoreNorm = inkNorms[Math.floor(inkNorms.length * 0.25)] ?? (threshold * 0.65);
-  const solidFloorNorm = Math.min(threshold - 10, inkCoreNorm + (threshold - inkCoreNorm) * 0.35);
-  const softCeilingNorm = Math.min(248, Math.max(solidFloorNorm + 16, threshold + 14));
+  // Normalize stroke darkness against actual pen ink core so signatures are deep, dark, and crisp like Rival 2!
+  const inkCoreNorm = inkNorms[Math.floor(inkNorms.length * 0.20)] ?? (threshold * 0.60);
+  const solidFloorNorm = Math.min(threshold - 12, inkCoreNorm + (threshold - inkCoreNorm) * 0.25);
+  const softCeilingNorm = Math.min(252, threshold + 8);
 
   const patchCanvas = createCanvas(Math.max(1, cropW), Math.max(1, cropH));
   const patchCtx = patchCanvas.getContext('2d');
@@ -1222,12 +1221,7 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
             if (val < minDisk) minDisk = val;
           }
         }
-        if (thickenPx > 0) {
-          effectiveNorm = minDisk;
-        } else {
-          // Downscale stroke protection: ensures fine pen strokes (loops and underlines) do not fracture
-          effectiveNorm = Math.min(effectiveNorm, minDisk * 1.06);
-        }
+        effectiveNorm = minDisk;
       }
 
       if (effectiveNorm >= softCeilingNorm) {
@@ -1238,49 +1232,49 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
         continue;
       }
 
-      // Smooth cubic Hermite (smoothstep) ramp from softCeilingNorm (0.0) to solidFloorNorm (1.0)
-      let alpha = 1.0;
+      // Punchy, continuous S-curve opacity from softCeilingNorm (0.0) to solidFloorNorm (1.0)
+      let opacity = 1.0;
       if (effectiveNorm > solidFloorNorm) {
-        const t = Math.max(0, Math.min(1, (softCeilingNorm - effectiveNorm) / Math.max(1, softCeilingNorm - solidFloorNorm)));
-        alpha = t * t * (3 - 2 * t);
+        const u = Math.max(0, Math.min(1, (softCeilingNorm - effectiveNorm) / Math.max(1, softCeilingNorm - solidFloorNorm)));
+        opacity = Math.pow(u, 0.85);
       }
 
       if (isInverted) {
-        // For inverted images (bright chalk/light stroke on dark background), invert to dark studio ink
-        const coreRatio = Math.max(0, Math.min(1, effectiveNorm / Math.max(1, solidFloorNorm)));
-        const inkTone = Math.round(10 + coreRatio * 20);
+        // For inverted images (bright chalk/light stroke on dark background), render deep studio black
+        const inkTone = Math.round(15 + (1 - opacity) * 15);
         pData[pIdx]     = inkTone;
         pData[pIdx + 1] = inkTone;
         pData[pIdx + 2] = inkTone;
       } else if (keepInkColor) {
-        // Optical ink recovery & de-lighting:
-        // Decouple authentic pen pigment from local paper background lightness and indoor lighting cast
-        const bgLuma = Math.max(1, bgEstimate[sIdx]);
-        const normFactor = 255 / bgLuma;
-
+        // Deep, rich, punchy authentic pen ink recovery:
+        // Use the unit chroma vector of the original pen ink to retain natural purple/blue hue,
+        // while setting the core darkness to deep, crisp, solid dark ink (luma ~ 20..28) like Rival 2!
         const rawR = src[sIdx * 4];
         const rawG = src[sIdx * 4 + 1];
         const rawB = src[sIdx * 4 + 2];
+        const rawLuma = Math.max(1, 0.299 * rawR + 0.587 * rawG + 0.114 * rawB);
 
-        // Recover intrinsic pigment color without room shadow / yellowed paper tint
-        const inkR = Math.max(0, Math.min(255, Math.round(rawR * normFactor)));
-        const inkG = Math.max(0, Math.min(255, Math.round(rawG * normFactor)));
-        const inkB = Math.max(0, Math.min(255, Math.round(rawB * normFactor)));
+        // Normalized chroma unit ratios (capped to prevent extreme color clipping)
+        const rRatio = Math.max(0.70, Math.min(1.45, rawR / rawLuma));
+        const gRatio = Math.max(0.70, Math.min(1.45, rawG / rawLuma));
+        const bRatio = Math.max(0.70, Math.min(1.45, rawB / rawLuma));
 
-        // Subtle core contrast preservation
-        const boost = 0.88;
-        pData[pIdx]     = Math.max(0, Math.min(255, Math.round(inkR * boost)));
-        pData[pIdx + 1] = Math.max(0, Math.min(255, Math.round(inkG * boost)));
-        pData[pIdx + 2] = Math.max(0, Math.min(255, Math.round(inkB * boost)));
+        // Deep studio ink core luminance: 20
+        const inkR = Math.max(0, Math.min(255, Math.round(20 * rRatio)));
+        const inkG = Math.max(0, Math.min(255, Math.round(20 * gRatio)));
+        const inkB = Math.max(0, Math.min(255, Math.round(20 * bRatio)));
+
+        pData[pIdx]     = inkR;
+        pData[pIdx + 1] = inkG;
+        pData[pIdx + 2] = inkB;
       } else {
-        // Studio monochrome black with continuous pen-pressure shading (10..30)
-        const coreRatio = Math.max(0, Math.min(1, effectiveNorm / Math.max(1, solidFloorNorm)));
-        const inkTone = Math.round(10 + coreRatio * 20);
+        // Studio monochrome black with continuous pen-pressure shading (15..25)
+        const inkTone = Math.round(18 + (1 - opacity) * 12);
         pData[pIdx]     = inkTone;
         pData[pIdx + 1] = inkTone;
         pData[pIdx + 2] = inkTone;
       }
-      pData[pIdx + 3] = Math.round(alpha * 255);
+      pData[pIdx + 3] = Math.round(opacity * 255);
     }
   }
 
