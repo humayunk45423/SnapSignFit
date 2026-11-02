@@ -1234,5 +1234,55 @@ export function renderFitMode(sourceCanvas, targetW, targetH, options = {}) {
   if (downscaled && downscaled.width > 0 && downscaled.height > 0) {
     ctx.drawImage(downscaled, 0, 0, targetW, targetH);
   }
+  applyPhotoMicroDetail(out);
   return out;
+}
+
+/**
+ * Edge-aware luminance unsharp mask (USM) to preserve fine portrait details
+ * (eyes, glasses, hair strands, fabric texture) after downscaling to target dimensions,
+ * with a noise gate and halo guard so smooth skin and solid backgrounds remain clean.
+ */
+function applyPhotoMicroDetail(canvas, amount = 0.28, threshold = 2.5) {
+  const w = canvas.width;
+  const h = canvas.height;
+  if (w < 16 || h < 16) return canvas;
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const src = imgData.data;
+  const luma = new Float32Array(w * h);
+
+  for (let i = 0, p = 0; i < src.length; i += 4, p++) {
+    luma[p] = 0.299 * src[i] + 0.587 * src[i + 1] + 0.114 * src[i + 2];
+  }
+
+  for (let y = 1; y < h - 1; y++) {
+    const row = y * w;
+    for (let x = 1; x < w - 1; x++) {
+      const p = row + x;
+      const idx = p * 4;
+      if (src[idx + 3] < 128) continue;
+
+      const c = luma[p];
+      // 3x3 Gaussian kernel [1, 2, 1; 2, 4, 2; 1, 2, 1] / 16
+      const blur = (
+        luma[p - w - 1] + 2 * luma[p - w] + luma[p - w + 1] +
+        2 * luma[p - 1] + 4 * c           + 2 * luma[p + 1] +
+        luma[p + w - 1] + 2 * luma[p + w] + luma[p + w + 1]
+      ) * 0.0625;
+
+      const diff = c - blur;
+      const absDiff = Math.abs(diff);
+      if (absDiff > threshold && absDiff < 52) {
+        const boost = (diff - Math.sign(diff) * threshold) * amount;
+        src[idx]     = Math.max(0, Math.min(255, Math.round(src[idx] + boost)));
+        src[idx + 1] = Math.max(0, Math.min(255, Math.round(src[idx + 1] + boost)));
+        src[idx + 2] = Math.max(0, Math.min(255, Math.round(src[idx + 2] + boost)));
+      }
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+  return canvas;
 }

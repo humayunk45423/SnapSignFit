@@ -200,16 +200,29 @@ function computeCrc32(bytes, start, end) {
 }
 
 /**
- * Ensures signature exports encoded at 100% quality land in the 41.5 KB – 47.8 KB sweet spot
- * (strictly < 49,000 bytes / < 50 KB and < maxBytes) rather than 5–10 KB, using standard-compliant
- * container segments (JFIF COM 0xFFFE, PNG tEXt, or RIFF WebP JUNK) with zero 0xFF marker bytes.
+ * Ensures both Photo and Signature exports encoded at maximum (100%) quality land in the optimal
+ * sweet spot just under the target limit:
+ * - Signature: 41.5 KB – 47.8 KB (strictly < 49,000 bytes / < 50 KB and < maxBytes)
+ * - Photo / Avatar / Image: 86% – 95.5% of maxBytes (e.g., 83.5 KB – 92.3 KB for ≤99KB/100KB photos,
+ *   or 41.5 KB – 46.5 KB when 50KB limit is selected, strictly < maxBytes)
+ * Uses standard-compliant container segments (JFIF COM 0xFFFE, PNG tEXt, or RIFF WebP JUNK)
+ * with zero 0xFF bytes in length or payload so no false JPEG markers (like SOF2 0xFFC2) can ever occur.
  */
 async function ensureSignatureSweetSpotSize(blob, format, maxBytes, presetKind) {
-  if (!blob || presetKind !== 'signature') return blob;
+  if (!blob || !maxBytes || maxBytes > 2000000) return blob;
 
-  // Sweet spot range: 41.5 KB to 47.8 KB (strictly under 49,000 bytes / 50 KB, or scaled if user picked a smaller maxBytes)
-  const hardCeiling = Math.min(47800, Math.floor(maxBytes * 0.94));
-  const sweetMin = Math.min(41500, Math.floor(maxBytes * 0.82));
+  let hardCeiling;
+  let sweetMin;
+  if (presetKind === 'signature') {
+    // Signature sweet spot: 41.5 KB to 47.8 KB (strictly under 49,000 bytes / 50 KB, or scaled if maxBytes is smaller)
+    hardCeiling = Math.min(47800, Math.floor(maxBytes * 0.94));
+    sweetMin = Math.min(41500, Math.floor(maxBytes * 0.82));
+  } else {
+    // Photo / Avatar / Image sweet spot: 86% to 95.5% of maxBytes (e.g. ~83.5 KB – 92.3 KB for 99 KB limit)
+    hardCeiling = Math.floor(maxBytes * 0.955);
+    sweetMin = Math.floor(maxBytes * 0.86);
+  }
+
   if (blob.size >= sweetMin || hardCeiling <= blob.size + 32) {
     return blob;
   }
@@ -227,7 +240,7 @@ async function ensureSignatureSweetSpotSize(blob, format, maxBytes, presetKind) 
     if (format === 'jpg' || format === 'jpeg') {
       // Verify JPEG SOI (0xFF 0xD8)
       if (src.length < 4 || src[0] !== 0xFF || src[1] !== 0xD8) return blob;
-      // Insert COM (0xFF 0xFE) segment right after APP0 JFIF header (if present) so bytes 0..19 stay standard JFIF
+      // Insert COM (0xFF 0xFE) segment(s) right after APP0 JFIF header (if present) so bytes 0..19 stay standard JFIF
       let insertPos = 2;
       if (src[2] === 0xFF && src[3] === 0xE0 && src.length >= 6) {
         const app0Len = (src[4] << 8) | src[5];
@@ -236,22 +249,38 @@ async function ensureSignatureSweetSpotSize(blob, format, maxBytes, presetKind) 
         }
       }
 
-      const payloadLen = Math.min(65531, Math.max(4, needed - 4));
-      const segLen = payloadLen + 2; // Includes the 2 length bytes
-      const out = new Uint8Array(src.length + 4 + payloadLen);
-
-      out.set(src.subarray(0, insertPos), 0);
-      out[insertPos] = 0xFF;
-      out[insertPos + 1] = 0xFE; // Standard JPEG Comment marker (never SOF2 0xFFC2)
-      out[insertPos + 2] = (segLen >> 8) & 0xFF;
-      out[insertPos + 3] = segLen & 0xFF;
-
-      // Fill payload strictly with printable ASCII (0x30..0x7A) — zero 0xFF bytes guaranteed
-      const padStart = insertPos + 4;
-      for (let i = 0; i < payloadLen; i++) {
-        out[padStart + i] = 0x30 + ((i * 31 + 17) % 74);
+      // Build one or more COM segments (each <= 60,000 bytes so high byte of segLen is <= 0xEA, never 0xFF)
+      const segments = [];
+      let rem = needed;
+      while (rem >= 8) {
+        let payloadLen = Math.min(60000, Math.max(4, rem - 4));
+        let segLen = payloadLen + 2;
+        if ((segLen & 0xFF) === 0xFF) {
+          payloadLen--;
+          segLen--;
+        }
+        const seg = new Uint8Array(4 + payloadLen);
+        seg[0] = 0xFF;
+        seg[1] = 0xFE; // Standard JPEG Comment marker (never SOF2 0xFFC2)
+        seg[2] = (segLen >> 8) & 0xFF;
+        seg[3] = segLen & 0xFF;
+        // Fill payload strictly with printable ASCII (0x30..0x7A) — zero 0xFF bytes guaranteed
+        for (let i = 0; i < payloadLen; i++) {
+          seg[4 + i] = 0x30 + ((i * 31 + 17) % 74);
+        }
+        segments.push(seg);
+        rem -= (4 + payloadLen);
       }
-      out.set(src.subarray(insertPos), padStart + payloadLen);
+
+      const totalPadBytes = segments.reduce((acc, s) => acc + s.length, 0);
+      const out = new Uint8Array(src.length + totalPadBytes);
+      out.set(src.subarray(0, insertPos), 0);
+      let cursor = insertPos;
+      for (const seg of segments) {
+        out.set(seg, cursor);
+        cursor += seg.length;
+      }
+      out.set(src.subarray(insertPos), cursor);
       return new Blob([out], { type: 'image/jpeg' });
     }
 
