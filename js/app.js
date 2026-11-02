@@ -188,7 +188,7 @@ class SnapSignFitApp {
       fit: 'cover',
       bgMode: 'keep',
       thickenPx: 0,
-      keepInkColor: false,
+      keepInkColor: true,
       autoDetect: true,
       zoom2x: false
     };
