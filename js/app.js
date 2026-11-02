@@ -1515,8 +1515,8 @@ class SnapSignFitApp {
           const faces = faceDetection.faces || [];
           if (detectedKind === 'signature') {
             // If pixel/spatial classifier says this is a signature/text document on paper,
-            // only accept a face if it has unmistakable high confidence (>= 0.78)
-            hasFace = faces.some(f => (f.score || 0) >= 0.78);
+            // only accept a face if it has unmistakable high confidence (>= 0.88)
+            hasFace = faces.some(f => (f.score || 0) >= 0.88);
           } else {
             hasFace = faces.length > 0 || (faceDetection.detectedAngle && faceDetection.detectedAngle !== 0);
           }
@@ -1732,26 +1732,8 @@ class SnapSignFitApp {
             this.activeWarnings.push(...signatureResult.warnings);
           }
 
-          // Test signature paper tilt only if user hasn't manually cropped or rotated
+          // Test ink aspect rotation only for strictly vertical signatures photographed in landscape
           if (!this.userTransforms.crop && this.userTransforms.rotation === 0) {
-            if (signatureResult.components && signatureResult.components.length > 0) {
-              const paperTilt = detectSignaturePaperTilt(activeFull, signatureResult.components);
-              if (paperTilt !== 0 && this.autoFixes.tiltDeg === 0) {
-                this.autoFixes.tiltDeg = paperTilt;
-                this.addChip({
-                  id: 'chip-tilt',
-                  label: t('chipStraightened', { deg: paperTilt }),
-                  isUndoable: true,
-                  onUndo: () => {
-                    this.autoFixes.tiltDeg = 0;
-                    this.runProcessingPipeline();
-                  }
-                });
-                activeFull = rotateWithEdgeReplication(activeFull, -paperTilt);
-              }
-            }
-
-            // Test ink aspect rotation only for strictly vertical signatures photographed in landscape
             if (signatureResult.inkAspect > 2.8 && activeFull.width > activeFull.height * 1.2 && this.autoFixes.rotationDeg === 0) {
               this.autoFixes.rotationDeg = 90;
               this.addChip({
@@ -1816,22 +1798,6 @@ class SnapSignFitApp {
 
         if (sel.hasMultiple) {
           this.activeWarnings.push('warnMultiFaces');
-        }
-
-        // Eye tilt correction (§6)
-        const eyeTilt = calculateEyeTilt(primaryFace.keypoints);
-        if (eyeTilt !== 0 && this.autoFixes.tiltDeg === 0) {
-          this.autoFixes.tiltDeg = eyeTilt;
-          this.addChip({
-            id: 'chip-tilt',
-            label: t('chipStraightened', { deg: Math.round(eyeTilt * 10) / 10 }),
-            isUndoable: true,
-            onUndo: () => {
-              this.autoFixes.tiltDeg = 0;
-              this.runProcessingPipeline();
-            }
-          });
-          activeFull = rotateWithEdgeReplication(activeFull, -eyeTilt);
         }
 
         // Auto-enhance levels (§6)

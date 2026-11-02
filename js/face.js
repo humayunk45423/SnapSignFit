@@ -215,71 +215,111 @@ export function validateFaceCandidate(face, canvas) {
     const data = imgData.data;
     const totalPixels = clampedW * clampedH;
 
+    const lumaArr = new Float32Array(totalPixels);
+    for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+      lumaArr[p] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    }
+
+    const cx0 = Math.floor(clampedW * 0.20);
+    const cx1 = Math.max(cx0 + 1, Math.ceil(clampedW * 0.80));
+    const cy0 = Math.floor(clampedH * 0.20);
+    const cy1 = Math.max(cy0 + 1, Math.ceil(clampedH * 0.80));
+
     let skinCount = 0;
     let brightPaperCount = 0;
+    let smoothPaperCount = 0;
     let darkInkCount = 0;
     let midToneOrganicCount = 0;
 
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
+    let coreTotal = 0;
+    let coreSkinCount = 0;
+    let coreSmoothPaperCount = 0;
 
-      const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      const sat = max === 0 ? 0 : (max - min) / max;
+    for (let py = 0; py < clampedH; py++) {
+      const rowOffset = py * clampedW;
+      const inCoreY = py >= cy0 && py < cy1;
+      for (let px = 0; px < clampedW; px++) {
+        const p = rowOffset + px;
+        const i = p * 4;
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
 
-      // Detect white, off-white, or warm indoor paper background
-      const isPaper = (luma > 165 && Math.abs(r - g) < 28 && Math.abs(g - b) < 32 && (r - b) < 45) ||
-                      (luma > 140 && sat < 0.16);
-      const isInk = (luma < 110) ||
-                    (b > r + 15 && b > g + 10 && luma < 175) ||
-                    (r > g + 35 && r > b + 35 && luma < 165);
+        const luma = lumaArr[p];
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const sat = max === 0 ? 0 : (max - min) / max;
 
-      if (isPaper) {
-        brightPaperCount++;
-      } else if (isInk) {
-        darkInkCount++;
-      } else if (luma >= 95 && luma <= 185) {
-        midToneOrganicCount++;
-      }
+        const gx = px > 0 ? Math.abs(luma - lumaArr[p - 1]) : 0;
+        const gy = py > 0 ? Math.abs(luma - lumaArr[p - clampedW]) : 0;
+        const grad = gx + gy;
 
-      // True chromatic skin tone detection (rejects warm indoor paper)
-      if (!isPaper && sat >= 0.15 && luma >= 45 && luma <= 220 &&
-          r > g && g >= b && (r - g) >= 10 && (r - b) >= 18) {
-        skinCount++;
+        // Detect white, off-white, or shadowed warm indoor paper background (down to luma 84)
+        const isPaper = (luma > 155 && Math.abs(r - g) < 28 && Math.abs(g - b) < 32 && (r - b) < 48) ||
+                        (luma >= 84 && sat < 0.25 && Math.abs(r - g) < 26 && (r - b) < 46 && grad < 16);
+        const isSmoothPaper = isPaper && grad < 13;
+
+        const isInk = (luma < 84) ||
+                      (grad >= 16 && luma < 145) ||
+                      (b > r + 15 && b > g + 10 && luma < 175) ||
+                      (r > g + 35 && r > b + 35 && luma < 165);
+
+        if (isPaper) {
+          brightPaperCount++;
+          if (isSmoothPaper) smoothPaperCount++;
+        } else if (isInk) {
+          darkInkCount++;
+        } else if (luma >= 85 && luma <= 195) {
+          midToneOrganicCount++;
+        }
+
+        // True chromatic human skin tone detection (strictly rejects warm indoor gray/beige paper)
+        const isSkin = !isPaper && sat >= 0.20 && sat <= 0.68 && luma >= 48 && luma <= 225 &&
+                       r > g && g >= b && (r - g) >= 18 && (r - b) >= 28;
+        if (isSkin) {
+          skinCount++;
+        }
+
+        if (inCoreY && px >= cx0 && px < cx1) {
+          coreTotal++;
+          if (isSkin) coreSkinCount++;
+          if (isSmoothPaper) coreSmoothPaperCount++;
+        }
       }
     }
 
     const paperRatio = brightPaperCount / totalPixels;
+    const smoothPaperRatio = smoothPaperCount / totalPixels;
     const skinRatio = skinCount / totalPixels;
     const inkRatio = darkInkCount / totalPixels;
     const midToneRatio = midToneOrganicCount / totalPixels;
     const bimodalPaperInk = paperRatio + inkRatio;
 
-    // A: Reject empty or near-empty paper
-    if (paperRatio > 0.72 && skinRatio < 0.02) {
+    const coreSkinRatio = coreTotal > 0 ? coreSkinCount / coreTotal : 0;
+    const coreSmoothPaperRatio = coreTotal > 0 ? coreSmoothPaperCount / coreTotal : 0;
+
+    // A: Reject empty or near-empty paper, or boxes whose central facial core is flat smooth paper
+    if ((paperRatio > 0.62 && skinRatio < 0.03) || (coreSmoothPaperRatio > 0.45 && coreSkinRatio < 0.04)) {
       return false;
     }
 
-    // B: Reject bimodal ink-on-paper (signatures, cursive loops, text blocks, stamps)
-    // Real faces (even B&W) have continuous mid-tone shading across cheeks/forehead, not binary paper + ink strokes
-    if (bimodalPaperInk > 0.78 && skinRatio < 0.03 && midToneRatio < 0.22) {
+    // B: Reject bimodal ink-on-paper (signatures, notebook binding holes, cursive loops, text blocks, stamps)
+    // Real faces (even B&W) have continuous 3D mid-tone shading across cheeks/forehead/eyes, not flat paper + ink strokes
+    if (bimodalPaperInk > 0.72 && skinRatio < 0.04 && midToneRatio < 0.24) {
       return false;
     }
 
-    // C: If the candidate box has significant paper (> 42%) and virtually no skin (< 2.5%),
-    // require high BlazeFace confidence + organic midtones (prevents false face boxes on handwriting)
-    if (paperRatio > 0.42 && skinRatio < 0.025 && (face.score < 0.78 || midToneRatio < 0.25)) {
+    // C: If the candidate box has significant paper (> 38%) and virtually no skin (< 3%),
+    // require high BlazeFace confidence + organic midtones (prevents false face boxes on handwriting/notebooks)
+    if ((paperRatio > 0.38 || smoothPaperRatio > 0.32) && skinRatio < 0.03 && (face.score < 0.82 || midToneRatio < 0.25)) {
       return false;
     }
 
     // D: Whole-canvas document/signature check — if the overall image is a signature/text document,
     // reject any face candidate that lacks unmistakable human skin or extreme confidence
-    if (skinRatio < 0.04 && face.score < 0.82) {
+    if (skinRatio < 0.10 || coreSkinRatio < 0.10 || face.score < 0.88) {
       const wholeKind = classifyImageContent(canvas);
-      if (wholeKind === 'signature') {
+      if (wholeKind === 'signature' && (face.score < 0.88 || coreSkinRatio < 0.14 || coreSmoothPaperRatio > 0.32)) {
         return false;
       }
     }
@@ -432,7 +472,11 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
 
   // Ladder Step 6: 90-degree rotations ONLY when image orientation indicates need
   // If the image is already portrait/tall (width <= height * 1.05), NEVER test 90° or 270°!
-  // Normal portrait photos should NEVER be turned sideways!
+  // Also, if pixel/spatial classifier says this is a signature/text document on paper, NEVER rotate looking for faces!
+  if (classifyImageContent(workingCanvas) === 'signature') {
+    return { success: false, faces: [], detectedAngle: 0, method: 'failed' };
+  }
+
   const isLandscape = workingCanvas.width > workingCanvas.height * 1.05;
   const rotationAngles = isLandscape ? [90, 270, 180] : [180];
   let bestRotResult = null;
@@ -706,21 +750,8 @@ export function checkFaceQuality(face, imgW, imgH, canvas) {
  * @returns {number} Angle in degrees (-45..+45)
  */
 export function calculateEyeTilt(keypoints) {
-  if (!keypoints || keypoints.length < 2) return 0;
-  const rightEye = keypoints[0];
-  const leftEye = keypoints[1];
-  if (!rightEye || !leftEye) return 0;
-
-  const dx = leftEye.x - rightEye.x;
-  const dy = leftEye.y - rightEye.y;
-  const angleRad = Math.atan2(dy, dx);
-  const angleDeg = (angleRad * 180) / Math.PI;
-
-  // Only correct significant head tilt (>= 5° and <= 30°).
-  // Natural subtle head pose and landmark noise (< 5°) should never rotate the photo.
-  if (Math.abs(angleDeg) >= 5 && Math.abs(angleDeg) <= 30) {
-    return Math.round(angleDeg * 10) / 10;
-  }
+  // Never automatically tilt upright photos based on head pose / eye keypoints,
+  // as rotating the canvas introduces white corner wedges and tilts the background/shoulders.
   return 0;
 }
 
