@@ -281,7 +281,8 @@ export function classifyImageContent(canvas) {
       const luma = 0.299 * r + 0.587 * g + 0.114 * b;
       const max = Math.max(r, g, b);
       const min = Math.min(r, g, b);
-      const sat = max === 0 ? 0 : (max - min) / max;
+      // Dampen saturation in very dark shadow pixels (max < 75) so dark navy/black backgrounds don't report 65% saturation from minor RGB noise
+      const sat = max === 0 ? 0 : (max - min) / Math.max(75, max);
 
       cellSumLuma[cellIdx] += luma;
       cellSumSat[cellIdx] += sat;
@@ -324,10 +325,11 @@ export function classifyImageContent(canvas) {
       sumRgSq += rg * rg;
       sumYbSq += yb * yb;
 
-      // True human skin tone detection (strictly rejects warm indoor paper where sat < 0.22 and r - g < 18)
+      // True human skin tone detection (strictly rejects warm indoor paper where sat < 0.20 and r - g < 18,
+      // while supporting studio-lit fair/bright skin up to luma 242 when saturation and warm chroma are strong)
       if (!isPaper) {
-        const isSkin = sat >= 0.20 && luma >= 45 && luma <= 218 && r > g && g >= b && (
-          ((r - g) >= 18 && (r - b) >= 28 && r > 85 && b < 185 && sat <= 0.65) ||
+        const isSkin = sat >= 0.20 && luma >= 45 && luma <= 242 && r > g && g >= b && (
+          ((r - g) >= 18 && (r - b) >= 28 && r > 85 && b < 195 && sat <= 0.65 && (luma <= 218 || (sat >= 0.24 && (r - b) >= 40))) ||
           (luma >= 45 && luma <= 115 && sat >= 0.24 && (r - g) >= 15 && (r - b) >= 25)
         );
         if (isSkin) {
@@ -343,15 +345,17 @@ export function classifyImageContent(canvas) {
   if (sampleCount === 0) return 'photo';
 
   // Analyze the 16x16 spatial grid for:
-  // (a) Paper sheet cells (smooth, low-chroma surface with luma >= 85)
+  // (a) Paper sheet cells (smooth, low-chroma surface with luma >= 84)
   // (b) Paper cells containing pen/text strokes (high local dynamic range + sharp stroke edges)
-  // (c) Dark background/desk cells (flat very dark cells, e.g. black table behind notebook)
+  // (c) Dark or uniform desk/table background cells (e.g. black desk, wooden table around paper slip)
   // (d) Central portrait subject cells (dense non-paper cells in the center/bottom-center with skin or 3D shading)
   let activeCells = 0;
   let solidCells = 0;
   let paperCells = 0;
   let paperStrokeCells = 0;
   let darkDeskCells = 0;
+  let darkStrokeCells = 0;
+  let uniformDeskCells = 0;
   let centerSubjectCells = 0;
   let centerPaperCells = 0;
 
@@ -370,11 +374,15 @@ export function classifyImageContent(canvas) {
     const lumaRange = cellMaxLuma[c] - cellMinLuma[c];
 
     const isCenterCol = gx >= 3 && gx <= 12;
-    const isCenterBodyZone = gx >= 4 && gx <= 11 && gy >= 4 && gy <= 14;
+    const isCenterBodyZone = gx >= 4 && gx <= 11 && gy >= 4 && gy <= 12;
 
-    // Dark desk / background cell (very dark, low saturation, mostly smooth)
-    if (meanLuma < 52 && meanSat < 0.35 && smoothFrac >= 0.55 && skinFrac < 0.02) {
+    // Dark desk / background cell (very dark, low saturation, mostly smooth or containing thin white inverted strokes)
+    if ((meanLuma < 60 || (cellMinLuma[c] < 45 && cellMaxLuma[c] >= 140 && meanLuma < 115)) && meanSat < 0.35 && smoothFrac >= 0.40 && skinFrac < 0.02) {
       darkDeskCells++;
+      uniformDeskCells++;
+      if (cellMaxLuma[c] >= 140 && lumaRange >= 85 && edgeFrac >= 0.012) {
+        darkStrokeCells++;
+      }
     }
     // Paper sheet cell (either blank smooth paper or paper with thin dark ink strokes)
     else if (meanLuma >= 84 && cellMaxLuma[c] >= 110 && meanSat < 0.25 && skinFrac < 0.03 && (smoothFrac >= 0.48 || (smoothFrac >= 0.30 && edgeFrac >= 0.04 && lumaRange >= 45))) {
@@ -384,6 +392,10 @@ export function classifyImageContent(canvas) {
       if (lumaRange >= 42 && edgeFrac >= 0.015 && cellMinLuma[c] < meanLuma - 22) {
         paperStrokeCells++;
       }
+    }
+    // Flat uniform wooden/colored desk or wall cell (smooth, textureless surface)
+    else if (smoothFrac >= 0.76 && lumaRange < 30 && edgeFrac < 0.015) {
+      uniformDeskCells++;
     } else if (cellNonPaper[c] / n > 0.72) {
       solidCells++;
       if (isCenterCol && gy >= 3 && gy <= 14 && meanLuma >= 35) {
@@ -393,9 +405,10 @@ export function classifyImageContent(canvas) {
   }
 
   const solidCellRatio = activeCells > 0 ? solidCells / activeCells : 0;
-  const nonDeskCells = Math.max(1, activeCells - darkDeskCells);
+  const nonDeskCells = Math.max(1, activeCells - uniformDeskCells);
   const paperShareOfNonDesk = paperCells / nonDeskCells;
   const paperTotalRatio = activeCells > 0 ? paperCells / activeCells : 0;
+  const darkDeskRatio = activeCells > 0 ? darkDeskCells / activeCells : 0;
 
   const meanRg = sumRg / sampleCount;
   const meanYb = sumYb / sampleCount;
@@ -412,7 +425,21 @@ export function classifyImageContent(canvas) {
   const aspect = w / h;
 
   // 1. Transparent PNG with ink/text strokes and low skin -> Definite Signature / Text graphic
-  if (transparentRatio > 0.35 && inkRatio > 0.0003 && inkRatio < 0.40 && skinRatio < 0.02) {
+  // Require (transparentRatio + inkRatio) >= 0.88 so cutout portrait PNGs on transparent backgrounds (like face_trans.png) are never mistaken for signatures!
+  if (transparentRatio > 0.35 && (transparentRatio + inkRatio) >= 0.88 && inkRatio > 0.0003 && inkRatio < 0.40 && skinRatio < 0.02 && solidCellRatio < 0.12) {
+    return 'signature';
+  }
+
+  // 1b. Inverted White-on-Dark Signature (exact bimodal mirror of dark-on-white: dark background >= 65% + bright white strokes 0.05%..25%)
+  if (
+    (darkDeskRatio >= 0.60 || inkRatio >= 0.65) &&
+    bimodalRatio >= 0.80 &&
+    paperRatio >= 0.0005 &&
+    paperRatio <= 0.25 &&
+    skinRatio < 0.02 &&
+    satRatio < 0.08 &&
+    colorfulness < 24
+  ) {
     return 'signature';
   }
 
@@ -421,32 +448,32 @@ export function classifyImageContent(canvas) {
     return 'signature';
   }
 
-  // 3. Notebook / Paper Sheet with Ink Strokes (including phone photos where part of the frame is a dark desk/table!)
-  // E.g. user_spiral_sig.jpg: top 35% is dark desk (darkDeskCells), bottom 65% is smooth paper (paperCells) with cursive ink strokes (paperStrokeCells >= 2)
+  // 3. Notebook / Paper Slip with Ink Strokes on ANY Desk Surface (Dark desk, Wooden table, Colored mat on 1, 2, or all 4 sides)
+  // In a photo of a paper slip on a desk, the central region is occupied by smooth paper cells (centerPaperCells) containing sharp ink strokes (paperStrokeCells >= 2),
+  // whereas in a portrait photo the central region is occupied by the human subject (centerSubjectCells).
   if (
-    paperTotalRatio >= 0.35 &&
-    paperShareOfNonDesk >= 0.62 &&
+    paperTotalRatio >= 0.15 &&
+    paperShareOfNonDesk >= 0.50 &&
+    centerPaperCells >= 6 &&
     paperStrokeCells >= 2 &&
-    centerPaperCells > centerSubjectCells * 2 &&
-    skinRatio < 0.025 &&
-    satRatio < 0.08 &&
-    colorfulness < 24
+    centerPaperCells > centerSubjectCells * 2.5 &&
+    ((skinRatio < 0.025 && satRatio < 0.08 && colorfulness < 24) || (uniformDeskCells >= activeCells * 0.25 && centerSubjectCells === 0))
   ) {
     return 'signature';
   }
 
   // 4. Definite Photos: significant human skin tones, rich multi-color scene, or large central portrait subject mass
-  if (skinRatio > 0.035 || (colorfulness > 24 && satRatio > 0.12) || solidCellRatio > 0.22 || inkRatio > 0.38) {
+  if (skinRatio > 0.025 || (colorfulness > 24 && satRatio > 0.12) || solidCellRatio > 0.22 || inkRatio > 0.38) {
     return 'photo';
   }
 
   // 5. Signatures & Text-Based Pictures on Paper (works for ANY aspect ratio: 16:9, 4:3, 1:1, or 3:4 phone photo of paper)
-  if (paperRatio >= 0.50 && bimodalRatio >= 0.74 && inkRatio >= 0.0003 && inkRatio <= 0.36 && skinRatio < 0.025 && solidCellRatio < 0.14 && colorfulness < 24) {
+  if (paperRatio >= 0.50 && bimodalRatio >= 0.74 && inkRatio >= 0.0003 && inkRatio <= 0.36 && skinRatio < 0.02 && solidCellRatio < 0.14 && colorfulness < 24) {
     return 'signature';
   }
 
   // 6. Shaded / dimly lit phone photo of paper with handwriting or text
-  if (paperTotalRatio >= 0.42 && paperStrokeCells >= 1 && skinRatio < 0.02 && solidCellRatio < 0.12 && colorfulness < 20) {
+  if (paperTotalRatio >= 0.42 && paperStrokeCells >= 1 && skinRatio < 0.018 && solidCellRatio < 0.12 && colorfulness < 20) {
     return 'signature';
   }
 
@@ -514,16 +541,25 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   const imgData = ctx.getImageData(0, 0, w, h);
   const src = imgData.data;
 
-  // Step 1: Grayscale (luma) and Min(R,G,B) channel, pick higher contrast
+  // Step 1: Alpha-composite onto white (fixes transparent PNG signatures like sig_transparent.png)
+  // and compute Grayscale (luma), Min(R,G,B), and Saturation channels
   const gray = new Float32Array(w * h);
   const minRGB = new Float32Array(w * h);
+  const satArr = new Float32Array(w * h);
   let sumLuma = 0, sumMin = 0;
 
   for (let i = 0, j = 0; i < src.length; i += 4, j++) {
-    const luma = 0.299 * src[i] + 0.587 * src[i + 1] + 0.114 * src[i + 2];
-    const m = Math.min(src[i], src[i + 1], src[i + 2]);
+    const a = src[i + 3] / 255;
+    const r = src[i] * a + 255 * (1 - a);
+    const g = src[i + 1] * a + 255 * (1 - a);
+    const b = src[i + 2] * a + 255 * (1 - a);
+
+    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+    const m = Math.min(r, g, b);
+    const mx = Math.max(r, g, b);
     gray[j] = luma;
     minRGB[j] = m;
+    satArr[j] = mx === 0 ? 0 : (mx - m) / Math.max(75, mx);
     sumLuma += luma;
     sumMin += m;
   }
@@ -531,47 +567,76 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   // Use channel with better dynamic contrast (lower mean darkness)
   const activeGray = (sumMin / (w * h) < sumLuma / (w * h) * 0.9) ? minRGB : gray;
 
+  // Step 1b: Polarity check BEFORE illumination estimation
+  // If the entire image is a white/bright signature on a dark background (e.g. sig_inverted.jpg),
+  // invert activeGray first so bgEstimate and norm treat the background as bright paper and strokes as dark ink!
+  const rawSamples = [];
+  const rawStep = Math.max(1, Math.floor(activeGray.length / 2500));
+  for (let i = 0; i < activeGray.length; i += rawStep) {
+    rawSamples.push(activeGray[i]);
+  }
+  rawSamples.sort((a, b) => a - b);
+  const rawMedian = rawSamples[Math.floor(rawSamples.length * 0.50)] || 128;
+  const rawP80 = rawSamples[Math.floor(rawSamples.length * 0.80)] || 180;
+  const isInverted = rawMedian < 70 && rawP80 < 95;
+
+  if (isInverted) {
+    for (let i = 0; i < activeGray.length; i++) {
+      activeGray[i] = 255 - activeGray[i];
+      satArr[i] = 0;
+    }
+  }
+
   // Step 2: Illumination correction with large-radius box blur (~5% of longest side)
   const blurRadius = Math.max(8, Math.round(Math.max(w, h) * 0.05));
   const bgEstimate = boxBlur2D(activeGray, w, h, blurRadius);
+  const bgSatEstimate = boxBlur2D(satArr, w, h, Math.max(6, Math.round(blurRadius * 0.5)));
 
-  // Step 2b: Detect paper sheet illumination reference (80th percentile of bgEstimate)
-  // This separates the bright/shaded paper surface from any dark desk or table outside the notebook.
+  // Step 2b: Detect paper sheet illumination & chroma reference
+  // Separates the bright/shaded low-chroma paper surface from any dark desk, brown wooden table, or colored mat outside the paper.
   const bgSamples = [];
+  const satSamples = [];
   const bgStep = Math.max(1, Math.floor(bgEstimate.length / 2500));
   for (let i = 0; i < bgEstimate.length; i += bgStep) {
     bgSamples.push(bgEstimate[i]);
+    if (bgEstimate[i] >= 95) satSamples.push(bgSatEstimate[i]);
   }
   bgSamples.sort((a, b) => a - b);
+  satSamples.sort((a, b) => a - b);
   const paperRefBg = bgSamples[Math.floor(bgSamples.length * 0.80)] || 180;
-  const medianRawBg = bgSamples[Math.floor(bgSamples.length * 0.50)] || 140;
+  const paperRefSat = satSamples.length > 0 ? (satSamples[Math.floor(satSamples.length * 0.35)] || 0.08) : 0.08;
 
-  // Minimum local background luminance required for a pixel to be considered part of the paper sheet
-  // (Only active when paperRefBg is reasonably bright >= 95, so inverted dark-mode canvases aren't masked out)
   const hasBrightPaperSheet = paperRefBg >= 95;
   const minPaperBg = hasBrightPaperSheet ? Math.max(58, paperRefBg * 0.55) : 0;
+  const maxPaperSat = Math.min(0.42, paperRefSat + 0.22);
 
-  // Detect physical paper boundaries (e.g. when top 35% of photo is a dark desk like in user_spiral_sig.jpg)
+  const isPaperSurface = (idx) => {
+    if (!hasBrightPaperSheet) return true;
+    return bgEstimate[idx] >= minPaperBg && bgSatEstimate[idx] <= maxPaperSat;
+  };
+
+  // Detect 4-sided physical paper boundaries (Top, Bottom, Left, Right)
   let paperTopY = 0;
   let paperBottomY = h - 1;
   let paperLeftX = 0;
   let paperRightX = w - 1;
 
   if (hasBrightPaperSheet) {
-    const xStart = Math.round(w * 0.10);
-    const xEnd = Math.round(w * 0.90);
+    const xStart = Math.round(w * 0.12);
+    const xEnd = Math.round(w * 0.88);
     const xSpan = Math.max(1, xEnd - xStart);
 
-    // Scan from top to find first row that is predominantly paper (>= 55% of row has bgEstimate >= minPaperBg)
+    // Scan from top to find first row that is predominantly paper
     for (let y = 0; y < h; y++) {
       let paperRowPixels = 0;
       const rowOff = y * w;
       for (let x = xStart; x < xEnd; x += 2) {
-        if (bgEstimate[rowOff + x] >= minPaperBg && activeGray[rowOff + x] >= minPaperBg * 0.75) {
+        const idx = rowOff + x;
+        if (isPaperSurface(idx) && activeGray[idx] >= minPaperBg * 0.75) {
           paperRowPixels += 2;
         }
       }
-      if (paperRowPixels / xSpan >= 0.55) {
+      if (paperRowPixels / xSpan >= 0.45) {
         paperTopY = y;
         break;
       }
@@ -582,22 +647,57 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
       let paperRowPixels = 0;
       const rowOff = y * w;
       for (let x = xStart; x < xEnd; x += 2) {
-        if (bgEstimate[rowOff + x] >= minPaperBg && activeGray[rowOff + x] >= minPaperBg * 0.75) {
+        const idx = rowOff + x;
+        if (isPaperSurface(idx) && activeGray[idx] >= minPaperBg * 0.75) {
           paperRowPixels += 2;
         }
       }
-      if (paperRowPixels / xSpan >= 0.55) {
+      if (paperRowPixels / xSpan >= 0.45) {
         paperBottomY = y;
+        break;
+      }
+    }
+
+    const yStart = Math.max(paperTopY, Math.round(h * 0.12));
+    const yEnd = Math.min(paperBottomY, Math.round(h * 0.88));
+    const ySpan = Math.max(1, yEnd - yStart);
+
+    // Scan from left to find first column that is predominantly paper
+    for (let x = 0; x < w; x++) {
+      let paperColPixels = 0;
+      for (let y = yStart; y < yEnd; y += 2) {
+        const idx = y * w + x;
+        if (isPaperSurface(idx) && activeGray[idx] >= minPaperBg * 0.75) {
+          paperColPixels += 2;
+        }
+      }
+      if (paperColPixels / ySpan >= 0.45) {
+        paperLeftX = x;
+        break;
+      }
+    }
+
+    // Scan from right to find last column that is predominantly paper
+    for (let x = w - 1; x >= paperLeftX; x--) {
+      let paperColPixels = 0;
+      for (let y = yStart; y < yEnd; y += 2) {
+        const idx = y * w + x;
+        if (isPaperSurface(idx) && activeGray[idx] >= minPaperBg * 0.75) {
+          paperColPixels += 2;
+        }
+      }
+      if (paperColPixels / ySpan >= 0.45) {
+        paperRightX = x;
         break;
       }
     }
   }
 
   // Compute illumination-flattened normalized image (255 = pure paper, < 255 = darker strokes)
-  // Pixels outside the paper sheet (in a dark desk/background) are clamped to 255 (paper white) so they never become fake ink.
+  // Pixels outside the paper sheet (in a dark or wooden desk/background) are clamped to 255 (paper white) so they never become fake ink.
   const norm = new Float32Array(w * h);
   for (let i = 0; i < norm.length; i++) {
-    if (hasBrightPaperSheet && bgEstimate[i] < minPaperBg) {
+    if (!isPaperSurface(i)) {
       norm[i] = 255;
       continue;
     }
@@ -606,46 +706,34 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     norm[i] = Math.max(0, Math.min(255, val));
   }
 
-  // Step 3: Polarity check: only invert if the entire image is a white-ink-on-dark-canvas graphic
-  const sampleValues = [];
-  const step = Math.max(1, Math.floor(norm.length / 2000));
-  for (let i = 0; i < norm.length; i += step) {
-    sampleValues.push(norm[i]);
-  }
-  sampleValues.sort((a, b) => a - b);
-  const medianNorm = sampleValues[Math.floor(sampleValues.length / 2)] || 128;
-  const isInverted = !hasBrightPaperSheet && medianRawBg < 80 && medianNorm < 110;
-
-  if (isInverted) {
-    for (let i = 0; i < norm.length; i++) {
-      norm[i] = 255 - norm[i];
-    }
-  }
-
-  // Step 5: Ignore outer 2.5% margin + any non-paper desk band at top/bottom
+  // Step 5: Ignore outer 2.5% margin + any non-paper desk band on all 4 sides (top/bottom/left/right)
   const marginX = Math.round(w * 0.025);
   const marginY = Math.round(h * 0.025);
-  // If a dark desk exists above the paper (paperTopY > 5% of height), advance effectiveTopY past the paper edge & spiral binding halo
-  const hasTopDeskBoundary = paperTopY > h * 0.05;
-  const hasBottomDeskBoundary = paperBottomY < h * 0.95;
+  const hasTopDeskBoundary = paperTopY > h * 0.04;
+  const hasBottomDeskBoundary = paperBottomY < h * 0.96;
+  const hasLeftDeskBoundary = paperLeftX > w * 0.04;
+  const hasRightDeskBoundary = paperRightX < w * 0.96;
+
   const effectiveTopY = Math.max(marginY, hasTopDeskBoundary ? Math.min(h - marginY - 10, paperTopY + Math.round(h * 0.025)) : marginY);
   const effectiveBottomY = Math.min(h - marginY, hasBottomDeskBoundary ? Math.max(effectiveTopY + 10, paperBottomY - Math.round(h * 0.025)) : h - marginY);
+  const effectiveLeftX = Math.max(marginX, hasLeftDeskBoundary ? Math.min(w - marginX - 10, paperLeftX + Math.round(w * 0.025)) : marginX);
+  const effectiveRightX = Math.min(w - marginX, hasRightDeskBoundary ? Math.max(effectiveLeftX + 10, paperRightX - Math.round(w * 0.025)) : w - marginX);
 
   // Step 4: Otsu thresholding on the valid paper region
-  let threshold = otsuThreshold(norm, w, h, marginX, Math.max(marginY, Math.floor(effectiveTopY * 0.8)));
+  let threshold = otsuThreshold(norm, w, h, Math.max(marginX, Math.floor(effectiveLeftX * 0.8)), Math.max(marginY, Math.floor(effectiveTopY * 0.8)));
   // Ensure threshold is tight enough to reject subtle paper shading noise (cap at <= 222)
   threshold = Math.min(222, threshold);
 
   // Initial ink mask (ink pixels are darker than local paper background, so norm < threshold)
   let mask = new Uint8Array(w * h);
   let inkCount = 0;
-  const analysisCount = Math.max(1, (w - marginX * 2) * (effectiveBottomY - effectiveTopY));
+  const analysisCount = Math.max(1, (effectiveRightX - effectiveLeftX) * (effectiveBottomY - effectiveTopY));
 
   for (let y = effectiveTopY; y < effectiveBottomY; y++) {
     const row = y * w;
-    for (let x = marginX; x < w - marginX; x++) {
+    for (let x = effectiveLeftX; x < effectiveRightX; x++) {
       const idx = row + x;
-      if (hasBrightPaperSheet && bgEstimate[idx] < minPaperBg) continue;
+      if (!isPaperSurface(idx)) continue;
       if (norm[idx] < threshold) {
         mask[idx] = 1;
         inkCount++;
@@ -661,9 +749,9 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     const paperNormSamples = [];
     for (let y = effectiveTopY; y < effectiveBottomY; y += 2) {
       const row = y * w;
-      for (let x = marginX; x < w - marginX; x += 2) {
+      for (let x = effectiveLeftX; x < effectiveRightX; x += 2) {
         const idx = row + x;
-        if (!hasBrightPaperSheet || bgEstimate[idx] >= minPaperBg) {
+        if (isPaperSurface(idx)) {
           paperNormSamples.push(norm[idx]);
         }
       }
@@ -676,9 +764,9 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     inkCount = 0;
     for (let y = effectiveTopY; y < effectiveBottomY; y++) {
       const row = y * w;
-      for (let x = marginX; x < w - marginX; x++) {
+      for (let x = effectiveLeftX; x < effectiveRightX; x++) {
         const idx = row + x;
-        if (hasBrightPaperSheet && bgEstimate[idx] < minPaperBg) continue;
+        if (!isPaperSurface(idx)) continue;
         if (norm[idx] < threshold) {
           mask[idx] = 1;
           inkCount++;
@@ -711,51 +799,131 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
     };
   }
 
-  // Step 6: Connected components denoise + Spiral Binding / Border / Outlier Rejection
+  // Step 5b: Strip thin full-width horizontal ruled lines (and thin full-height vertical margin lines)
+  // before Connected Component Labeling so signatures crossing lined notebook paper never merge with full-width lines!
+  const paperSpanW = Math.max(1, effectiveRightX - effectiveLeftX);
+  const paperSpanH = Math.max(1, effectiveBottomY - effectiveTopY);
+  const maxRuledThickness = Math.max(3, Math.round(Math.min(w, h) * 0.008));
+
+  for (let y = effectiveTopY; y < effectiveBottomY; y++) {
+    let rowInk = 0;
+    let thinVertRuns = 0;
+    const rowOff = y * w;
+    for (let x = effectiveLeftX; x < effectiveRightX; x++) {
+      if (mask[rowOff + x]) {
+        rowInk++;
+        // Check vertical thickness of ink at (x, y)
+        let vRun = 1;
+        for (let dy = 1; dy <= maxRuledThickness + 1 && y - dy >= 0; dy++) {
+          if (mask[(y - dy) * w + x]) vRun++; else break;
+        }
+        for (let dy = 1; dy <= maxRuledThickness + 1 && y + dy < h; dy++) {
+          if (mask[(y + dy) * w + x]) vRun++; else break;
+        }
+        if (vRun <= maxRuledThickness) thinVertRuns++;
+      }
+    }
+    // If > 68% of the paper width on this row is covered by a thin horizontal line, clear the thin line segments
+    // while keeping thicker signature strokes (vRun > maxRuledThickness) intact!
+    if (rowInk > paperSpanW * 0.68 && thinVertRuns > rowInk * 0.72) {
+      for (let x = effectiveLeftX; x < effectiveRightX; x++) {
+        if (!mask[rowOff + x]) continue;
+        let vRun = 1;
+        for (let dy = 1; dy <= maxRuledThickness + 1 && y - dy >= 0; dy++) {
+          if (mask[(y - dy) * w + x]) vRun++; else break;
+        }
+        for (let dy = 1; dy <= maxRuledThickness + 1 && y + dy < h; dy++) {
+          if (mask[(y + dy) * w + x]) vRun++; else break;
+        }
+        if (vRun <= maxRuledThickness) {
+          mask[rowOff + x] = 0;
+        }
+      }
+    }
+  }
+
+  // Step 6: Connected components denoise + 4-Sided Spiral Binding / Border Frame / Outlier Rejection
   const { components, labels, uf } = getConnectedComponents(mask, w, h);
   const totalArea = w * h;
 
-  // Define the spiral binding / punched-hole hazard zone along the top edge of the paper
-  const spiralZoneMaxY = hasTopDeskBoundary
-    ? paperTopY + Math.round(h * 0.115)
-    : Math.round(h * 0.14);
+  // Define 4-sided spiral binding / punched-hole hazard zones along Top, Bottom, Left, and Right paper edges
+  const topHazardMaxY = (hasTopDeskBoundary ? paperTopY : 0) + Math.round(h * 0.125);
+  const bottomHazardMinY = (hasBottomDeskBoundary ? paperBottomY : h - 1) - Math.round(h * 0.125);
+  const leftHazardMaxX = (hasLeftDeskBoundary ? paperLeftX : 0) + Math.round(w * 0.135);
+  const rightHazardMinX = (hasRightDeskBoundary ? paperRightX : w - 1) - Math.round(w * 0.135);
 
-  // Identify substantial interior components (not in the spiral hazard zone and not touching outer borders)
+  // Detect hollow rectangular enclosing border frames (e.g. sig_with_border.png or printed signature boxes on forms)
+  const isHollowBorderFrame = (c) => {
+    const boxArea = c.w * c.h;
+    const fillDensity = c.count / Math.max(1, boxArea);
+    if (c.w > w * 0.58 && c.h > h * 0.45 && boxArea > totalArea * 0.28 && fillDensity < 0.15) {
+      // Verify at least one substantial interior component sits strictly inside this frame
+      return components.some(inner =>
+        inner !== c &&
+        inner.count > totalArea * 0.0003 &&
+        inner.minX > c.minX + 3 && inner.maxX < c.maxX - 3 &&
+        inner.minY > c.minY + 3 && inner.maxY < c.maxY - 3
+      );
+    }
+    return false;
+  };
+
+  // Identify substantial interior components (not a hollow border frame, not in any 4-sided spiral hazard zone, and not touching outer borders)
   const interiorLargeComps = components.filter(c => {
     if (c.count <= totalArea * 0.0004) return false;
-    const inSpiralZone = c.maxY <= spiralZoneMaxY && (hasTopDeskBoundary || c.minY <= h * 0.06);
+    if (isHollowBorderFrame(c)) return false;
+    const inTopSpiral = c.maxY <= topHazardMaxY;
+    const inBottomSpiral = c.minY >= bottomHazardMinY;
+    const inLeftSpiral = c.maxX <= leftHazardMaxX;
+    const inRightSpiral = c.minX >= rightHazardMinX;
     const touchesOuterEdge = c.minY <= effectiveTopY + 3 || c.maxY >= effectiveBottomY - 3 ||
-                             c.minX <= marginX + 3 || c.maxX >= w - marginX - 3;
-    return !inSpiralZone && !touchesOuterEdge;
+                             c.minX <= effectiveLeftX + 3 || c.maxX >= effectiveRightX - 3;
+    return !inTopSpiral && !inBottomSpiral && !inLeftSpiral && !inRightSpiral && !touchesOuterEdge;
   });
 
   const referenceLargeComps = interiorLargeComps.length > 0
     ? interiorLargeComps
-    : components.filter(c => c.count > totalArea * 0.0005);
+    : components.filter(c => c.count > totalArea * 0.0005 && !isHollowBorderFrame(c));
 
   const candidateComponents = [];
 
   for (const c of components) {
-    // Rule A: Drop ultra-thin straight border/ruled notebook lines spanning > 78% of image width
-    if (c.w > w * 0.78 && c.h <= Math.max(4, Math.round(h * 0.015)) && (c.w / Math.max(1, c.h)) > 40 && referenceLargeComps.length > 1) {
+    // Rule A1: Drop hollow rectangular border frames enclosing the signature (e.g. sig_with_border.png)
+    if (isHollowBorderFrame(c)) {
       continue;
     }
 
-    // Rule B: If we have valid interior signature components, reject spiral binding / punched holes along the top paper edge
+    // Rule A2: Drop ultra-thin straight border/ruled notebook lines spanning > 75% of image width or height
+    if (c.w > w * 0.75 && c.h <= Math.max(4, Math.round(h * 0.016)) && (c.w / Math.max(1, c.h)) > 35 && referenceLargeComps.length > 1) {
+      continue;
+    }
+    if (c.h > h * 0.75 && c.w <= Math.max(4, Math.round(w * 0.016)) && (c.h / Math.max(1, c.w)) > 35 && referenceLargeComps.length > 1) {
+      continue;
+    }
+
+    // Rule B: If we have valid interior signature components, reject spiral binding / punched holes along ALL 4 paper edges
     // and reject cut-off stray marks touching the outer frame borders!
     if (interiorLargeComps.length > 0) {
-      // 1. Component sits inside the top spiral-binding / punched-hole zone (e.g. y = 330..450 in user_spiral_sig.jpg)
-      if (hasTopDeskBoundary && c.minY <= spiralZoneMaxY && c.maxY <= spiralZoneMaxY + Math.round(h * 0.03)) {
+      // 1. Top or Bottom spiral binding / punched-hole zone
+      if (c.maxY <= topHazardMaxY + Math.round(h * 0.02) && (hasTopDeskBoundary || c.minY <= effectiveTopY + Math.round(h * 0.04) || c.w < w * 0.14)) {
         continue;
       }
-      // 2. Component touches the top paper boundary (spiral wire hanging from top edge)
-      if (c.minY <= effectiveTopY + Math.round(h * 0.015) && c.maxY < h * 0.48) {
+      if (c.minY >= bottomHazardMinY - Math.round(h * 0.02) && (hasBottomDeskBoundary || c.maxY >= effectiveBottomY - Math.round(h * 0.04) || c.w < w * 0.14)) {
         continue;
       }
-      // 3. Component touches the very bottom/left/right camera frame edge (e.g. cut-off stray pen loop at bottom of user_spiral_sig.jpg)
-      const touchesBottomEdge = c.maxY >= effectiveBottomY - Math.max(4, Math.round(h * 0.01));
-      const touchesSideEdge = c.minX <= marginX + 2 || c.maxX >= w - marginX - 2;
-      if ((touchesBottomEdge || touchesSideEdge) && c.w < w * 0.35) {
+      // 2. Left or Right spiral binding / punched-hole zone (e.g. left-bound spiral notebook)
+      if (c.maxX <= leftHazardMaxX + Math.round(w * 0.02) && (hasLeftDeskBoundary || c.minX <= effectiveLeftX + Math.round(w * 0.04) || c.h < h * 0.14)) {
+        continue;
+      }
+      if (c.minX >= rightHazardMinX - Math.round(w * 0.02) && (hasRightDeskBoundary || c.maxX >= effectiveRightX - Math.round(w * 0.04) || c.h < h * 0.14)) {
+        continue;
+      }
+      // 3. Component touches any of the 4 outer paper/frame boundaries and doesn't span the central signature area
+      const touchesTop = c.minY <= effectiveTopY + Math.round(h * 0.015) && c.maxY < h * 0.48;
+      const touchesBottom = c.maxY >= effectiveBottomY - Math.max(4, Math.round(h * 0.015)) && c.minY > h * 0.52;
+      const touchesLeft = c.minX <= effectiveLeftX + Math.round(w * 0.015) && c.maxX < w * 0.42;
+      const touchesRight = c.maxX >= effectiveRightX - Math.max(4, Math.round(w * 0.015)) && c.minX > w * 0.58;
+      if (touchesTop || touchesBottom || touchesLeft || touchesRight) {
         continue;
       }
     }
@@ -783,8 +951,8 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
   // (like any remaining hole or distant stray mark) never stretches the signature crop box!
   let keptComponents = candidateComponents;
   if (candidateComponents.length > 1) {
-    const gapY = Math.max(18, Math.round(h * 0.06));
-    const gapX = Math.max(32, Math.round(w * 0.22));
+    const gapY = Math.max(16, Math.round(h * 0.055));
+    const gapX = Math.max(24, Math.round(w * 0.12));
     const clusters = [];
 
     for (const comp of candidateComponents) {
@@ -849,15 +1017,21 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
 
     if (clusters.length > 1) {
       const paperCenterY = (effectiveTopY + effectiveBottomY) / 2;
-      const paperSpanH = Math.max(1, effectiveBottomY - effectiveTopY);
+      const paperCenterX = (effectiveLeftX + effectiveRightX) / 2;
 
       for (const cl of clusters) {
         const cy = (cl.minY + cl.maxY) / 2;
+        const cx = (cl.minX + cl.maxX) / 2;
         const distFromPaperCenterY = Math.abs(cy - paperCenterY) / (paperSpanH * 0.5);
-        const centerWeight = Math.max(0.35, 1.15 - distFromPaperCenterY * 0.65);
-        // Penalize clusters that look like a row of small disconnected holes (many tiny components with low average width)
+        const distFromPaperCenterX = Math.abs(cx - paperCenterX) / (paperSpanW * 0.5);
+        const centerWeight = Math.max(0.30, 1.15 - (distFromPaperCenterY * 0.45 + distFromPaperCenterX * 0.35));
+        // Penalize clusters that look like a row or column of small disconnected holes
         const avgCompW = cl.comps.reduce((acc, c) => acc + c.w, 0) / cl.comps.length;
-        const holePenalty = (cl.comps.length >= 4 && avgCompW < w * 0.06 && cl.minY < effectiveTopY + paperSpanH * 0.25) ? 0.12 : 1.0;
+        const avgCompH = cl.comps.reduce((acc, c) => acc + c.h, 0) / cl.comps.length;
+        const isBorderHoleRowOrCol = cl.comps.length >= 3 && avgCompW < w * 0.07 && avgCompH < h * 0.07 &&
+          (cl.minY < effectiveTopY + paperSpanH * 0.22 || cl.maxY > effectiveBottomY - paperSpanH * 0.22 ||
+           cl.minX < effectiveLeftX + paperSpanW * 0.22 || cl.maxX > effectiveRightX - paperSpanW * 0.22);
+        const holePenalty = isBorderHoleRowOrCol ? 0.08 : 1.0;
         cl.score = cl.count * Math.pow(Math.max(10, cl.w), 0.65) * centerWeight * holePenalty;
       }
 
@@ -871,9 +1045,11 @@ export function processSignature(sourceCanvas, targetW, targetH, options = {}) {
         const cl = clusters[i];
         const vertDist = Math.max(0, cl.minY - mainCluster.maxY, mainCluster.minY - cl.maxY);
         const horizDist = Math.max(0, cl.minX - mainCluster.maxX, mainCluster.minX - cl.maxX);
-        const sameLineWord = vertDist <= Math.max(20, mainCluster.h * 0.45) && horizDist <= w * 0.28;
+        const sameLineWord = vertDist <= Math.max(20, mainCluster.h * 0.45) && horizDist <= w * 0.24 &&
+                             cl.minX > effectiveLeftX + w * 0.05 && cl.maxX < effectiveRightX - w * 0.05;
         const validSecondLine = vertDist <= h * 0.22 && cl.w >= mainCluster.w * 0.42 && cl.count >= mainCluster.count * 0.22 &&
-                                cl.minY > effectiveTopY + h * 0.06 && cl.maxY < effectiveBottomY - h * 0.05;
+                                cl.minY > effectiveTopY + h * 0.06 && cl.maxY < effectiveBottomY - h * 0.05 &&
+                                cl.minX > effectiveLeftX + w * 0.06 && cl.maxX < effectiveRightX - w * 0.06;
         if (sameLineWord || validSecondLine) {
           finalComps.push(...cl.comps);
         }

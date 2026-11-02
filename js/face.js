@@ -273,9 +273,11 @@ export function validateFaceCandidate(face, canvas) {
           midToneOrganicCount++;
         }
 
-        // True chromatic human skin tone detection (strictly rejects warm indoor gray/beige paper)
-        const isSkin = !isPaper && sat >= 0.20 && sat <= 0.68 && luma >= 48 && luma <= 225 &&
-                       r > g && g >= b && (r - g) >= 18 && (r - b) >= 28;
+        // True chromatic human skin tone detection (strictly rejects warm indoor gray/beige paper,
+        // while supporting studio-lit fair/bright skin up to luma 242 when saturation and warm chroma are strong)
+        const isSkin = !isPaper && sat >= 0.20 && sat <= 0.68 && luma >= 48 && luma <= 242 &&
+                       r > g && g >= b && (r - g) >= 18 && (r - b) >= 28 &&
+                       (luma <= 225 || (sat >= 0.24 && (r - b) >= 40));
         if (isSkin) {
           skinCount++;
         }
@@ -477,8 +479,8 @@ export async function detectFacesWithLadder(workingCanvas, fullCanvas, workingSc
     return { success: false, faces: [], detectedAngle: 0, method: 'failed' };
   }
 
-  const isLandscape = workingCanvas.width > workingCanvas.height * 1.05;
-  const rotationAngles = isLandscape ? [90, 270, 180] : [180];
+  const isNotTallPortrait = workingCanvas.width >= workingCanvas.height * 0.98;
+  const rotationAngles = isNotTallPortrait ? [90, 270, 180] : [180];
   let bestRotResult = null;
 
   for (const deg of rotationAngles) {

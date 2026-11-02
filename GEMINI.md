@@ -18,3 +18,4 @@ ALL test files, test fixtures, test scripts, Playwright specs, test reports, aud
    - Audit / Markdown reports: `F:\Me & My Docs\1. Recent Projects\SnaSignFit extra files\SnapSignFit_Extra_Files\*.md` or `*.html`
 5. **If any model or script accidentally creates test or report files in the main project directory, they MUST be immediately relocated to `F:\Me & My Docs\1. Recent Projects\SnaSignFit extra files\SnapSignFit_Extra_Files`.**
 6. **Main repository contains ONLY production application code, styles, assets, and standard deployment configurations.**
+7. **ALWAYS write a clear, detailed summary in every Git commit message** (subject line + bulleted summary body describing the root causes fixed and features/files updated).
